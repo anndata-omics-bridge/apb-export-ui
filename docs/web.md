@@ -8,6 +8,12 @@
 - Outputs: any target on [APB Export targets](https://anndata-omics-bridge.github.io/apb-export/targets/), or an APB2 result as h5ad/h5mu, Parquet or DuckDB
 - QC: intensity density per sample, CV per feature within each annotation group, detected and missing counts
 
+## pMultiQC / QPX
+
+Choose this output to convert the upload into an APB result and immediately run the locked `apb-pmultiqc` application. Optional sample annotation and FASTA verification run before the report; grouping, organism, FASTA and SDRF are not required. RT is resolved through APB Export's chromatography catalogue, never through web-specific vendor-column mappings.
+
+After completion, **Open pMultiQC report** opens the self-contained HTML in a new tab. Downloads include `qpx.zip` (Parquet tables and exporter provenance), `pmultiqc_report.html`, and `pmultiqc.zip` (full report, data tables, logs and installed-source provenance). Only a completed job's listed report is served inline at `api/jobs/{id}/report`; deletion and expiry remove it with the job. Failures and timeouts remain failed jobs with a job log.
+
 ```bash
 uv sync --locked --group dev
 uv run --locked apb-export-web --store ./web-store --port 8770
@@ -28,7 +34,7 @@ The SDRF is an `sdrf.tsv` beside the input, else `<module>.sdrf.tsv` from `--exa
 ## Jobs
 
 - Each upload becomes a job folder
-- One worker runs the `apb-export` or `apb2` command in its own process
+- One worker runs the installed conversion and report commands in its own process group
 - The worker writes `status.json`, `qc.json` and the downloads; the server only serves them
 - Finished jobs are deleted after `--ttl-hours`
 

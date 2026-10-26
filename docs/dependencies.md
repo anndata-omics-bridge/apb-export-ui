@@ -20,3 +20,11 @@ The six packages are explicit application runtime requirements. Besides directly
 CI and image builds use locked synchronization and refuse a stale lockfile. APB source declarations contain neither local paths nor editable installs nor moving branch references. uv is pinned to 0.12.17 for development, CI and image builds.
 
 Local sibling checkouts are unnecessary. Production installs non-editable packages, and the clean-wheel/container acceptance checks verify installed Git commit metadata and sole ownership of the web executable.
+
+## Report environment (0.2.0)
+
+The QPX/report integration deliberately updates the exporter, APB2 and catalogue to the commits tested by the standalone report application, and adds an immutable `apb-pmultiqc` source pin. The initial extraction snapshot above remains historical. The manifest and committed lock are the current source of truth.
+
+`apb-pmultiqc` also pins MultiQC 1.35 and a tested pMultiQC source revision with the pending null-RT fix and pyOpenMS 3.5 compatibility, preserving Linux ARM builds. Its provenance and upstream status are documented in [the report application](https://github.com/anndata-omics-bridge/apb-pmultiqc/blob/main/docs/dependencies.md). The newer idXML peptide container is used in both search and consensus readers; QPX serialization remains in APB Export.
+
+All web tests and installed wheel/container checks use tiny synthetic uploads. No corpus run, real vendor download or large-dataset report is part of the UI gates. Report-generation failures remain failed jobs rather than exposing a partial report link.

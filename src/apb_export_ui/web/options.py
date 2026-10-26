@@ -112,7 +112,9 @@ def write_options(path: Path, max_upload_bytes: int) -> tuple[list[str], list[Ou
             "hints": load_hints()[0],
             "outputs": [{**asdict(output), "about": described[output.id]} for output in offered],
             "max_upload_bytes": max_upload_bytes,
-            "versions": {name: version(name) for name in ("apb-export", "apb2")},
+            "versions": {
+                name: version(name) for name in ("apb-export", "apb2", "apb-pmultiqc", "pmultiqc")
+            },
         },
     )
     return names, offered

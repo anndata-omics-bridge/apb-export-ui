@@ -70,7 +70,7 @@ def prefixed(base: str) -> Generator[str]:
             thread.join()
 
 
-def multipart() -> tuple[bytes, str]:
+def multipart(output: str = "apb-export:proteopy") -> tuple[bytes, str]:
     """Build a small DIA-NN upload using only the standard library."""
     columns = (
         "Run",
@@ -123,7 +123,7 @@ def multipart() -> tuple[bytes, str]:
     boundary = "apb-ui-smoke-boundary"
     parts = []
     for name, filename, value in (
-        ("output", None, "apb-export:proteopy"),
+        ("output", None, output),
         ("software", None, "DIA-NN"),
         ("data", "report.tsv", "\n".join(rows) + "\n"),
         (
@@ -181,6 +181,30 @@ def exercise(base: str) -> None:
         downloaded = request(urljoin(public, f"api/jobs/{job}/files/{output}"))
         assert downloaded.startswith(b"\x89HDF\r\n\x1a\n"), "download is not an HDF5 result"
         print("Assets, prefixed routes, synthetic conversion, QC and HDF5 download passed")
+        data, boundary = multipart("apb-export:qpx")
+        job = json.loads(
+            request(urljoin(public, "api/jobs"), data, f"multipart/form-data; boundary={boundary}")
+        )["id"]
+        deadline = time.monotonic() + 120
+        while time.monotonic() < deadline:
+            status = json.loads(request(urljoin(public, f"api/jobs/{job}/status.json")))
+            if status["state"] in ("done", "failed"):
+                break
+            time.sleep(0.2)
+        assert status.get("state") == "done", status
+        assert {item["name"] for item in status["files"]} == {
+            "pmultiqc.zip",
+            "pmultiqc_report.html",
+            "qpx.zip",
+        }
+        with urlopen(urljoin(public, f"api/jobs/{job}/report"), timeout=15) as report:
+            assert report.headers["Content-Type"].startswith("text/html")
+            assert report.read() == request(
+                urljoin(public, f"api/jobs/{job}/files/pmultiqc_report.html")
+            )
+        archive = request(urljoin(public, f"api/jobs/{job}/files/qpx.zip"))
+        assert archive.startswith(b"PK"), "QPX tables are not a ZIP archive"
+        print("Prefixed pMultiQC report, HTML download and QPX ZIP passed")
 
 
 def installed_check() -> str:
@@ -204,14 +228,16 @@ owners = [d.metadata["Name"] for d in metadata.distributions() if any(e.name == 
 assert owners == ["apb-export-ui"], owners
 import apb_export_ui
 assert {str(ROOT)!r} not in apb_export_ui.__file__, apb_export_ui.__file__
-print("Isolated installation owns the web executable and matches all six Git pins")
+print("Isolated installation owns the web executable and matches all declared Git pins")
 """
 
 
 def wheel_smoke() -> None:
     """Install the lock and wheel into a fresh environment outside the checkout."""
-    wheel = next((ROOT / "dist").glob("*.whl"))
-    with tarfile.open(next((ROOT / "dist").glob("*.tar.gz"))) as archive:
+    project = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]
+    stem = f"{project['name'].replace('-', '_')}-{project['version']}"
+    wheel = ROOT / "dist" / f"{stem}-py3-none-any.whl"
+    with tarfile.open(ROOT / "dist" / f"{stem}.tar.gz") as archive:
         names = archive.getnames()
         assert not any("node_modules" in name or "__pycache__" in name for name in names)
         for required in ("web/package.json", "web/package-lock.json", "web/src/app.ts", "uv.lock"):

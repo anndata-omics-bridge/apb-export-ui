@@ -27,6 +27,7 @@ def test_every_apb_runtime_has_one_immutable_source_and_lock_record() -> None:
         "apb-fasta",
         "protein-fasta",
         "prozor",
+        "apb-pmultiqc",
     }
     lock = tomllib.loads((ROOT / "uv.lock").read_text())
     packages = {package["name"]: package for package in lock["package"]}

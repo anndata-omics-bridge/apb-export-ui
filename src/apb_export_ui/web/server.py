@@ -308,6 +308,20 @@ class Api:
             raise HTTPException(404, "no such file")
         return FileResponse(path, filename=name)
 
+    def report(self, job_id: str) -> FileResponse:
+        """Open only a completed job's packaged HTML report, without forcing a download."""
+        job = self._job(job_id)
+        path = job.download("pmultiqc_report.html")
+        if job.status().state != "done" or path is None or not path.is_file():
+            raise HTTPException(404, "no report for this job")
+        return FileResponse(
+            path,
+            media_type="text/html",
+            filename="pmultiqc_report.html",
+            content_disposition_type="inline",
+            headers={"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"},
+        )
+
     def job_file(self, job_id: str, name: str) -> FileResponse:
         path = self._job(job_id).root / name
         if name not in _JOB_FILES or not path.is_file():
@@ -340,6 +354,7 @@ def create_app(
     app.add_api_route("/api/examples/{example_id}/head/{name}", api.example_head, methods=["GET"])
     app.add_api_route("/api/jobs", api.submit, methods=["POST"])
     app.add_api_route("/api/jobs/{job_id}/files/{name}", api.download, methods=["GET"])
+    app.add_api_route("/api/jobs/{job_id}/report", api.report, methods=["GET"])
     app.add_api_route("/api/jobs/{job_id}/{name}", api.job_file, methods=["GET"])
     app.add_api_route("/api/jobs/{job_id}", api.remove, methods=["DELETE"])
 

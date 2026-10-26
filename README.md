@@ -11,6 +11,8 @@ uv run --locked apb-export-web --store ./web-store --port 8770
 
 Open http://127.0.0.1:8770. Python 3.13 is the tested interpreter; Node 22 is used only for frontend development and builds. The installed wheel serves its packaged assets without Node.
 
+Choose **pMultiQC / QPX** to generate a report immediately. Finished jobs offer **Open pMultiQC report** in a new tab, plus downloads for QPX tables, the HTML and a full report bundle. Sample groups are optional; retention times come through the exporter catalogue.
+
 - [Web application](docs/web.md): uploads, examples, QC and job behavior
 - [Deployment](docs/deploy.md): image build, migration and rollback
 - [Dependency policy](docs/dependencies.md): immutable APB revisions and deliberate upgrades
@@ -27,6 +29,6 @@ make check-full
 
 ## Ownership
 
-Distribution: `apb-export-ui`; Python namespace: `apb_export_ui`; executable: `apb-export-web`. The HTTP and persisted job interfaces remain those of the original web application. Conversion stays in the installed `apb-export`, `apb2` and `apb-fasta` CLIs; sibling Python imports use only their public API modules.
+Distribution: `apb-export-ui`; Python namespace: `apb_export_ui`; executable: `apb-export-web`. Existing HTTP and persisted job interfaces remain supported; completed reports add an inline HTML route. Conversion stays in the installed `apb-export`, `apb2` and `apb-fasta` CLIs, and report execution in `apb-pmultiqc`; sibling Python imports use only their public API modules.
 
 Extracted from APB Export commit `10e1166363259f7746c8d03d9bb4c11947118e0c`. This repository includes the original MIT license and attribution. Real example data remains external.

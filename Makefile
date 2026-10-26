@@ -50,7 +50,7 @@ build:  ## Build and validate source and wheel distributions
 	$(VENV_BIN)/twine check dist/*
 
 image:  ## Build the application image from this repository alone
-	docker build --build-arg UI_REVISION=$(UI_REVISION) --build-arg EXPORTER_REVISION=$$($(VENV_BIN)/python -c 'import tomllib; print(next(d for d in tomllib.load(open("pyproject.toml", "rb"))["project"]["dependencies"] if d.startswith("apb-export @ ")).rsplit("@", 1)[1])') -t $(IMAGE):$(IMAGE_TAG) .
+	docker build --build-arg UI_REVISION=$(UI_REVISION) --build-arg EXPORTER_REVISION=$$($(VENV_BIN)/python -c 'import tomllib; print(next(d for d in tomllib.load(open("pyproject.toml", "rb"))["project"]["dependencies"] if d.startswith("apb-export @ ")).rsplit("@", 1)[1])') --build-arg REPORT_REVISION=$$($(VENV_BIN)/python -c 'import tomllib; print(next(d for d in tomllib.load(open("pyproject.toml", "rb"))["project"]["dependencies"] if d.startswith("apb-pmultiqc @ ")).rsplit("@", 1)[1])') -t $(IMAGE):$(IMAGE_TAG) .
 
 smoke-wheel:  ## Test a clean wheel installation and prefixed HTTP routes
 	$(VENV_BIN)/python scripts/smoke.py wheel
