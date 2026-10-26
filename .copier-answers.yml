@@ -1,0 +1,11 @@
+# This file is managed by Copier. Do not edit it manually.
+_src_path: /Users/wolski/projects/anndata_bridge/python_package_template
+author_email: wew@fgcz.ethz.ch
+author_name: Witold Wolski
+copyright_year: '2026'
+description: Locked web application for APB Export
+distribution_name: apb-export-ui
+license_spdx: MIT
+package_name: apb_export_ui
+project_name: APB Export UI
+python_min: '3.13'

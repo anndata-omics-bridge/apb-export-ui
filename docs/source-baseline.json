@@ -1,0 +1,33 @@
+{
+  "apb-export": {
+    "repository": "https://github.com/anndata-omics-bridge/apb-export.git",
+    "commit": "10e1166363259f7746c8d03d9bb4c11947118e0c",
+    "locked_commit": "cd4791fabe0108875357f04f51ef38ef6a4e7f26"
+  },
+  "apb2": {
+    "repository": "https://github.com/anndata-omics-bridge/apb2.git",
+    "commit": "f77b8b82b99df0743fc09a715415ecdb2b2e7076",
+    "locked_commit": "f77b8b82b99df0743fc09a715415ecdb2b2e7076"
+  },
+  "apb-catalog": {
+    "repository": "https://github.com/anndata-omics-bridge/apb-catalog.git",
+    "commit": "39af7cc8281a365e31cad84cb2357a449ed652e3",
+    "locked_commit": "39af7cc8281a365e31cad84cb2357a449ed652e3"
+  },
+  "apb-fasta": {
+    "repository": "https://github.com/anndata-omics-bridge/apb-fasta.git",
+    "commit": "5830b080542ed59ec4e40d7ca65e590c5beafe2e",
+    "locked_commit": "5830b080542ed59ec4e40d7ca65e590c5beafe2e"
+  },
+  "protein-fasta": {
+    "repository": "https://github.com/anndata-omics-bridge/protein-fasta.git",
+    "commit": "4048b16bcce895ca5d7a774d2ec0c11bb9bd34e2",
+    "locked_commit": "4048b16bcce895ca5d7a774d2ec0c11bb9bd34e2"
+  },
+  "prozor": {
+    "repository": "https://github.com/anndata-omics-bridge/prozor.git",
+    "commit": "9bc689ac9d38e6b01bdc833994b00cfc9cd9ced3",
+    "locked_commit": "ab7c41bdfbbe877d66236c5c33549b7747426ace",
+    "selection_note": "The local HEAD is an unpublished README-only commit; its public parent has identical src and pyproject.toml. Do not publish unrelated work."
+  }
+}
