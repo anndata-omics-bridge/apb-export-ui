@@ -15,6 +15,7 @@ import time
 import traceback
 from collections.abc import Callable
 from pathlib import Path
+from typing import override
 
 import anndata as ad
 import mudata as md
@@ -117,6 +118,15 @@ class Runner:
                 ),
             )
             return
+        self._apb_result(results, output.name)
+
+    def _apb_result(self, results: Path, format_name: str) -> None:
+        """Convert once and apply the optional annotation and FASTA before consumption."""
+        data = self.job.root / self.request.data
+        base = data.name if data.is_dir() else data.stem
+        annotation = self._path(self.request.annotation)
+        fasta = self._path(self.request.fasta)
+        results.mkdir(exist_ok=True)
         annotated_dir = results if fasta is None else self.job.root / "annotated"
         converted = annotated_dir if annotation is None else self.job.root / "converted"
         converted.mkdir(exist_ok=True)
@@ -128,7 +138,7 @@ class Runner:
                     "convert",
                     data,
                     "--format",
-                    output.name,
+                    format_name,
                     "--output",
                     converted / base,
                     *self._vendor_options(),
@@ -194,6 +204,40 @@ class Runner:
         self.status.files = [
             DownloadFile(path.name, path.stat().st_size) for path in sorted(downloads.iterdir())
         ]
+
+
+class QpxRunner(Runner):
+    """An APB result consumed by the installed report application, with QPX downloads."""
+
+    __slots__ = ()
+
+    @override
+    def convert(self, results: Path) -> None:
+        self._apb_result(self.job.root / "apb", "parquet")
+        (source,) = result_paths(self.job.root / "apb")
+        results.mkdir()
+        self._step(
+            "pmultiqc",
+            lambda: self._command([command("apb-pmultiqc"), source, results / "pmultiqc"]),
+        )
+
+    @override
+    def qc(self, results: Path) -> dict[str, object]:
+        columns = annotation_columns(self._path(self.request.annotation))
+        return {
+            "matrices": [
+                {"file": source.name, **summarize(matrix)}
+                for source in result_paths(self.job.root / "apb")
+                for matrix in parsed_matrices(source, columns)
+            ]
+        }
+
+    @override
+    def package(self, results: Path) -> None:
+        report = results / "pmultiqc"
+        shutil.copyfile(report / "multiqc_report.html", results / "pmultiqc_report.html")
+        shutil.make_archive(str(results / "qpx"), "zip", root_dir=report, base_dir="data.qpx")
+        super().package(results)
 
 
 def result_paths(folder: Path) -> list[Path]:
@@ -269,7 +313,9 @@ def parsed_matrices(path: Path, columns: list[str]) -> list[Matrix]:
 def main() -> None:
     """Run the job in ``sys.argv[1]`` and record its outcome; exit non-zero on failure."""
     job = Job(Path(sys.argv[1]))
-    runner = Runner(job)
+    runner = {"apb-export:qpx": QpxRunner}.get(Request.read(job.request_path).output.id, Runner)(
+        job
+    )
     try:
         runner.run()
     except StepFailed as error:

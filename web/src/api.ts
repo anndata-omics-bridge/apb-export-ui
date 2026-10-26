@@ -149,6 +149,7 @@ export const loadHead = async (id: string, name: string): Promise<Head> =>
 export const loadStatus = async (id: string): Promise<Status> => await json<Status>(`api/jobs/${id}/status.json`)
 export const loadQc = async (id: string): Promise<Qc> => await json<Qc>(`api/jobs/${id}/qc.json`)
 export const logUrl = (id: string): string => `api/jobs/${id}/job.log`
+export const reportUrl = (id: string): string => `api/jobs/${id}/report`
 export const fileUrl = (id: string, name: string): string =>
   `api/jobs/${id}/files/${encodeURIComponent(name)}`
 

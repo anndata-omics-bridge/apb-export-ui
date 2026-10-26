@@ -112,5 +112,23 @@
       }
     ],
     "group": "apb2"
+  },
+  "apb-export:qpx": {
+    "title": "pMultiQC / QPX",
+    "file": "HTML report + QPX (zip)",
+    "what": "Generate a pMultiQC quality report and download precursor and protein quantities as QPX Parquet tables. Sample groups are optional.",
+    "open": "Open the generated report in a new tab, or download it with the QPX tables.",
+    "version": "1.1",
+    "links": [
+      {
+        "label": "pMultiQC",
+        "url": "https://github.com/bigbio/pmultiqc"
+      },
+      {
+        "label": "QPX",
+        "url": "https://github.com/bigbio/qpx"
+      }
+    ],
+    "group": "tool"
   }
 }

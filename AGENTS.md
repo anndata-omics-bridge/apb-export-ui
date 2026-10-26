@@ -52,6 +52,7 @@ The closest `AGENTS.md` wins. Explicit user instructions override this file.
 ## Application boundary
 
 - This project owns the web frontend, HTTP server, job orchestration, QC presentation and deployment. Conversion remains in installed APB CLIs and sibling public APIs.
+- QPX report jobs use the installed `apb-pmultiqc` application; never duplicate its QPX writer or reader fixes. Only completed, listed reports are served inline; the link opens a new tab and uses relative URLs.
 - Keep all frontend implementation in `apb_export_ui.web`; its internal imports stay inside that subsystem. Other APB packages are imported only through their `api` modules. No public library API is exposed here.
 - Preserve `apb-export-web`, HTTP routes and persisted job formats during extraction.
 - Commit both uv and npm lockfiles; never add sibling path sources or editable APB installations. Upgrade dependency revisions explicitly and run the full UI tests.

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 import zipfile
 from collections.abc import Iterator
 from dataclasses import asdict
@@ -30,10 +31,19 @@ from apb_export_ui.web.examples import (
 )
 from apb_export_ui.web.exports import Export, SoftwareHint, export_for, load_hints, rule_versions
 from apb_export_ui.web.job import error_text
+from apb_export_ui.web.job import main as run_job
 from apb_export_ui.web.options import about, outputs, write_options
 from apb_export_ui.web.qc import ALL_SAMPLES, Matrix, grouping_column, summarize
 from apb_export_ui.web.server import Worker, create_app
-from apb_export_ui.web.store import JobStore, Output, Status, safe_name, write_json
+from apb_export_ui.web.store import (
+    DownloadFile,
+    JobStore,
+    Output,
+    Request,
+    Status,
+    safe_name,
+    write_json,
+)
 from conftest import RUNS, DiannInput, write_diann
 
 type Options = tuple[list[str], list[Output]]
@@ -217,6 +227,61 @@ def test_apb2_parquet_is_annotated_and_zipped(
     assert {matrix["cv"]["grouping"] for matrix in qc["matrices"]} == {"condition"}
 
 
+@pytest.mark.parametrize("variant", ["plain", "grouped", "no_rt", "fasta"])
+def test_qpx_job_generates_a_report_and_downloadable_tables(
+    client: tuple[TestClient, Worker, JobStore], diann: DiannInput, tmp_path: Path, variant: str
+) -> None:
+    test_client, worker, _ = client
+    if variant == "no_rt":
+        table = pl.read_csv(diann.report, separator="\t").drop("RT")
+        table.write_csv(diann.report, separator="\t")
+    annotation = _annotation(tmp_path) if variant == "grouped" else None
+    fasta = _fasta(tmp_path) if variant == "fasta" else None
+    job = _submit(test_client, diann, "apb-export:qpx", annotation, fasta)
+    worker.join()
+
+    status = test_client.get(f"/api/jobs/{job}/status.json").json()
+    assert status["state"] == "done", status
+    assert "pmultiqc" in [step["name"] for step in status["steps"]]
+    assert {item["name"] for item in status["files"]} == {
+        "pmultiqc.zip",
+        "pmultiqc_report.html",
+        "qpx.zip",
+    }
+    report = test_client.get(f"/api/jobs/{job}/report")
+    assert report.status_code == 200
+    assert report.headers["content-type"].startswith("text/html")
+    assert report.headers["content-disposition"].startswith("inline;")
+    assert len(report.content) > 100_000
+    downloaded = test_client.get(f"/api/jobs/{job}/files/pmultiqc_report.html")
+    assert downloaded.headers["content-disposition"].startswith("attachment;")
+    assert downloaded.content == report.content
+
+    tables = test_client.get(f"/api/jobs/{job}/files/qpx.zip")
+    with zipfile.ZipFile(BytesIO(tables.content)) as archive:
+        features = pl.read_parquet(BytesIO(archive.read("data.qpx/apb.feature.parquet")))
+        assert features.height == diann.cells
+        if variant == "no_rt":
+            assert features.get_column("rt").null_count() == diann.cells
+        else:
+            assert features.get_column("rt").min() == 600
+        samples = pl.read_parquet(BytesIO(archive.read("data.qpx/apb.sample.parquet")))
+        if variant == "grouped":
+            assert samples.get_column("condition").to_list() == ["A", "A", "B", "B"]
+    bundle = test_client.get(f"/api/jobs/{job}/files/pmultiqc.zip")
+    with zipfile.ZipFile(BytesIO(bundle.content)) as archive:
+        run = json.loads(archive.read("pmultiqc/run.json"))
+        assert run["state"] == "complete" and run["multiqc_exit_code"] == 0
+        assert "execution.log" in " ".join(archive.namelist())
+        plots = json.loads(archive.read("pmultiqc/multiqc_data/multiqc_data.json"))[
+            "report_plot_data"
+        ]
+        assert "identification_summary_table" in plots
+    assert test_client.get(f"/api/jobs/{job}/qc.json").json()["matrices"]
+    test_client.delete(f"/api/jobs/{job}")
+    assert test_client.get(f"/api/jobs/{job}/report").status_code == 404
+
+
 def test_a_failing_conversion_reports_the_commands_error(
     client: tuple[TestClient, Worker, JobStore], tmp_path: Path
 ) -> None:
@@ -280,6 +345,64 @@ def test_files_are_served_only_by_listed_name(
     assert test_client.get("/api/jobs/not-a-job/status.json").status_code == 404
     assert test_client.delete(f"/api/jobs/{job}").status_code == 200
     assert test_client.get(f"/api/jobs/{job}/status.json").status_code == 404
+
+
+def test_report_route_requires_a_finished_listed_report(
+    client: tuple[TestClient, Worker, JobStore],
+) -> None:
+    test_client, _, store = client
+    job = store.create()
+    job.downloads.mkdir()
+    report = job.downloads / "pmultiqc_report.html"
+    report.write_text("<html>report</html>")
+    job.write_status(Status(id=job.id, state="done"))
+    assert test_client.get(f"/api/jobs/{job.id}/report").status_code == 404
+    for state in ("queued", "running", "failed"):
+        status = Status(
+            id=job.id, state=state, files=[DownloadFile(report.name, report.stat().st_size)]
+        )
+        job.write_status(status)
+        assert test_client.get(f"/api/jobs/{job.id}/report").status_code == 404
+    assert test_client.get("/api/jobs/not-a-job/report").status_code == 404
+
+
+def test_report_process_failure_is_a_failed_job(
+    tmp_path: Path, diann: DiannInput, options: Options, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    original = subprocess.run
+
+    def command(
+        argv: list[str], capture_output: bool, text: bool, check: bool
+    ) -> subprocess.CompletedProcess[str]:
+        if Path(argv[0]).name == "apb-pmultiqc":
+            return subprocess.CompletedProcess(
+                argv, 1, stdout="", stderr="MultiQC report generation failed"
+            )
+        return original(argv, capture_output=capture_output, text=text, check=check)
+
+    monkeypatch.setattr("subprocess.run", command)
+    store = JobStore(tmp_path / "store", ttl_seconds=3600)
+    job = store.create()
+    (job.inputs / diann.report.name).write_bytes(diann.report.read_bytes())
+    (job.inputs / diann.log.name).write_bytes(diann.log.read_bytes())
+    output = next(o for o in options[1] if o.id == "apb-export:qpx")
+    request = Request(
+        data=f"input/{diann.report.name}",
+        output=output,
+        params=f"input/{diann.log.name}",
+        software="DIA-NN",
+    )
+    write_json(job.request_path, asdict(request))
+    job.write_status(Status(id=job.id, state="queued"))
+    monkeypatch.setattr("sys.argv", ["job", str(job.root)])
+    with pytest.raises(SystemExit) as error:
+        run_job()
+    assert error.value.code == 1
+    status = job.status()
+    assert status.state == "failed"
+    assert status.steps[-1].name == "pmultiqc" and status.steps[-1].state == "failed"
+    assert status.files == []
+    assert status.error == "MultiQC report generation failed"
 
 
 def test_the_page_and_options_are_served(client: tuple[TestClient, Worker, JobStore]) -> None:
