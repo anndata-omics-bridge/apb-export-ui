@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>APB Export</title>
-  <script type="module" crossorigin src="./assets/index-DeVaKuZt.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-CWs8t4SF.css">
+  <script type="module" crossorigin src="./assets/index-9bhFeHrn.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-iCKJV2p4.css">
 </head>
 <body>
   <header class="masthead">
@@ -16,10 +16,23 @@
     <apb-about></apb-about>
   </header>
   <main>
-    <apb-upload-form></apb-upload-form>
-    <apb-job-status></apb-job-status>
-    <apb-downloads></apb-downloads>
-    <apb-qc-panel></apb-qc-panel>
+    <section id="setup" aria-label="Conversion setup">
+      <button id="view-result" type="button" class="secondary" hidden>View conversion</button>
+      <apb-upload-form></apb-upload-form>
+    </section>
+    <section id="results" class="results" aria-label="Conversion results" hidden>
+      <header class="card run-summary">
+        <div>
+          <h2 tabindex="-1">Conversion</h2>
+          <p id="run-summary"></p>
+        </div>
+        <button id="edit-setup" type="button" class="secondary">Edit setup</button>
+      </header>
+      <apb-job-status></apb-job-status>
+      <apb-downloads></apb-downloads>
+      <apb-qc-panel></apb-qc-panel>
+    </section>
+    <p id="setup-error" class="error" role="alert" hidden></p>
   </main>
   <noscript>This page needs JavaScript enabled.</noscript>
 </body>

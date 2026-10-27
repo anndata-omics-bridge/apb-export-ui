@@ -6,20 +6,23 @@ import type { Status } from './api.ts'
 export class ApbJobStatus extends LitElement {
   static properties = {
     status: { attribute: false },
-    error: { type: String }
+    error: { type: String },
+    submitting: { type: Boolean }
   }
 
   status: Status | null = null
   error = ''
+  submitting = false
 
   createRenderRoot (): this { return this }
 
   render (): TemplateResult | typeof nothing {
-    if (!this.status && !this.error) return nothing
+    if (!this.status && !this.error && !this.submitting) return nothing
     const status = this.status
     return html`
       <section class="card">
         <h2>Progress</h2>
+        ${this.submitting ? html`<p role="status">Submitting conversion…</p>` : nothing}
         ${status
           ? html`
             <p class="state state-${status.state}">${status.state}</p>

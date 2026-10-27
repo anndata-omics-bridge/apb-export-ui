@@ -66,6 +66,8 @@ export class ApbUploadForm extends LitElement {
 
   createRenderRoot (): this { return this }
 
+  get description (): string { return this.summary(this.chosen()) }
+
   private chosen (): Output | undefined {
     return this.options?.outputs.find(({ id }) => id === (this.output || this.options?.outputs[0]?.id))
   }
@@ -341,31 +343,33 @@ export class ApbUploadForm extends LitElement {
     const missing = this.missing()
     return html`
       <form class="wizard" @submit=${(event: Event) => { this.submit(event) }}>
-        <section class="card step step-software upload">
-          <h2><span class="num">1</span>Software</h2>
-          <label>
-            <span class="visually-hidden">Software</span>
-            <select @change=${(event: Event) => { this.chooseSoftware((event.currentTarget as HTMLSelectElement).value) }}>
-              <option value="" ?selected=${this.software === ''} disabled>Choose the software that wrote the result…</option>
-              ${this.options.software.map(name => html`<option value=${name} ?selected=${name === this.software}>${name}</option>`)}
-            </select>
-          </label>
-        </section>
-        <section class="card step step-files ${this.software ? '' : 'waiting'}">
-          <h2><span class="num">2</span>Files</h2>
-          <div class="step-body upload" role="region" aria-label="Files and examples" tabindex="0">
-            ${this.software
-              ? html`
-                <details class="file-guide">
-                  <summary>Expected files and format reference</summary>
-                  ${this.renderHint(this.hint())}
-                </details>
-                ${this.renderExamples(this.softwareExamples())}
-                ${this.example ? this.renderExample(this.example) : this.renderUploads()}
-              `
-              : html`<p class="note">Once you choose the software, this step shows which files it writes and examples you can run without uploading.</p>`}
-          </div>
-        </section>
+        <div class="input-panel">
+          <section class="card step step-software upload">
+            <h2><span class="num">1</span>Software</h2>
+            <label>
+              <span class="visually-hidden">Software</span>
+              <select @change=${(event: Event) => { this.chooseSoftware((event.currentTarget as HTMLSelectElement).value) }}>
+                <option value="" ?selected=${this.software === ''} disabled>Choose the software that wrote the result…</option>
+                ${this.options.software.map(name => html`<option value=${name} ?selected=${name === this.software}>${name}</option>`)}
+              </select>
+            </label>
+          </section>
+          <section class="card step step-files ${this.software ? '' : 'waiting'}">
+            <h2><span class="num">2</span>Files</h2>
+            <div class="step-body upload" role="region" aria-label="Files and examples" tabindex="0">
+              ${this.software
+                ? html`
+                  <details class="file-guide">
+                    <summary>Expected files and format reference</summary>
+                    ${this.renderHint(this.hint())}
+                  </details>
+                  ${this.renderExamples(this.softwareExamples())}
+                  ${this.example ? this.renderExample(this.example) : this.renderUploads()}
+                `
+                : html`<p class="note">Once you choose the software, this step shows which files it writes and examples you can run without uploading.</p>`}
+            </div>
+          </section>
+        </div>
         <section class="card step step-output">
           <h2><span class="num">3</span>Output</h2>
           <div class="step-body" role="region" aria-label="Output formats" tabindex="0">

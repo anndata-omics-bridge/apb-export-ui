@@ -28,6 +28,8 @@ If this app already owns the requested address, `serve` gracefully stops it and 
 
 The page asks for the software first, then shows the files it expects: result and parameter file names from ProteoBench's module documentation, packaged as `src/apb_export_ui/web/hints.json`, and whether the parameter file is required.
 
+On desktop, Software and Files share the left column and Output fills the right. Convert opens a separate results view with a short summary, progress, downloads and full-width QC. Edit setup preserves the selected files and options; View conversion returns to the current job. Reloading a job URL reopens its results.
+
 ## Examples
 
 `apb-export-web examples build` resolves Studio's `dataset,note` inventory through the Fixture Manager's `downloads.csv` and writes a staged manifest under `build/web-examples`. `apb-export-web serve` reads that bundle automatically; the optional positional directory overrides its location.

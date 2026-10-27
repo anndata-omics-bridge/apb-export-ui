@@ -29,6 +29,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 
 body {
   margin: 0;
@@ -42,6 +43,12 @@ body {
 .masthead p { margin: 4px 0 0; color: var(--muted); }
 
 main { max-width: var(--page-width); margin: 0 auto; padding: 8px var(--page-gutter) 24px; display: grid; gap: 16px; }
+.results { display: grid; gap: 16px; min-width: 0; }
+.run-summary { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; }
+.run-summary > div { min-width: 0; flex: 1 1 300px; }
+.run-summary h2 { margin-bottom: 4px; }
+.run-summary p { margin: 0; color: var(--muted); overflow-wrap: anywhere; }
+#view-result { margin-bottom: 12px; }
 apb-upload-form, apb-job-status, apb-downloads, apb-qc-panel { display: block; min-width: 0; }
 apb-job-status:not(:has(.card)), apb-downloads:not(:has(.card)), apb-qc-panel:not(:has(.card)) { display: none; }
 
@@ -80,7 +87,7 @@ a { color: var(--accent); }
 .tabs button[aria-selected="true"] { border-color: var(--accent); color: var(--accent); }
 .summary { margin: 0 0 8px; }
 .plots { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); }
-.plot { min-height: 440px; }
+.plot { min-width: 0; min-height: 440px; }
 
 .counts { border-collapse: collapse; width: 100%; margin-top: 12px; font-size: 0.9rem; }
 .counts th, .counts td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
@@ -114,6 +121,7 @@ button.secondary[disabled] { border-color: var(--line); color: var(--muted); }
 .example dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0; }
 
 .wizard { display: grid; gap: 16px; }
+.input-panel { display: grid; gap: 16px; min-width: 0; align-content: start; }
 .step h2 { display: flex; align-items: center; gap: 10px; }
 .num {
   display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
@@ -163,17 +171,17 @@ a.button { display: inline-block; padding: 6px 14px; border-radius: 4px; backgro
 .step-body:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 @media (min-width: 1100px) {
-  main { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  main > apb-upload-form, main > apb-qc-panel { grid-column: 1 / -1; }
+  .results { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .results > .run-summary, .results > apb-qc-panel { grid-column: 1 / -1; }
 
   .wizard {
     grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-    grid-template-areas: "software software" "files output" "convert convert";
+    grid-template-areas: "inputs output" "convert convert";
     align-items: start;
   }
+  .input-panel { grid-area: inputs; }
   .step-software {
-    grid-area: software;
-    grid-template-columns: auto minmax(280px, 520px);
+    grid-template-columns: auto minmax(0, 1fr);
     align-items: center;
     justify-content: start;
     gap: 24px;
@@ -181,14 +189,14 @@ a.button { display: inline-block; padding: 6px 14px; border-radius: 4px; backgro
     padding-bottom: 12px;
   }
   .step-software h2 { grid-column: auto; margin: 0; }
-  .step-files { grid-area: files; }
   .step-output { grid-area: output; }
   .step-files, .step-output {
     display: flex;
     flex-direction: column;
-    max-height: max(360px, calc(100dvh - 280px));
+    max-height: max(360px, calc(100dvh - 215px));
     overflow: hidden;
   }
+  .step-files { max-height: max(280px, calc(100dvh - 300px)); }
   .step-files > h2, .step-output > h2 { flex: 0 0 auto; }
   .step-body {
     min-height: 0;

@@ -37,14 +37,15 @@ export class ApbQcPanel extends LitElement {
     const density = this.querySelector<HTMLElement>('[data-plot="density"]')
     const cv = this.querySelector<HTMLElement>('[data-plot="cv"]')
     if (!matrix || !density || !cv) return
+    const layout = { ...LAYOUT, font: { ...LAYOUT.font, color: getComputedStyle(this).color } }
     void Plotly.react(density, densityTraces(matrix), {
-      ...LAYOUT,
+      ...layout,
       title: { text: 'Intensity density per sample' },
       xaxis: { title: { text: 'log2 intensity' } },
       yaxis: { title: { text: 'density' } }
     }, { responsive: true, displaylogo: false })
     void Plotly.react(cv, cvTraces(matrix), {
-      ...LAYOUT,
+      ...layout,
       barmode: 'overlay',
       // Always shown: the legend carries each group's median, also for a single group.
       showlegend: true,
