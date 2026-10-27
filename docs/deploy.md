@@ -38,4 +38,6 @@ Completed jobs retain their existing layout. On restart, existing unfinished job
 
 ## Examples
 
-The migrated `make web-examples` target retains the existing staging-script interface; its input corpus/table format is unchanged by extraction. Existing staged example directories continue to work. Fixture acquisition and changes to the staging input format remain separate work. No real fixtures are committed.
+`make web-examples` stages the routine corpus plus five extra examples. Corpus dataset keys resolve through the Fixture Manager's `downloads.csv` under the configured data root; `--manifest` can name another manifest relative to that root or by absolute path. Text tables and annotations are unpacked from gzip without changing their contents. Existing deployed manifest and mount interfaces remain unchanged. No real fixtures are committed.
+
+The [complete MetaMorpheus/IonStar example](metamorpheus-example.md) comes from the shared APB Zenodo collection through APB Studio's Fixture Manager. Acquire the `routine` or `apb_examples` inventory in Studio before staging. The UI has no dataset downloader or feature-sampling step.

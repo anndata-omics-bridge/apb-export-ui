@@ -64,7 +64,7 @@ check:  ## Run every merge-blocking gate
 
 check-full: check smoke-wheel image smoke-container  ## Run every pre-push acceptance check
 
-web-examples:  ## Stage external examples using the existing staging interface
+web-examples:  ## Stage complete Fixture Manager inputs using the routine inventory
 	$(VENV_BIN)/python scripts/web_examples.py $(STUDIO)/corpuses/routine.csv $(STUDIO)/test_data_download $(MODULES) $(WEB_EXAMPLES) --extra scripts/web_examples.csv --workspace .. --fastas $(STUDIO)/workflow_tables/workflow_proteobench.csv
 
 clean:  ## Remove generated quality and packaging output
