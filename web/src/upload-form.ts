@@ -275,7 +275,7 @@ export class ApbUploadForm extends LitElement {
     const { id, about } = output
     const selected = id === chosen?.id
     return html`
-      <label class="tile ${selected ? 'chosen' : ''}">
+      <label class="tile ${selected ? 'chosen' : ''}" title=${about.what}>
         <input type="radio" name="output" class="visually-hidden" .checked=${selected}
           @change=${() => { this.output = id }}>
         <span class="tile-title">${about.title}${about.version ? html`<span class="version">${about.version}</span>` : nothing}</span>
@@ -294,7 +294,7 @@ export class ApbUploadForm extends LitElement {
     return html`
       ${groups.map(([group, title]) => html`
         <h3>${title}</h3>
-        <div class="tiles" role="radiogroup" aria-label=${title}>
+        <div class="tiles tiles-${group}" role="radiogroup" aria-label=${title}>
           ${outputs.filter(({ about }) => about.group === group).map(output => this.renderTile(output, chosen))}
         </div>
       `)}
@@ -341,7 +341,7 @@ export class ApbUploadForm extends LitElement {
     const missing = this.missing()
     return html`
       <form class="wizard" @submit=${(event: Event) => { this.submit(event) }}>
-        <section class="card step upload">
+        <section class="card step step-software upload">
           <h2><span class="num">1</span>Software</h2>
           <label>
             <span class="visually-hidden">Software</span>
@@ -351,19 +351,26 @@ export class ApbUploadForm extends LitElement {
             </select>
           </label>
         </section>
-        <section class="card step upload ${this.software ? '' : 'waiting'}">
+        <section class="card step step-files ${this.software ? '' : 'waiting'}">
           <h2><span class="num">2</span>Files</h2>
-          ${this.software
-            ? html`
-              ${this.renderHint(this.hint())}
-              ${this.renderExamples(this.softwareExamples())}
-              ${this.example ? this.renderExample(this.example) : this.renderUploads()}
-            `
-            : html`<p class="note">Once you choose the software, this step shows which files it writes and examples you can run without uploading.</p>`}
+          <div class="step-body upload" role="region" aria-label="Files and examples" tabindex="0">
+            ${this.software
+              ? html`
+                <details class="file-guide">
+                  <summary>Expected files and format reference</summary>
+                  ${this.renderHint(this.hint())}
+                </details>
+                ${this.renderExamples(this.softwareExamples())}
+                ${this.example ? this.renderExample(this.example) : this.renderUploads()}
+              `
+              : html`<p class="note">Once you choose the software, this step shows which files it writes and examples you can run without uploading.</p>`}
+          </div>
         </section>
-        <section class="card step">
+        <section class="card step step-output">
           <h2><span class="num">3</span>Output</h2>
-          ${this.renderOutputs(output)}
+          <div class="step-body" role="region" aria-label="Output formats" tabindex="0">
+            ${this.renderOutputs(output)}
+          </div>
         </section>
         <div class="convert-bar">
           <button type="submit" ?disabled=${!this.ready()}>${this.busy ? 'Working…' : 'Convert'}</button>

@@ -3691,7 +3691,7 @@ ${s.shaderPreludeCode.vertexSource}`,define:s.shaderDefine},defaultProjectionDat
       </label>
       <p class="note">Up to ${Be(this.options?.max_upload_bytes??0)} in total.</p>
     `}renderTile(e,t){let{id:n,about:r}=e,i=n===t?.id;return de`
-      <label class="tile ${i?`chosen`:``}">
+      <label class="tile ${i?`chosen`:``}" title=${r.what}>
         <input type="radio" name="output" class="visually-hidden" .checked=${i}
           @change=${()=>{this.output=n}}>
         <span class="tile-title">${r.title}${r.version?de`<span class="version">${r.version}</span>`:pe}</span>
@@ -3701,7 +3701,7 @@ ${s.shaderPreludeCode.vertexSource}`,define:s.shaderDefine},defaultProjectionDat
     `}renderOutputs(e){let t=this.options?.outputs??[];return de`
       ${[[`tool`,`For a downstream tool`],[`apb2`,`APB2 result: every level, all layers`]].map(([n,r])=>de`
         <h3>${r}</h3>
-        <div class="tiles" role="radiogroup" aria-label=${r}>
+        <div class="tiles tiles-${n}" role="radiogroup" aria-label=${r}>
           ${t.filter(({about:e})=>e.group===n).map(t=>this.renderTile(t,e))}
         </div>
       `)}
@@ -3716,7 +3716,7 @@ ${s.shaderPreludeCode.vertexSource}`,define:s.shaderDefine},defaultProjectionDat
         `:pe}
     `}missing(){if(!this.software)return`Choose the software that wrote the result.`;if(!this.example&&!this.hasData)return`Try an example or add your result file.`;if(!this.example&&this.hint()?.params_required&&!this.hasParams)return`${this.software} needs its parameter file.`;let e=this.chosen();return this.example&&this.exampleFasta&&e!==void 0&&!e.fasta?`${e.about.title} takes no FASTA; switch "+ FASTA" off.`:null}summary(e){let t=e?`${e.about.title} (${e.about.file})`:`the chosen output`;if(!this.example)return`Converts your ${this.software} files to ${t}.`;let n=Xe.find(({files:e})=>e===this.exampleFiles)?.phrase??``,r=this.example.version?` ${this.example.version}`:``,i=this.exampleFasta?` + FASTA`:``;return`Converts the ${this.example.label}${r} example (${n}${i}) to ${t}.`}ready(){return!this.busy&&this.missing()===null}render(){if(!this.options)return de`<p class="note">Loading options…</p>`;let e=this.chosen(),t=this.missing();return de`
       <form class="wizard" @submit=${e=>{this.submit(e)}}>
-        <section class="card step upload">
+        <section class="card step step-software upload">
           <h2><span class="num">1</span>Software</h2>
           <label>
             <span class="visually-hidden">Software</span>
@@ -3726,17 +3726,24 @@ ${s.shaderPreludeCode.vertexSource}`,define:s.shaderDefine},defaultProjectionDat
             </select>
           </label>
         </section>
-        <section class="card step upload ${this.software?``:`waiting`}">
+        <section class="card step step-files ${this.software?``:`waiting`}">
           <h2><span class="num">2</span>Files</h2>
-          ${this.software?de`
-              ${this.renderHint(this.hint())}
-              ${this.renderExamples(this.softwareExamples())}
-              ${this.example?this.renderExample(this.example):this.renderUploads()}
-            `:de`<p class="note">Once you choose the software, this step shows which files it writes and examples you can run without uploading.</p>`}
+          <div class="step-body upload" role="region" aria-label="Files and examples" tabindex="0">
+            ${this.software?de`
+                <details class="file-guide">
+                  <summary>Expected files and format reference</summary>
+                  ${this.renderHint(this.hint())}
+                </details>
+                ${this.renderExamples(this.softwareExamples())}
+                ${this.example?this.renderExample(this.example):this.renderUploads()}
+              `:de`<p class="note">Once you choose the software, this step shows which files it writes and examples you can run without uploading.</p>`}
+          </div>
         </section>
-        <section class="card step">
+        <section class="card step step-output">
           <h2><span class="num">3</span>Output</h2>
-          ${this.renderOutputs(e)}
+          <div class="step-body" role="region" aria-label="Output formats" tabindex="0">
+            ${this.renderOutputs(e)}
+          </div>
         </section>
         <div class="convert-bar">
           <button type="submit" ?disabled=${!this.ready()}>${this.busy?`Working…`:`Convert`}</button>
