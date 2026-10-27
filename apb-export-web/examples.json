@@ -1,3 +1,689 @@
 {
- "examples": []
+ "examples": [
+  {
+   "id": "12b9c0979e05",
+   "label": "MaxQuant",
+   "software": "MaxQuant",
+   "version": "2.5.1.0",
+   "module": "dda_qexactive",
+   "data": [
+    "evidence.txt"
+   ],
+   "stored_data": [
+    "input_file.txt"
+   ],
+   "folder": false,
+   "folder_files": [],
+   "params": "mqpar.xml",
+   "stored_params": "param_0..xml",
+   "annotation": "dda_qexactive.sdrf.tsv",
+   "fasta": "ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+   "export": {
+    "rules": [
+     "maxquant/rules.json",
+     "maxquant_wide/rules.json"
+    ],
+    "versions": "1.5\u20132.x",
+    "result": [
+     "combined/txt/evidence.txt"
+    ],
+    "params": "mqpar.xml",
+    "kinds": [
+     ".txt"
+    ],
+    "labels": [],
+    "note": "MaxDIA writes the same evidence.txt. mqpar.xml is written to the raw-file folder; a renamed copy works too."
+   },
+   "bytes": 100043984
+  },
+  {
+   "id": "aa77a8ab33a3",
+   "label": "Sage",
+   "software": "Sage",
+   "version": "0.15.0-beta.2",
+   "module": "dda_qexactive",
+   "data": [
+    "lfq.tsv"
+   ],
+   "stored_data": [
+    "input_file.tsv"
+   ],
+   "folder": false,
+   "folder_files": [],
+   "params": "results.json",
+   "stored_params": "param_0..json",
+   "annotation": "dda_qexactive.sdrf.tsv",
+   "fasta": "ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+   "export": {
+    "rules": [
+     "sage/rules.json"
+    ],
+    "versions": "0.x",
+    "result": [
+     "lfq.tsv"
+    ],
+    "params": "results.json",
+    "kinds": [
+     ".tsv"
+    ],
+    "labels": [],
+    "note": "Both in output_directory. results.sage.tsv is the PSM table, not this one; lfq.parquet (--parquet) is not read. Your own config file has no version: upload results.json."
+   },
+   "bytes": 17273118
+  },
+  {
+   "id": "69a4a2f3c12e",
+   "label": "FragPipe",
+   "software": "FragPipe",
+   "version": "23.0",
+   "module": "dda_qexactive",
+   "data": [
+    "combined_ion.tsv"
+   ],
+   "stored_data": [
+    "input_file.tsv"
+   ],
+   "folder": false,
+   "folder_files": [],
+   "params": "fragpipe.workflow",
+   "stored_params": "param_0..workflow",
+   "annotation": "dda_qexactive.sdrf.tsv",
+   "fasta": "ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+   "export": {
+    "rules": [
+     "fragpipe/rules.json"
+    ],
+    "versions": "22\u201323, DDA with IonQuant",
+    "result": [
+     "combined_ion.tsv"
+    ],
+    "params": "fragpipe.workflow",
+    "kinds": [
+     ".tsv"
+    ],
+    "labels": [],
+    "note": "Both at the output folder root. combined_ion.tsv needs runs assigned to experiments, as the LFQ-MBR workflow does."
+   },
+   "bytes": 38504351
+  },
+  {
+   "id": "4e055c77da68",
+   "label": "AlphaPept",
+   "software": "AlphaPept",
+   "version": "0.5.3",
+   "module": "dda_qexactive",
+   "data": [
+    "results_peptides.csv"
+   ],
+   "stored_data": [
+    "input_file.txt"
+   ],
+   "folder": false,
+   "folder_files": [],
+   "params": "results.yaml",
+   "stored_params": "param_0..txt",
+   "annotation": "dda_qexactive.sdrf.tsv",
+   "fasta": "ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+   "export": {
+    "rules": [
+     "alphapept/rules.json"
+    ],
+    "versions": "0.5",
+    "result": [
+     "results_peptides.csv"
+    ],
+    "params": "results.yaml",
+    "kinds": [
+     ".csv",
+     ".txt"
+    ],
+    "labels": [],
+    "note": "Beside results.hdf. Setting results_path renames them to <stem>_peptides.csv and <stem>.yaml; the yaml written after the run carries the version."
+   },
+   "bytes": 199978019
+  },
+  {
+   "id": "4c76cf3e7685",
+   "label": "PEAKS",
+   "software": "PEAKS",
+   "version": "13 20250520",
+   "module": "dda_qexactive",
+   "data": [
+    "input_file.csv"
+   ],
+   "stored_data": [
+    "input_file.csv"
+   ],
+   "folder": false,
+   "folder_files": [],
+   "params": "param_0..txt",
+   "stored_params": "param_0..txt",
+   "annotation": "dda_qexactive.sdrf.tsv",
+   "fasta": "ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+   "export": {
+    "rules": [
+     "peaks/rules.json"
+    ],
+    "versions": "13",
+    "result": [
+     "*.features.csv"
+    ],
+    "params": "*.txt",
+    "kinds": [
+     ".csv"
+    ],
+    "labels": [],
+    "note": "The Label Free Quantification Feature Vector CSV, e.g. lfq.features.csv (DDA) or lfq.dia.features.csv (DIA), and the All Search Parameters text export; PEAKS documentation gives no default names."
+   },
+   "bytes": 25795925
+  },
+  {
+   "id": "8f58060e6f7e",
+   "label": "DIA-NN",
+   "software": "DIA-NN",
+   "version": "2.6.0 Enterprise",
+   "module": "dda_astral",
+   "data": [
+    "report.parquet"
+   ],
+   "stored_data": [
+    "input_file.parquet"
+   ],
+   "folder": false,
+   "folder_files": [],
+   "params": "report.log.txt",
+   "stored_params": "param_0..txt",
+   "annotation": "dda_astral.sdrf.tsv",
+   "fasta": "ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+   "export": {
+    "rules": [
+     "diann/v2/rules.json"
+    ],
+    "versions": "2.x",
+    "result": [
+     "report.parquet"
+    ],
+    "params": "report.log.txt",
+    "kinds": [
+     ".parquet"
+    ],
+    "labels": [],
+    "note": "Default names: Main output (--out) renames both, e.g. x.parquet and x.log.txt. Not report.pr_matrix.tsv, report.pg_matrix.tsv or report.stats.tsv."
+   },
+   "bytes": 19345001
+  },
+  {
+   "id": "072475cadef3",
+   "label": "Spectronaut",
+   "software": "Spectronaut",
+   "version": "20.0.250602.92449",
+   "module": "dia_aif",
+   "data": [
+    "input_file.tsv"
+   ],
+   "stored_data": [
+    "input_file.tsv"
+   ],
+   "folder": false,
+   "folder_files": [],
+   "params": "param_0..txt",
+   "stored_params": "param_0..txt",
+   "annotation": "dia_aif.sdrf.tsv",
+   "fasta": "ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+   "export": {
+    "rules": [
+     "spectronaut/v15/rules.json",
+     "spectronaut/rules.json",
+     "spectronaut/v21/rules.json"
+    ],
+    "versions": "15, 19\u201321",
+    "result": [
+     "<report name>.tsv"
+    ],
+    "params": "<report name>.setup.txt",
+    "kinds": [
+     ".tsv"
+    ],
+    "labels": [],
+    "note": "A Normal-format BGS Factory Report, named when you export it; Spectronaut writes the .setup.txt beside it. Pipeline runs write <Experiment>_ExperimentSetupOverview_<schema>.txt instead; either works."
+   },
+   "bytes": 515370854
+  },
+  {
+   "id": "03efe9a73819",
+   "label": "MaxQuant",
+   "software": "MaxQuant",
+   "version": "2.8.1.0",
+   "module": "entrapment_dia_astral",
+   "data": [
+    "maxquant_v2.8.1.0"
+   ],
+   "stored_data": [
+    "maxquant_v2.8.1.0"
+   ],
+   "folder": true,
+   "folder_files": [
+    "evidence.txt",
+    "modificationSpecificPeptides.txt",
+    "mqpar.xml",
+    "peptides.txt",
+    "proteinGroups.txt",
+    "sdrf.tsv"
+   ],
+   "params": "mqpar.xml",
+   "stored_params": "mqpar.xml",
+   "annotation": "sdrf.tsv",
+   "fasta": null,
+   "export": {
+    "rules": [
+     "maxquant_wide/rules.json"
+    ],
+    "versions": "1.5\u20132.x, whole txt folder",
+    "result": [
+     "combined/txt/"
+    ],
+    "params": "mqpar.xml",
+    "kinds": [
+     "folder"
+    ],
+    "labels": [],
+    "note": "evidence.txt, peptides.txt and proteinGroups.txt read together. The browser cannot upload a folder yet; examples only."
+   },
+   "bytes": 136145969
+  },
+  {
+   "id": "5ea063891f82",
+   "label": "i2MassChroQ",
+   "software": "i2MassChroQ",
+   "version": "1.2.9",
+   "module": "dda_astral",
+   "data": [
+    "proteobench_export.tsv"
+   ],
+   "stored_data": [
+    "input_file.tsv"
+   ],
+   "folder": false,
+   "folder_files": [],
+   "params": "Project parameters.tsv",
+   "stored_params": "param_0..tsv",
+   "annotation": "dda_astral.sdrf.tsv",
+   "fasta": "ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+   "export": {
+    "rules": [
+     "i2masschroq/rules.json"
+    ],
+    "versions": "1.x",
+    "result": [
+     "proteobench_export.tsv"
+    ],
+    "params": "Project parameters.tsv",
+    "kinds": [
+     ".tsv",
+     ".txt"
+    ],
+    "labels": [],
+    "note": "The ProteoBench export button in the MCQR view, after Normalisation and PCA, saves <project name>.zip holding both files; unzip it and upload them."
+   },
+   "bytes": 16864220
+  },
+  {
+   "id": "0cd842dc89ad",
+   "label": "DIA-NN",
+   "software": "DIA-NN",
+   "version": "2.3.0 Academia",
+   "module": "dia_astral",
+   "data": [
+    "report.parquet"
+   ],
+   "stored_data": [
+    "input_file.parquet"
+   ],
+   "folder": false,
+   "folder_files": [],
+   "params": "report.log.txt",
+   "stored_params": "param_0..txt",
+   "annotation": "dia_astral.sdrf.tsv",
+   "fasta": "ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+   "export": {
+    "rules": [
+     "diann/v2/rules.json"
+    ],
+    "versions": "2.x",
+    "result": [
+     "report.parquet"
+    ],
+    "params": "report.log.txt",
+    "kinds": [
+     ".parquet"
+    ],
+    "labels": [],
+    "note": "Default names: Main output (--out) renames both, e.g. x.parquet and x.log.txt. Not report.pr_matrix.tsv, report.pg_matrix.tsv or report.stats.tsv."
+   },
+   "bytes": 2303160
+  },
+  {
+   "id": "f30a66bfecdb",
+   "label": "FragPipe (DIA-NN quant)",
+   "software": "FragPipe",
+   "version": "23.1",
+   "module": "dia_singlecell",
+   "data": [
+    "report.tsv"
+   ],
+   "stored_data": [
+    "input_file.tsv"
+   ],
+   "folder": false,
+   "folder_files": [],
+   "params": "fragpipe.workflow",
+   "stored_params": "param_0..workflow",
+   "annotation": "dia_singlecell.sdrf.tsv",
+   "fasta": "ProteoBenchFASTA_DDAQuantification_noecoli.fasta",
+   "export": {
+    "rules": [
+     "diann/v1_8/rules.json"
+    ],
+    "versions": "23 and later, DIA with DIA-NN quant",
+    "result": [
+     "dia-quant-output/report.tsv"
+    ],
+    "params": "fragpipe.workflow",
+    "kinds": [
+     ".tsv"
+    ],
+    "labels": [
+     "FragPipe (DIA-NN quant)"
+    ],
+    "note": "FragPipe 21\u201322 write diann-output/report.tsv, 19\u201320 diann-output/diann-output.tsv."
+   },
+   "bytes": 22561871
+  },
+  {
+   "id": "8e25b242007b",
+   "label": "AlphaDIA",
+   "software": "AlphaDIA",
+   "version": "1.12.1",
+   "module": "dia_astral",
+   "data": [
+    "precursors.tsv",
+    "precursor.matrix.tsv"
+   ],
+   "stored_data": [
+    "input_file.tsv",
+    "input_file_secondary.tsv"
+   ],
+   "folder": false,
+   "folder_files": [],
+   "params": "log.txt",
+   "stored_params": "param_0..txt",
+   "annotation": "dia_astral.sdrf.tsv",
+   "fasta": "ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+   "export": {
+    "rules": [
+     "alphadia/v1_12/rules.json"
+    ],
+    "versions": "1.12",
+    "result": [
+     "precursors.tsv",
+     "precursor.matrix.tsv"
+    ],
+    "params": "log.txt",
+    "kinds": [
+     ".tsv"
+    ],
+    "labels": [],
+    "note": "Two tables from the output folder; upload both. Intensities come from precursor.matrix.tsv, which needs Precursor Level LFQ; precursors.tsv alone holds only protein-group intensities and is refused."
+   },
+   "bytes": 184497847
+  },
+  {
+   "id": "5cfd7b053ddc",
+   "label": "AlphaDIA",
+   "software": "AlphaDIA",
+   "version": "2.1.0",
+   "module": "dia_astral",
+   "data": [
+    "precursors.parquet"
+   ],
+   "stored_data": [
+    "input_file.parquet"
+   ],
+   "folder": false,
+   "folder_files": [],
+   "params": "log.txt",
+   "stored_params": "param_0..txt",
+   "annotation": "dia_astral.sdrf.tsv",
+   "fasta": "ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+   "export": {
+    "rules": [
+     "alphadia/v2/rules.json"
+    ],
+    "versions": "2.x",
+    "result": [
+     "precursors.parquet"
+    ],
+    "params": "log.txt",
+    "kinds": [
+     ".parquet"
+    ],
+    "labels": [],
+    "note": "Both in the output folder. With file_format: tsv AlphaDIA writes precursors.tsv instead, which this converter does not read."
+   },
+   "bytes": 44580860
+  },
+  {
+   "id": "043c8ee98fb4",
+   "label": "MetaMorpheus",
+   "software": "MetaMorpheus",
+   "version": null,
+   "module": "PXD003881",
+   "data": [
+    "AllQuantifiedPeaks.tsv"
+   ],
+   "stored_data": [
+    "QuantifiedPeaks.tsv"
+   ],
+   "folder": false,
+   "folder_files": [],
+   "params": null,
+   "stored_params": null,
+   "annotation": "sdrf.tsv",
+   "fasta": null,
+   "export": {
+    "rules": [
+     "metamorpheus/rules.json"
+    ],
+    "versions": "1.0.7 and later",
+    "result": [
+     "Task1-SearchTask/AllQuantifiedPeaks.tsv"
+    ],
+    "params": "Task Settings/<task>config.toml + allResults.txt",
+    "kinds": [
+     ".tsv"
+    ],
+    "labels": [],
+    "note": "Default GUI task folder; the command line writes Task1SearchTask without the hyphen. Not AllQuantifiedPeptides.tsv or the per-run *_QuantifiedPeaks.tsv. The two parameter files cannot be uploaded here yet, so convert from the result alone; the prolfqua output waits for apb-catalog to review MetaMorpheus."
+   },
+   "bytes": 255817791
+  },
+  {
+   "id": "85a3649b8572",
+   "label": "MSAngel",
+   "software": "MSAngel",
+   "version": "2.2.10",
+   "module": "dda_qexactive",
+   "data": [
+    "input_file.txt"
+   ],
+   "stored_data": [
+    "input_file.txt"
+   ],
+   "folder": false,
+   "folder_files": [],
+   "params": "param_0..txt",
+   "stored_params": "param_0..txt",
+   "annotation": "sdrf.tsv",
+   "fasta": "ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+   "export": {
+    "rules": [
+     "msangel/rules.json"
+    ],
+    "versions": "2.x",
+    "result": [
+     "<name>.xlsx"
+    ],
+    "params": "<name>-export-param.json",
+    "kinds": [
+     ".xlsx",
+     ".txt"
+    ],
+    "labels": [],
+    "note": "Proline's Excel export of the quantification, with its Quantified peptide ions sheet and, for the protein level, its Protein sets sheet, plus MS-Angel's exported workflow JSON. MS-Angel documents neither name."
+   },
+   "bytes": 40607829
+  },
+  {
+   "id": "3c5c9f9780d1",
+   "label": "ProlineStudio",
+   "software": "ProlineStudio",
+   "version": "2.3.0-SNAPSHOT_2024-09-11T06:45:20Z_jenkins",
+   "module": "dda_qexactive",
+   "data": [
+    "input_file.txt"
+   ],
+   "stored_data": [
+    "input_file.txt"
+   ],
+   "folder": false,
+   "folder_files": [],
+   "params": "param_0..txt",
+   "stored_params": "param_0..txt",
+   "annotation": "dda_qexactive.sdrf.tsv",
+   "fasta": "ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+   "export": {
+    "rules": [
+     "prolinestudio/rules.json"
+    ],
+    "versions": "2.x",
+    "result": [
+     "<name>.xlsx"
+    ],
+    "params": "<name>.xlsx, the result file itself",
+    "kinds": [
+     ".xlsx",
+     ".txt"
+    ],
+    "labels": [],
+    "note": "Export > Excel\u2026 with a custom export: enable the Quantified peptide ions sheet with its samesets_accessions, subsets_accessions and protein_set_score columns; the sheet and both accession columns are off by default. Its settings sheets are the parameters."
+   },
+   "bytes": 22950383
+  },
+  {
+   "id": "8921f94ee5fc",
+   "label": "quantms",
+   "software": "quantms",
+   "version": "v1.3.1dev-g70337bc",
+   "module": "dda_qexactive",
+   "data": [
+    "input_file.csv"
+   ],
+   "stored_data": [
+    "input_file.csv"
+   ],
+   "folder": false,
+   "folder_files": [],
+   "params": "nf_core_quantms_software_mqc_versions.yml",
+   "stored_params": "param_0..yml",
+   "annotation": "dda_qexactive.sdrf.tsv",
+   "fasta": "ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+   "export": {
+    "rules": [
+     "quantms/rules.json"
+    ],
+    "versions": "1.x",
+    "result": [
+     "quant_tables/<sdrf name>_openms_design_msstats_in.csv"
+    ],
+    "params": "pipeline_info/nf_core_quantms_software_mqc_versions.yml",
+    "kinds": [
+     ".csv"
+    ],
+    "labels": [],
+    "note": "Up to 1.4 the table is in proteomicslfq/; nf-core/quantms 1.0 wrote out_msstats.csv. This converter reads the software-versions YAML, not params_<timestamp>.json."
+   },
+   "bytes": 23345676
+  },
+  {
+   "id": "6fe2979f510c",
+   "label": "WOMBAT-P",
+   "software": "WOMBAT-P",
+   "version": "0.9.11",
+   "module": "dda_qexactive",
+   "data": [
+    "input_file.csv"
+   ],
+   "stored_data": [
+    "input_file.csv"
+   ],
+   "folder": false,
+   "folder_files": [],
+   "params": "params.yml",
+   "stored_params": "param_0..yml",
+   "annotation": "sdrf.tsv",
+   "fasta": "ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+   "export": {
+    "rules": [
+     "wombat/rules.json"
+    ],
+    "versions": "0.9.11",
+    "result": [
+     "stand_ion_quant_merged<workflow>.csv"
+    ],
+    "params": "prepare_files/params.yml",
+    "kinds": [
+     ".csv"
+    ],
+    "labels": [],
+    "note": "In the results folder, e.g. stand_ion_quant_mergedproline.csv; the stand_pep_quant files lack charges. This converter accepts params.yml reporting version 0.9.11 only."
+   },
+   "bytes": 3718313
+  },
+  {
+   "id": "62d760dedc38",
+   "label": "pb_custom",
+   "software": "pb_custom",
+   "version": null,
+   "module": "dda_qexactive",
+   "data": [
+    "custom_input.tsv"
+   ],
+   "stored_data": [
+    "custom_input.tsv"
+   ],
+   "folder": false,
+   "folder_files": [],
+   "params": null,
+   "stored_params": null,
+   "annotation": "dda_qexactive.sdrf.tsv",
+   "fasta": "ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+   "export": {
+    "rules": [
+     "pb_custom/rules.json"
+    ],
+    "versions": "any",
+    "result": [
+     "custom_input.tsv"
+    ],
+    "params": null,
+    "kinds": [
+     ".tsv",
+     ".txt"
+    ],
+    "labels": [],
+    "note": "ProteoBench's own tab-separated format for tools without a parser."
+   },
+   "bytes": 1312480
+  }
+ ]
 }

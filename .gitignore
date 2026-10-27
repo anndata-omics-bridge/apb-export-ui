@@ -10,3 +10,6 @@ dist/
 
 node_modules/
 public/
+
+/apb-export-web/jobs/
+/apb-export-web/previews/

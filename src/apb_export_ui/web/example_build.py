@@ -1,16 +1,8 @@
-"""Collect the web app's examples into one folder a deployed ``apb-export-web`` mounts.
+"""Stage managed fixtures, annotations and FASTAs as one web examples directory.
 
-The folder holds ``examples.csv``, each example's files under ``data/`` at its corpus path,
-and the module SDRFs under ``sdrf/``. Corpus dataset keys, such as APB Studio's routine
-inventory, resolve through the Fixture Manager's ``downloads.csv``. Extra rows name a
-ProteoBench submission outside the routine corpus, unless its ``source`` column names a file
-to copy from the workspace, such as a sample apb2 commits; a ``.gz`` source is unpacked. Its
-``sdrf`` column, when set, names an SDRF placed beside the input as ``sdrf.tsv``, for a tool
-that named its samples otherwise than the module SDRF's raw files, such as WOMBAT-P. With
-``--fastas``, a table of each module's FASTA such as APB Studio's ``workflow_proteobench.csv``,
-every example of a listed module gets its FASTA under ``data/`` and in a ``fasta`` column.
-Serve it with
-``--examples <out>/examples.csv --examples-root <out>/data --examples-sdrf <out>/sdrf``.
+Corpus keys resolve through the Fixture Manager's manifest. Supplementary input sources
+are workspace-relative; their annotation paths are relative to the supplementary CSV.
+Gzip files are unpacked without changing their contents.
 """
 
 from __future__ import annotations
@@ -18,12 +10,9 @@ from __future__ import annotations
 import csv
 import gzip
 import shutil
-import sys
 from pathlib import Path
 
-from cyclopts import App
-
-app = App(name="web_examples", help=__doc__)
+EXAMPLE_DATA = Path(__file__).with_name("example_data")
 
 COLUMNS: tuple[str, ...] = (
     "input_file",
@@ -88,13 +77,11 @@ def _copy_input_folders(rows: list[dict[str, str]], root: Path, out: Path) -> No
                 _copy(source, target.with_suffix("") if source.suffix == ".gz" else target)
 
 
-@app.default
 def collect(
     corpus: Path,
     root: Path,
     sdrf: Path,
     out: Path,
-    *,
     extra: Path | None = None,
     workspace: Path = Path(".."),
     fastas: Path | None = None,
@@ -104,11 +91,15 @@ def collect(
     rows = _corpus_rows(corpus, root / manifest)
     added = [] if extra is None else _rows(extra)
     _copy_input_folders([*rows, *(row for row in added if not row["source"])], root, out)
-    for row in added:
-        if row["source"]:
-            _copy(workspace / row["source"], out / "data" / row["input_file"])
-        if row["sdrf"]:
-            _copy(workspace / row["sdrf"], (out / "data" / row["input_file"]).parent / "sdrf.tsv")
+    if extra is not None:
+        for row in added:
+            if row["source"]:
+                _copy(workspace / row["source"], out / "data" / row["input_file"])
+            if row["sdrf"]:
+                _copy(
+                    extra.parent / row["sdrf"],
+                    (out / "data" / row["input_file"]).parent / "sdrf.tsv",
+                )
     modules = {} if fastas is None else {row["module"]: row["fasta"] for row in _rows(fastas)}
     for row in [*rows, *added]:
         for column in ("input_file", "vendor_parameter_file"):
@@ -126,7 +117,3 @@ def collect(
     for path in sorted(sdrf.glob("*.sdrf.tsv")):
         shutil.copy2(path, out / "sdrf" / path.name)
     print(f"{len(rows)} corpus and {len(added)} extra examples -> {out}")
-
-
-if __name__ == "__main__":
-    sys.exit(app(sys.argv[1:]))

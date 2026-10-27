@@ -1,6 +1,6 @@
 # Web app
 
-`apb-export-web` serves a page that converts one vendor result and shows QC before download.
+`apb-export-web` without arguments shows Cyclopts help. `apb-export-web serve` starts the page that converts one vendor result and shows QC before download; `apb-export-web serve --help` lists server options.
 
 ## Inputs and outputs
 
@@ -16,20 +16,33 @@ After completion, **Open pMultiQC report** opens the self-contained HTML in a ne
 
 ```bash
 uv sync --locked --group dev
-uv run --locked apb-export-web --store ./web-store --port 8770
+uv run --locked apb-export-web examples build
+uv run --locked apb-export-web serve
 ```
+
+Staging requires APB Studio's routine fixtures to be downloaded already. Start the server with `apb-export-web serve` and stop it with Ctrl-C.
+
+`serve` loads the default built examples automatically when available. If no example bundle has been built, it serves uploads only; an explicit positional directory selects another bundle.
+
+If this app already owns the requested address, `serve` gracefully stops it and waits for the port before starting the replacement. The check verifies the listening socket, process owner and installed app entry point; an unrelated or unverifiable listener is left running, and startup exits before changing the job store.
 
 The page asks for the software first, then shows the files it expects: result and parameter file names from ProteoBench's module documentation, packaged as `src/apb_export_ui/web/hints.json`, and whether the parameter file is required.
 
 ## Examples
 
-`--examples corpus.csv --examples-root DIR` offers one row per software of an APB Studio corpus CSV, three ways:
+`apb-export-web examples build` resolves Studio's `dataset,note` inventory through the Fixture Manager's `downloads.csv` and writes a staged manifest under `build/web-examples`. `apb-export-web serve` reads that bundle automatically; the optional positional directory overrides its location.
+
+`examples build [DIRECTORY] [WORKSPACE]` accepts optional positional destination and workspace roots; the defaults are `build/web-examples` and `..`. The builder ships its supplementary example metadata and annotations with the Python package.
+
+Examples can run three ways:
 
 - Result file only
 - With its parameter file
 - With parameters and SDRF
 
-The SDRF is an `sdrf.tsv` beside the input, else `<module>.sdrf.tsv` from `--examples-sdrf DIR`. The server links the chosen files into the job instead of uploading them; the data stays where the corpus keeps it. At startup it writes the first 20 lines of every example file to the store, and the page shows them when a file name is clicked.
+The server uses the sample annotation beside the input, or the module annotation staged with the examples. It links the chosen files into the job instead of uploading them; the data stays where the corpus keeps it.
+
+At startup it writes the first 20 lines of every example file to the store, and the page shows them when a file name is clicked.
 
 ## Jobs
 

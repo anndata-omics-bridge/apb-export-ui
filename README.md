@@ -4,12 +4,25 @@ The upload page, server, job runner and QC presentation for [APB Export](https:/
 
 ## Run
 
+`apb-export-web` without arguments shows help. Use `apb-export-web serve --help` for server options.
+
+From a workspace checkout with APB Studio's routine fixtures already downloaded:
+
 ```bash
 uv sync --locked --group dev
-uv run --locked apb-export-web --store ./web-store --port 8770
+uv run --locked apb-export-web examples build
+uv run --locked apb-export-web serve
 ```
 
-Open http://127.0.0.1:8770. Python 3.13 is the tested interpreter; Node 22 is used only for frontend development and builds. The installed wheel serves its packaged assets without Node.
+Open http://127.0.0.1:8770; stop the server with Ctrl-C. Stage examples once, then rerun staging when the inputs change.
+
+Running `serve` again gracefully restarts a verified instance of this app on the same address. An unrelated listener is left running, and startup exits before changing the job store.
+
+`examples build` defaults to `build/web-examples` and the parent APB workspace. Optional positional arguments are the destination directory followed by the workspace root.
+
+`serve` automatically loads the built examples when present; an optional positional directory overrides that location. Without a built example bundle, it serves uploads only.
+
+Python 3.13 is the tested interpreter; Node 22 is used only for frontend development and builds. The installed wheel serves its packaged assets without Node.
 
 Choose **pMultiQC / QPX** to generate a report immediately. Finished jobs offer **Open pMultiQC report** in a new tab, plus downloads for QPX tables, the HTML and a full report bundle. Sample groups are optional; retention times come through the exporter catalogue.
 

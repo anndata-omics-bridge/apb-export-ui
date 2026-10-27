@@ -274,6 +274,7 @@ def wheel_smoke() -> None:
             process = subprocess.Popen(
                 [
                     str(environment / "bin/apb-export-web"),
+                    "serve",
                     "--port",
                     str(port),
                     "--store",

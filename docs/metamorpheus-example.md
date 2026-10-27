@@ -12,7 +12,9 @@ The web example uses the complete IonStar quantification table: 798,879 original
 
 APB Studio's Fixture Manager owns acquisition and verifies the pinned Zenodo files. Dataset key `zenodo/apb_examples/metamorpheus_ionstar` appears in both the shared `apb_examples` inventory and the 14-dataset `routine` inventory. It is not a ProteoBench scoring input and receives no benchmark FASTA. FlashLFQ settings are a companion file, not MetaMorpheus search parameters; no parameter upload is offered.
 
-From APB Studio, run `uv run fixture download apb_examples` (or `routine`). Then run `make web-examples` from the UI repository. Staging resolves corpus dataset keys through the managed `downloads.csv` manifest and copies complete files, unpacking gzip for web previews and conversion. The UI does not download or prepare scientific datasets itself. The former parser fixture and the 1,000-ion demonstration subset are not the active example.
+From APB Studio, run `uv run fixture download apb_examples` (or `routine`). Then run `apb-export-web examples build` from the UI repository.
+
+Staging resolves corpus dataset keys through the managed `downloads.csv` manifest and copies complete files, unpacking gzip for web previews and conversion. The UI does not download or prepare scientific datasets itself; the former parser fixture and the 1,000-ion demonstration subset are not the active example.
 
 ## Scientific preservation
 
@@ -24,4 +26,4 @@ The archive directory's `NoPip` name must not be interpreted as disabling MBR: i
 
 ## Local migration
 
-Keep the current store and all three example arguments (`--examples`, `--examples-root`, `--examples-sdrf`). Stage the managed dataset under its new `zenodo/apb_examples/metamorpheus_ionstar` path and update only the active MetaMorpheus manifest row; preserve previous example directories because completed jobs link to their inputs. Restart only while the local worker is idle, then create a new report from the complete table. No production deployment is performed.
+Keep the current store and pass the staged examples directory as the positional argument to `apb-export-web serve`. Stage the managed dataset under its new `zenodo/apb_examples/metamorpheus_ionstar` path and update only the active MetaMorpheus manifest row; preserve previous example directories because completed jobs link to their inputs. Restart only while the local worker is idle, then create a new report from the complete table. No production deployment is performed.

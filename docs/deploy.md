@@ -12,12 +12,12 @@ make image IMAGE_TAG=local
 
 The image builds the Lit/Vite frontend with Node 22, then installs the Python application using `uv sync --locked --no-dev --no-editable`. Node is absent from the runtime image. Labels record the UI, locked exporter and report-application revisions. The publication workflow publishes linux/arm64 and linux/amd64 images on UI version tags or manual dispatch; normal quality runs do not publish images.
 
-## Existing deployment interface
+## Deployment interface
 
-| Item | Preserved value |
+| Item | Configuration |
 | --- | --- |
-| Entrypoint | `apb-export-web --host 0.0.0.0 --port 8000 --store /data/store` |
-| Arguments | `--max-upload-mb 2048 --ttl-hours 24 --timeout-minutes 60 --examples /examples/examples.csv --examples-root /examples/data --examples-sdrf /examples/sdrf` |
+| Entrypoint | `apb-export-web serve --host 0.0.0.0 --port 8000 --store /data/store` |
+| Arguments | `/examples --max-upload-mb 2048 --ttl-hours 24 --timeout-minutes 60` |
 | Job store | `/data/store`, writable |
 | Temporary uploads | `/data/tmp`, writable disk, set through `TMPDIR` |
 | Example data | `/examples`, existing staged directory, read-only |
@@ -38,6 +38,8 @@ Completed jobs retain their existing layout. On restart, existing unfinished job
 
 ## Examples
 
-`make web-examples` stages the routine corpus plus five extra examples. Corpus dataset keys resolve through the Fixture Manager's `downloads.csv` under the configured data root; `--manifest` can name another manifest relative to that root or by absolute path. Text tables and annotations are unpacked from gzip without changing their contents. Existing deployed manifest and mount interfaces remain unchanged. No real fixtures are committed.
+`apb-export-web examples build` stages the routine corpus plus five extra examples; `make web-examples` delegates to the same command. Optional positional arguments select the destination directory and APB workspace; corpus keys resolve through Studio's managed fixture manifest, while supplementary metadata ships with this package.
+
+Text tables and annotations are unpacked from gzip without changing their contents. No real fixtures are committed.
 
 The [complete MetaMorpheus/IonStar example](metamorpheus-example.md) comes from the shared APB Zenodo collection through APB Studio's Fixture Manager. Acquire the `routine` or `apb_examples` inventory in Studio before staging. The UI has no dataset downloader or feature-sampling step.

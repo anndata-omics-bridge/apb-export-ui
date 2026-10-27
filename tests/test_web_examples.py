@@ -4,15 +4,13 @@ from __future__ import annotations
 
 import csv
 import gzip
-import runpy
-from collections.abc import Callable
+import subprocess
+import sys
 from pathlib import Path
-from typing import cast
 
 import pytest
 
-SCRIPT = runpy.run_path(str(Path(__file__).parents[1] / "scripts" / "web_examples.py"))
-collect = cast(Callable[..., None], SCRIPT["collect"])
+from apb_export_ui.web.example_build import EXAMPLE_DATA, collect
 
 
 def _table(path: Path, rows: list[dict[str, str]]) -> None:
@@ -26,6 +24,82 @@ def _table(path: Path, rows: list[dict[str, str]]) -> None:
 def _read(path: Path) -> list[dict[str, str]]:
     with path.open(newline="") as handle:
         return list(csv.DictReader(handle))
+
+
+def test_build_subcommand_uses_packaged_metadata_from_another_working_directory(
+    tmp_path: Path,
+) -> None:
+    workspace = tmp_path / "workspace"
+    studio = workspace / "apb_studio"
+    root = studio / "test_data_download"
+    dataset = "submissions/synthetic"
+    original = b"Run\tIntensity\nrun_A\t123.4567890123456789\n"
+    source = root / dataset / "input.tsv.gz"
+    source.parent.mkdir(parents=True)
+    source.write_bytes(gzip.compress(original))
+    _table(
+        root / "downloads.csv",
+        [
+            {
+                "dataset": dataset,
+                "input_file_path": f"{dataset}/input.tsv.gz",
+                "vendor_parameter_file_path": "",
+                "module": "synthetic",
+                "software_name": "DIA-NN",
+            }
+        ],
+    )
+    _table(studio / "corpuses/routine.csv", [{"dataset": dataset, "note": "test fixture"}])
+    _table(
+        studio / "workflow_tables/workflow_proteobench.csv",
+        [{"module": "synthetic", "fasta": "fasta/test.fasta"}],
+    )
+    fasta = root / "fasta/test.fasta"
+    fasta.parent.mkdir()
+    fasta.write_text(">P1\nPEPTIDEK\n", encoding="utf-8")
+    modules = workspace / "apb-proteobench/src/apb_proteobench/data/modules"
+    modules.mkdir(parents=True)
+    (modules / "synthetic.sdrf.tsv").write_text("sample annotation\n", encoding="utf-8")
+    extra_rows = _read(EXAMPLE_DATA / "examples.csv")
+    for row in extra_rows:
+        sources = (
+            [workspace / row["source"]]
+            if row["source"]
+            else [
+                root / row[column]
+                for column in ("input_file", "vendor_parameter_file")
+                if row[column]
+            ]
+        )
+        for path in sources:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b"complete supplementary input\n")
+    output = tmp_path / "staged"
+
+    result = subprocess.run(
+        [
+            str(Path(sys.executable).with_name("apb-export-web")),
+            "examples",
+            "build",
+            str(output),
+            str(workspace),
+        ],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=True,
+    )
+
+    assert "1 corpus" in result.stdout
+    assert len(_read(output / "examples.csv")) == 1 + len(extra_rows)
+    assert (output / "data" / dataset / "input.tsv").read_bytes() == original
+    assert (output / "data/fasta/test.fasta").read_bytes() == fasta.read_bytes()
+    assert (output / "sdrf/synthetic.sdrf.tsv").read_text() == "sample annotation\n"
+    for row in extra_rows:
+        if row["sdrf"]:
+            annotation = (output / "data" / row["input_file"]).parent / "sdrf.tsv"
+            assert annotation.read_bytes() == (EXAMPLE_DATA / row["sdrf"]).read_bytes()
 
 
 def test_complete_gzipped_fixture_and_annotation_are_staged_without_a_benchmark_fasta(

@@ -24,5 +24,5 @@ COPY pyproject.toml uv.lock README.md LICENSE ./
 COPY src/ ./src/
 COPY --from=frontend /src/apb_export_ui/web/static/ ./src/apb_export_ui/web/static/
 RUN --mount=type=cache,target=/root/.cache/uv uv sync --locked --no-dev --no-editable
-ENTRYPOINT ["apb-export-web", "--host", "0.0.0.0", "--port", "8000", "--store", "/data/store"]
+ENTRYPOINT ["apb-export-web", "serve", "--host", "0.0.0.0", "--port", "8000", "--store", "/data/store"]
 EXPOSE 8000

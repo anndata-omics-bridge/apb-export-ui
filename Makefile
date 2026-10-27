@@ -2,8 +2,7 @@ VENV_BIN := .venv/bin
 IMAGE ?= ghcr.io/anndata-omics-bridge/apb-export-ui
 IMAGE_TAG ?= local
 UI_REVISION ?= $(shell git rev-parse --verify HEAD 2>/dev/null || echo uncommitted)
-STUDIO ?= ../apb_studio
-MODULES ?= ../apb-proteobench/src/apb_proteobench/data/modules
+EXAMPLES_WORKSPACE ?= ..
 WEB_EXAMPLES ?= build/web-examples
 
 .DEFAULT_GOAL := help
@@ -65,7 +64,7 @@ check:  ## Run every merge-blocking gate
 check-full: check smoke-wheel image smoke-container  ## Run every pre-push acceptance check
 
 web-examples:  ## Stage complete Fixture Manager inputs using the routine inventory
-	$(VENV_BIN)/python scripts/web_examples.py $(STUDIO)/corpuses/routine.csv $(STUDIO)/test_data_download $(MODULES) $(WEB_EXAMPLES) --extra scripts/web_examples.csv --workspace .. --fastas $(STUDIO)/workflow_tables/workflow_proteobench.csv
+	$(VENV_BIN)/apb-export-web examples build "$(WEB_EXAMPLES)" "$(EXAMPLES_WORKSPACE)"
 
 clean:  ## Remove generated quality and packaging output
 	$(VENV_BIN)/python -c "import shutil; [shutil.rmtree(path, ignore_errors=True) for path in ('build', 'dist', '.pytest_cache', '.ruff_cache')]"
