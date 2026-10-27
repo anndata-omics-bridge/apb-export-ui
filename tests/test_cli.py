@@ -49,10 +49,13 @@ def test_help_exits_without_creating_a_store(
 
 
 @pytest.mark.parametrize("use_default", [True, False])
+@pytest.mark.parametrize("working_directory", ["", "build", "build/nested"])
 def test_serve_offers_staged_inputs_from_the_default_or_explicit_directory(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, use_default: bool
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, use_default: bool, working_directory: str
 ) -> None:
-    monkeypatch.chdir(tmp_path)
+    start = tmp_path / working_directory
+    start.mkdir(parents=True, exist_ok=True)
+    monkeypatch.chdir(start)
     staged = tmp_path / ("build/web-examples" if use_default else "custom-examples")
     data = staged / "data"
     data.mkdir(parents=True)

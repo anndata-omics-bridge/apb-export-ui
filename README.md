@@ -20,7 +20,7 @@ Running `serve` again gracefully restarts a verified instance of this app on the
 
 `examples build` defaults to `build/web-examples` and the parent APB workspace. Optional positional arguments are the destination directory followed by the workspace root.
 
-`serve` automatically loads the built examples when present; an optional positional directory overrides that location. Without a built example bundle, it serves uploads only.
+`serve` finds `build/web-examples` in the current directory or its nearest parent, so it also works from checkout subdirectories; an optional positional directory overrides that location. Startup logs the loaded count and directory, or a build reminder if no bundle is found.
 
 Python 3.13 is the tested interpreter; Node 22 is used only for frontend development and builds. The installed wheel serves its packaged assets without Node.
 

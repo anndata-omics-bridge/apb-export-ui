@@ -137,8 +137,16 @@ def serve(
     timeout_minutes: Annotated[float, Parameter(help="Fail a job running longer")] = 60.0,
 ) -> None:
     """Start the web app, restarting an existing app on the same address."""
-    if examples is None and (DEFAULT_EXAMPLES / "examples.csv").is_file():
-        examples = DEFAULT_EXAMPLES
+    if examples is None:
+        working_directory = Path.cwd()
+        examples = next(
+            (
+                root / DEFAULT_EXAMPLES
+                for root in (working_directory, *working_directory.parents)
+                if (root / DEFAULT_EXAMPLES / "examples.csv").is_file()
+            ),
+            None,
+        )
     _restart_existing(host, port)
     jobs = JobStore(store, ttl_seconds=ttl_hours * 3600)
     jobs.interrupt_unfinished()
@@ -157,6 +165,10 @@ def serve(
             rule_versions(),
         )
     )
+    if examples is None:
+        logger.warning("No built examples found; run `apb-export-web examples build`")
+    else:
+        logger.info(f"Loaded {len(offered)} examples from {examples.resolve()}")
     write_examples(jobs.examples_path, offered)
     write_previews(jobs.previews, offered)
     worker = Worker(jobs, timeout_seconds=timeout_minutes * 60)

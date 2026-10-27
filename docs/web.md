@@ -22,7 +22,7 @@ uv run --locked apb-export-web serve
 
 Staging requires APB Studio's routine fixtures to be downloaded already. Start the server with `apb-export-web serve` and stop it with Ctrl-C.
 
-`serve` loads the default built examples automatically when available. If no example bundle has been built, it serves uploads only; an explicit positional directory selects another bundle.
+`serve` searches the current directory and then its parents for `build/web-examples`, so starting from a checkout subdirectory loads the same bundle. An explicit positional directory selects another bundle. Startup logs the loaded count and directory, or a build reminder if no bundle is found.
 
 If this app already owns the requested address, `serve` gracefully stops it and waits for the port before starting the replacement. The check verifies the listening socket, process owner and installed app entry point; an unrelated or unverifiable listener is left running, and startup exits before changing the job store.
 
