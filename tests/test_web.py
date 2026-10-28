@@ -30,7 +30,7 @@ from apb_export_ui.web.examples import (
     write_previews,
 )
 from apb_export_ui.web.exports import Export, SoftwareHint, export_for, load_hints, rule_versions
-from apb_export_ui.web.job import error_text
+from apb_export_ui.web.job import anndata_matrices, error_text
 from apb_export_ui.web.job import main as run_job
 from apb_export_ui.web.options import about, outputs, write_options
 from apb_export_ui.web.qc import ALL_SAMPLES, Matrix, grouping_column, summarize
@@ -425,6 +425,14 @@ def test_unfinished_jobs_fail_when_a_new_server_starts(tmp_path: Path) -> None:
     assert job.status().state == "failed"
     store.expire()
     assert not job.root.exists(), "finished jobs past their time-to-live are deleted"
+
+
+def test_a_table_export_has_no_matrix_to_summarize(tmp_path: Path) -> None:
+    """MSstats' long table is read by MSstats, not summarized as a samples-by-features matrix."""
+    table = tmp_path / "report_msstats.csv"
+    table.write_text("Run,ProteinName,Intensity\nrun_A1,P1,1000\n", encoding="utf-8")
+
+    assert anndata_matrices(table, []) == []
 
 
 def test_qc_counts_densities_and_cv_by_group() -> None:
