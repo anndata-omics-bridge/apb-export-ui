@@ -32,24 +32,28 @@ def test_build_subcommand_uses_packaged_metadata_from_another_working_directory(
     workspace = tmp_path / "workspace"
     studio = workspace / "apb_studio"
     root = studio / "test_data_download"
-    dataset = "submissions/synthetic"
+    datasets = _read(EXAMPLE_DATA / "datasets.csv")
+    dataset = datasets[0]["dataset"]
     original = b"Run\tIntensity\nrun_A\t123.4567890123456789\n"
-    source = root / dataset / "input.tsv.gz"
-    source.parent.mkdir(parents=True)
-    source.write_bytes(gzip.compress(original))
-    _table(
-        root / "downloads.csv",
-        [
+    held: list[dict[str, str]] = []
+    for selected in datasets:
+        key = selected["dataset"]
+        source = root / key / "input.tsv.gz"
+        source.parent.mkdir(parents=True)
+        source.write_bytes(gzip.compress(original))
+        held.append(
             {
-                "dataset": dataset,
-                "input_file_path": f"{dataset}/input.tsv.gz",
+                "dataset": key,
+                "input_file_path": f"{key}/input.tsv.gz",
                 "vendor_parameter_file_path": "",
                 "module": "synthetic",
                 "software_name": "DIA-NN",
             }
-        ],
+        )
+    _table(
+        root / "downloads.csv",
+        held,
     )
-    _table(studio / "corpuses/routine.csv", [{"dataset": dataset, "note": "test fixture"}])
     _table(
         studio / "workflow_tables/workflow_proteobench.csv",
         [{"module": "synthetic", "fasta": "fasta/test.fasta"}],
@@ -91,8 +95,8 @@ def test_build_subcommand_uses_packaged_metadata_from_another_working_directory(
         check=True,
     )
 
-    assert "1 corpus" in result.stdout
-    assert len(_read(output / "examples.csv")) == 1 + len(extra_rows)
+    assert f"{len(datasets)} corpus" in result.stdout
+    assert len(_read(output / "examples.csv")) == len(datasets) + len(extra_rows)
     assert (output / "data" / dataset / "input.tsv").read_bytes() == original
     assert (output / "data/fasta/test.fasta").read_bytes() == fasta.read_bytes()
     assert (output / "sdrf/synthetic.sdrf.tsv").read_text() == "sample annotation\n"
@@ -100,6 +104,13 @@ def test_build_subcommand_uses_packaged_metadata_from_another_working_directory(
         if row["sdrf"]:
             annotation = (output / "data" / row["input_file"]).parent / "sdrf.tsv"
             assert annotation.read_bytes() == (EXAMPLE_DATA / row["sdrf"]).read_bytes()
+
+
+def test_web_selection_offers_conventional_maxquant_without_peptide_entrapment() -> None:
+    datasets = {row["dataset"] for row in _read(EXAMPLE_DATA / "datasets.csv")}
+    assert "zenodo/directlfq/MaxQuant_boxcar" in datasets
+    assert "Results_quant_ion_DDA/00e2f863939301a2a71178652972dad895b27520" in datasets
+    assert not any("entrapment" in dataset for dataset in datasets)
 
 
 def test_complete_gzipped_fixture_and_annotation_are_staged_without_a_benchmark_fasta(

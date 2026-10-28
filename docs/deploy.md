@@ -38,7 +38,7 @@ Completed jobs retain their existing layout. On restart, existing unfinished job
 
 ## Examples
 
-`apb-export-web examples build` stages the routine corpus plus five extra examples; `make web-examples` delegates to the same command. Optional positional arguments select the destination directory and APB workspace; corpus keys resolve through Studio's managed fixture manifest, while supplementary metadata ships with this package.
+`apb-export-web examples build` stages the packaged web selection plus five supplementary examples; `make web-examples` delegates to the same command. Optional positional arguments select the destination directory and APB workspace; dataset keys resolve through Studio's managed fixture manifest. The selection includes conventional MaxQuant BoxCar tables and excludes peptide-entrapment data. Selection, supplementary metadata and annotations ship with this package.
 
 Text tables and annotations are unpacked from gzip without changing their contents. No real fixtures are committed.
 

@@ -6,7 +6,7 @@ The upload page, server, job runner and QC presentation for [APB Export](https:/
 
 `apb-export-web` without arguments shows help. Use `apb-export-web serve --help` for server options.
 
-From a workspace checkout with APB Studio's routine fixtures already downloaded:
+From a workspace checkout with the selected fixtures already downloaded through APB Studio:
 
 ```bash
 uv sync --locked --group dev
@@ -19,6 +19,8 @@ Open http://127.0.0.1:8770; stop the server with Ctrl-C. Stage examples once, th
 Running `serve` again gracefully restarts a verified instance of this app on the same address. An unrelated listener is left running, and startup exits before changing the job store.
 
 `examples build` defaults to `build/web-examples` and the parent APB workspace. Optional positional arguments are the destination directory followed by the workspace root.
+
+The packaged [web selection](src/apb_export_ui/web/example_data/datasets.csv) includes conventional MaxQuant evidence and the complete MaxQuant BoxCar folder. It excludes peptide-entrapment datasets. Acquire the selected fixtures through Studio's Fixture Manager before staging; BoxCar is in Studio's `directlfq` inventory.
 
 `serve` finds `build/web-examples` in the current directory or its nearest parent, so it also works from checkout subdirectories; an optional positional directory overrides that location. Startup logs the loaded count and directory, or a build reminder if no bundle is found.
 

@@ -63,7 +63,7 @@ check:  ## Run every merge-blocking gate
 
 check-full: check smoke-wheel image smoke-container  ## Run every pre-push acceptance check
 
-web-examples:  ## Stage complete Fixture Manager inputs using the routine inventory
+web-examples:  ## Stage complete Fixture Manager inputs for the packaged web selection
 	$(VENV_BIN)/apb-export-web examples build "$(WEB_EXAMPLES)" "$(EXAMPLES_WORKSPACE)"
 
 clean:  ## Remove generated quality and packaging output

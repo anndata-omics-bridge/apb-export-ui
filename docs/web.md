@@ -20,7 +20,7 @@ uv run --locked apb-export-web examples build
 uv run --locked apb-export-web serve
 ```
 
-Staging requires APB Studio's routine fixtures to be downloaded already. Start the server with `apb-export-web serve` and stop it with Ctrl-C.
+Staging requires the selected fixtures to be downloaded through APB Studio already. Start the server with `apb-export-web serve` and stop it with Ctrl-C.
 
 `serve` searches the current directory and then its parents for `build/web-examples`, so starting from a checkout subdirectory loads the same bundle. An explicit positional directory selects another bundle. Startup logs the loaded count and directory, or a build reminder if no bundle is found.
 
@@ -32,7 +32,7 @@ On desktop, Software and Files share the left column and Output fills the right.
 
 ## Examples
 
-`apb-export-web examples build` resolves Studio's `dataset,note` inventory through the Fixture Manager's `downloads.csv` and writes a staged manifest under `build/web-examples`. `apb-export-web serve` reads that bundle automatically; the optional positional directory overrides its location.
+`apb-export-web examples build` resolves the packaged [web selection](../src/apb_export_ui/web/example_data/datasets.csv) through the Fixture Manager's `downloads.csv` and writes a staged manifest under `build/web-examples`. MaxQuant offers a conventional evidence file and the complete BoxCar folder with evidence, peptides and protein groups; peptide-entrapment datasets are excluded. `apb-export-web serve` reads that bundle automatically; the optional positional directory overrides its location.
 
 `examples build [DIRECTORY] [WORKSPACE]` accepts optional positional destination and workspace roots; the defaults are `build/web-examples` and `..`. The builder ships its supplementary example metadata and annotations with the Python package.
 

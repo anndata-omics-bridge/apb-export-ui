@@ -107,10 +107,10 @@ def build_examples(
     ] = Path(".."),
     /,
 ) -> None:
-    """Build examples from Studio's routine inventory and packaged supplementary metadata."""
+    """Build the packaged web selection from Studio's managed fixtures."""
     studio = workspace / "apb_studio"
     collect(
-        studio / "corpuses/routine.csv",
+        EXAMPLE_DATA / "datasets.csv",
         studio / "test_data_download",
         workspace / "apb-proteobench/src/apb_proteobench/data/modules",
         directory,
