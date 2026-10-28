@@ -7,7 +7,8 @@ such as apb-proteobench's module data, is.
 
 ProteoBench stores uploads as ``input_file.*`` and ``param_0.*``. An example's version, read
 from its parameter file, picks the export it is, so the page shows and serves the names the
-tool itself wrote.
+tool itself wrote. The levels apb2 finds in an example's files, as a job links them, tell the
+page which outputs the example can give.
 """
 
 from __future__ import annotations
@@ -16,12 +17,13 @@ import csv
 import hashlib
 import re
 import shutil
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from itertools import islice
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import polars as pl
-from apb2.api import parse_search_parameters
+from apb2.api import ConversionError, ParseRuleCompiler, parse_search_parameters
 from loguru import logger
 
 from apb_export_ui.web.exports import Export, SoftwareHint, export_for
@@ -55,6 +57,9 @@ class Example:
     secondary: tuple[Path, ...] = ()
     # The FASTA its module prescribes, from the corpus's optional ``fasta`` column.
     fasta: Path | None = None
+    # The levels apb2 finds in its result, read with its parameter file when it has one;
+    # None when apb2 cannot read it.
+    levels: tuple[str, ...] | None = None
 
     def inputs(self) -> dict[str, list[tuple[str, Path]]]:
         """Each input field's files: the names the tool wrote, else the stored names."""
@@ -71,6 +76,28 @@ class Example:
         if self.fasta is not None:
             named["fasta"] = [(self.fasta.name, self.fasta)]
         return named
+
+    def link(self, folder: Path, fields: set[str]) -> dict[str, Path]:
+        """Link the chosen fields' files into ``folder/<field>`` under the names the tool wrote.
+
+        Several result files go into one folder named after the first, which the converter
+        reads as one vendor result.
+
+        Returns:
+            Each linked field's file, or folder of several files.
+        """
+        linked: dict[str, Path] = {}
+        for field, named in self.inputs().items():
+            if field not in fields:
+                continue
+            target = folder / field
+            if len(named) > 1:
+                target = target / Path(named[0][0]).stem
+            target.mkdir(parents=True)
+            for name, path in named:
+                (target / name).symlink_to(path, target_is_directory=path.is_dir())
+            linked[field] = target if len(named) > 1 else target / named[0][0]
+        return linked
 
     def folder_files(self) -> list[Path]:
         """The files inside a folder result, such as MaxQuant's txt folder; none for a file."""
@@ -112,6 +139,7 @@ class Example:
             "annotation": None if annotation is None else annotation[0][0],
             "fasta": None if self.fasta is None else self.fasta.name,
             "export": None if self.export is None else self.export.describe(),
+            "levels": None if self.levels is None else list(self.levels),
             "bytes": sum(_size(path) for path in (self.data, *self.secondary)),
         }
 
@@ -164,6 +192,27 @@ def _version(params: Path | None, software: str) -> str | None:
         logger.warning(f"no version for example parameters {params}: {error}")
         return None
     return None if version is None else str(version).strip()
+
+
+def _levels(example: Example, software: list[str]) -> tuple[str, ...] | None:
+    """The levels apb2 finds in the example's result and parameter file, linked and named as a
+    job links them and read as apb-export reads them; None when apb2 cannot read them."""
+    named = example.software if example.params is not None else example.result_software
+    chosen = named if named in software else None
+    with TemporaryDirectory() as folder:
+        linked = example.link(Path(folder), {"data", "params"})
+        data, params = linked["data"], linked.get("params")
+        try:
+            compiler = (
+                ParseRuleCompiler.from_software(data, chosen)
+                if params is None and chosen is not None
+                else ParseRuleCompiler.detect(data, params, software=chosen)
+            )
+        except ConversionError as error:
+            # Every output is offered, as for an upload; the job reports apb2's error.
+            logger.warning(f"{example.data}: apb2 finds no level: {error}")
+            return None
+    return tuple(selection.level for selection in compiler.detection.levels)
 
 
 def load_examples(
@@ -225,7 +274,7 @@ def load_examples(
                 fasta=root / row["fasta"] if row.get("fasta") else None,
             )
         )
-    return examples
+    return [replace(example, levels=_levels(example, software or [])) for example in examples]
 
 
 def write_examples(path: Path, examples: list[Example]) -> None:

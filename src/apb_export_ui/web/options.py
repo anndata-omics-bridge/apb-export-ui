@@ -94,6 +94,12 @@ def about() -> dict[str, dict[str, object]]:
     return json.loads(ABOUT.read_text(encoding="utf-8"))
 
 
+def reads(output: Output) -> list[str]:
+    """The levels an apb-export target reads, any of which it needs; none for an APB2 format,
+    which writes whichever levels the result has."""
+    return list(Exporter(output.name).levels) if output.command == "apb-export" else []
+
+
 def write_options(path: Path, max_upload_bytes: int) -> tuple[list[str], list[Output]]:
     """Write ``options.json`` and return the software and outputs it lists.
 
@@ -110,7 +116,10 @@ def write_options(path: Path, max_upload_bytes: int) -> tuple[list[str], list[Ou
         {
             "software": names,
             "hints": load_hints()[0],
-            "outputs": [{**asdict(output), "about": described[output.id]} for output in offered],
+            "outputs": [
+                {**asdict(output), "about": described[output.id], "levels": reads(output)}
+                for output in offered
+            ],
             "max_upload_bytes": max_upload_bytes,
             "versions": {
                 name: version(name) for name in ("apb-export", "apb2", "apb-pmultiqc", "pmultiqc")

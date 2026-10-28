@@ -194,24 +194,9 @@ class Api:
         return FileResponse(path, headers={"Cache-Control": "no-cache"})
 
     def _link_example(self, job: Job, example: Example, fields: set[str]) -> dict[str, str]:
-        """The chosen example files, linked into the job under the names the tool wrote.
-
-        Several result files go into one folder named after the first, which the
-        converter reads as one vendor result.
-        """
-        saved: dict[str, str] = {}
-        for field, named in example.inputs().items():
-            if field not in fields:
-                continue
-            folder = job.inputs / field
-            if len(named) > 1:
-                folder = folder / Path(named[0][0]).stem
-            folder.mkdir(parents=True)
-            for name, path in named:
-                (folder / name).symlink_to(path, target_is_directory=path.is_dir())
-            target = folder if len(named) > 1 else folder / named[0][0]
-            saved[field] = str(target.relative_to(job.root))
-        return saved
+        """The chosen example files, linked into the job under the names the tool wrote."""
+        linked = example.link(job.inputs, fields)
+        return {field: str(path.relative_to(job.root)) for field, path in linked.items()}
 
     def _inputs(
         self,

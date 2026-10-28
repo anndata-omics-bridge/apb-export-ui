@@ -37,6 +37,13 @@ const VARIANTS: Array<Variant & { phrase: string }> = [
 const variantsOf = (example: Example): typeof VARIANTS =>
   VARIANTS.filter(({ files }) => files.includes('params') ? example.params !== null : files === 'data' || example.params === null)
 
+// Why an example cannot give an output: it holds none of the levels the output reads. An
+// example APB2 cannot read, or an output that takes any level, is never refused here.
+export const lacking = (output: Output, levels: string[] | null): string | null => {
+  if (levels === null || output.levels.length === 0 || output.levels.some(level => levels.includes(level))) return null
+  return `${output.about.title} reads ${output.levels.join(' or ')}; this example holds ${levels.join(', ')}.`
+}
+
 // Software first, then either an example or the user's own files. Emits `submit-job` with the
 // multipart form the server's POST /api/jobs reads.
 export class ApbUploadForm extends LitElement {
@@ -89,6 +96,10 @@ export class ApbUploadForm extends LitElement {
     this.example = null
     this.hasData = false
     this.hasParams = false
+  }
+
+  private lacks (output: Output): string | null {
+    return lacking(output, this.example?.levels ?? null)
   }
 
   private unavailable (example: Example, files: ExampleFiles): string | null {
@@ -276,9 +287,10 @@ export class ApbUploadForm extends LitElement {
   private renderTile (output: Output, chosen: Output | undefined): TemplateResult {
     const { id, about } = output
     const selected = id === chosen?.id
+    const reason = this.lacks(output)
     return html`
-      <label class="tile ${selected ? 'chosen' : ''}" title=${about.what}>
-        <input type="radio" name="output" class="visually-hidden" .checked=${selected}
+      <label class="tile ${selected ? 'chosen' : ''} ${reason ? 'unavailable' : ''}" title=${reason ?? about.what}>
+        <input type="radio" name="output" class="visually-hidden" .checked=${selected} ?disabled=${reason !== null}
           @change=${() => { this.output = id }}>
         <span class="tile-title">${about.title}${about.version ? html`<span class="version">${about.version}</span>` : nothing}</span>
         <code class="tile-file">${about.file}</code>
@@ -321,6 +333,8 @@ export class ApbUploadForm extends LitElement {
     if (!this.example && this.hint()?.params_required && !this.hasParams) return `${this.software} needs its parameter file.`
     const output = this.chosen()
     if (this.example && this.exampleFasta && output !== undefined && !output.fasta) return `${output.about.title} takes no FASTA; switch "+ FASTA" off.`
+    const lacking = output === undefined ? null : this.lacks(output)
+    if (lacking !== null) return `${lacking} Choose another output.`
     return null
   }
 

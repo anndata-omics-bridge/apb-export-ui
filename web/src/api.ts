@@ -25,6 +25,9 @@ export interface Output {
   annotation: boolean
   // Whether a FASTA changes the result: msmu's contaminant flags, APB2's peptide check.
   fasta: boolean
+  // The APB2 levels an apb-export target reads, any of which it needs; empty for an APB2
+  // format, which writes whichever levels the result has.
+  levels: string[]
   about: About
 }
 
@@ -71,6 +74,8 @@ export interface Example {
   fasta: string | null
   export: Export | null
   bytes: number
+  // The levels APB2 finds in its result; null when APB2 cannot read it.
+  levels: string[] | null
 }
 
 export type State = 'queued' | 'running' | 'done' | 'failed'

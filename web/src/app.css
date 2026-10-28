@@ -139,6 +139,7 @@ button.secondary[disabled] { border-color: var(--line); color: var(--muted); }
 .tile:hover { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
 .tile.chosen { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); box-shadow: inset 0 0 0 1px var(--accent); }
 .tile:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tile.unavailable { opacity: 0.45; cursor: not-allowed; }
 .tile-title { font-weight: 600; }
 .tile-title .version { color: var(--muted); font-weight: 400; margin-left: 6px; }
 .tile-file { color: var(--muted); font-size: 0.8rem; }

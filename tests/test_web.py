@@ -32,7 +32,7 @@ from apb_export_ui.web.examples import (
 from apb_export_ui.web.exports import Export, SoftwareHint, export_for, load_hints, rule_versions
 from apb_export_ui.web.job import anndata_matrices, error_text
 from apb_export_ui.web.job import main as run_job
-from apb_export_ui.web.options import about, outputs, write_options
+from apb_export_ui.web.options import about, outputs, reads, write_options
 from apb_export_ui.web.qc import ALL_SAMPLES, Matrix, grouping_column, summarize
 from apb_export_ui.web.server import Worker, create_app
 from apb_export_ui.web.store import (
@@ -123,6 +123,8 @@ def test_options_list_targets_formats_and_annotation_support(options: Options) -
     assert not by_id["apb-export:msmu"].annotation, "msmu's command takes no --annotation"
     assert {"apb2:hdf5", "apb2:parquet", "apb2:duckdb"} <= by_id.keys()
     assert all(output.fasta for output in outputs), "every output takes an optional FASTA"
+    assert reads(by_id["apb-export:perseus"]) == ["protein"], "the page refuses examples without it"
+    assert reads(by_id["apb2:parquet"]) == [], "an APB2 format writes whichever levels it finds"
 
 
 def test_an_msmu_job_flags_the_uploaded_fastas_contaminants(
@@ -554,6 +556,7 @@ def test_examples_read_a_corpus_and_find_its_sdrf(examples: list[Example]) -> No
         "annotation": "sdrf.tsv",
     }, "the names DIA-NN wrote, not ProteoBench's storage names"
     assert set(example.files()) == {"report.tsv", "report.log.txt", "sdrf.tsv"}
+    assert described["levels"] == ["peptidoform_ion", "protein"], "what apb2 finds in it"
 
 
 def test_examples_under_a_relative_root_have_absolute_paths(
@@ -813,6 +816,7 @@ def test_a_folder_example_lists_and_serves_every_file_in_it(tmp_path: Path) -> N
     write_previews(tmp_path / "previews", [example])
 
     assert example.describe()["folder_files"] == ["evidence.txt", "mqpar.xml", "peptides.txt"]
+    assert example.levels is None, "apb2 reads no level from placeholder tables; all are offered"
     assert set(example.files()) == {"evidence.txt", "mqpar.xml", "peptides.txt"}
     assert (tmp_path / "previews" / example.id / "peptides.txt.json").is_file()
 

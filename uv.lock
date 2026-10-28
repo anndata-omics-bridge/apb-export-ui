@@ -167,8 +167,8 @@ requires-dist = [
     { name = "apb-catalog", git = "https://github.com/anndata-omics-bridge/apb-catalog.git?rev=f40edc03d2407cb208e9ae3035a39bca9c5ecd49" },
     { name = "apb-export", git = "https://github.com/anndata-omics-bridge/apb-export.git?rev=817825a56985c0ade764233ea5d621a8e32a248f" },
     { name = "apb-fasta", git = "https://github.com/anndata-omics-bridge/apb-fasta.git?rev=5830b080542ed59ec4e40d7ca65e590c5beafe2e" },
-    { name = "apb-pmultiqc", git = "https://github.com/anndata-omics-bridge/apb-pmultiqc.git?rev=248f96d134ecad822c813237a834f673f9f74be3" },
-    { name = "apb2", git = "https://github.com/anndata-omics-bridge/apb2.git?rev=c05c1ed18b3d412da661dd49a4122a30a2721890" },
+    { name = "apb-pmultiqc", git = "https://github.com/anndata-omics-bridge/apb-pmultiqc.git?rev=83abb7a2482af856720ed7bc20bd76430ef94b18" },
+    { name = "apb2", git = "https://github.com/anndata-omics-bridge/apb2.git?rev=45ffc2c168156237c551ba7382538702c07bca9f" },
     { name = "cyclopts", specifier = ">=4,<5" },
     { name = "fastapi", specifier = ">=0.142,<1" },
     { name = "loguru", specifier = ">=0.7,<1" },
@@ -213,7 +213,7 @@ dependencies = [
 [[package]]
 name = "apb-pmultiqc"
 version = "0.1.1"
-source = { git = "https://github.com/anndata-omics-bridge/apb-pmultiqc.git?rev=248f96d134ecad822c813237a834f673f9f74be3#248f96d134ecad822c813237a834f673f9f74be3" }
+source = { git = "https://github.com/anndata-omics-bridge/apb-pmultiqc.git?rev=83abb7a2482af856720ed7bc20bd76430ef94b18#83abb7a2482af856720ed7bc20bd76430ef94b18" }
 dependencies = [
     { name = "apb-catalog" },
     { name = "apb-export" },
@@ -231,7 +231,7 @@ dependencies = [
 [[package]]
 name = "apb2"
 version = "0.1.1"
-source = { git = "https://github.com/anndata-omics-bridge/apb2.git?rev=c05c1ed18b3d412da661dd49a4122a30a2721890#c05c1ed18b3d412da661dd49a4122a30a2721890" }
+source = { git = "https://github.com/anndata-omics-bridge/apb2.git?rev=45ffc2c168156237c551ba7382538702c07bca9f#45ffc2c168156237c551ba7382538702c07bca9f" }
 dependencies = [
     { name = "anndata" },
     { name = "cyclopts" },
