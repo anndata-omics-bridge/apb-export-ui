@@ -1,7 +1,7 @@
 """Stage managed fixtures, annotations and FASTAs as one web examples directory.
 
 Corpus keys resolve through the Fixture Manager's manifest. Supplementary input sources
-are workspace-relative; their annotation paths are relative to the supplementary CSV.
+are workspace-relative; annotation paths are relative to the CSV that names them.
 Gzip files are unpacked without changing their contents.
 """
 
@@ -55,6 +55,7 @@ def _corpus_rows(corpus: Path, manifest: Path) -> list[dict[str, str]]:
                 "vendor_parameter_file": held["vendor_parameter_file_path"],
                 "module": held["module"],
                 "software_name": held["software_name"],
+                "sdrf": selected.get("sdrf", ""),
             }
         )
     return rows
@@ -77,6 +78,15 @@ def _copy_input_folders(rows: list[dict[str, str]], root: Path, out: Path) -> No
                 _copy(source, target.with_suffix("") if source.suffix == ".gz" else target)
 
 
+def _copy_annotations(rows: list[dict[str, str]], source: Path, out: Path) -> None:
+    """Put dataset-specific annotations beside a file input or inside a folder input."""
+    for row in rows:
+        if row.get("sdrf"):
+            target = out / "data" / row["input_file"]
+            folder = target if target.is_dir() else target.parent
+            _copy(source / row["sdrf"], folder / "sdrf.tsv")
+
+
 def collect(
     corpus: Path,
     root: Path,
@@ -91,15 +101,12 @@ def collect(
     rows = _corpus_rows(corpus, root / manifest)
     added = [] if extra is None else _rows(extra)
     _copy_input_folders([*rows, *(row for row in added if not row["source"])], root, out)
+    _copy_annotations(rows, corpus.parent, out)
     if extra is not None:
         for row in added:
             if row["source"]:
                 _copy(workspace / row["source"], out / "data" / row["input_file"])
-            if row["sdrf"]:
-                _copy(
-                    extra.parent / row["sdrf"],
-                    (out / "data" / row["input_file"]).parent / "sdrf.tsv",
-                )
+        _copy_annotations(added, extra.parent, out)
     modules = {} if fastas is None else {row["module"]: row["fasta"] for row in _rows(fastas)}
     for row in [*rows, *added]:
         for column in ("input_file", "vendor_parameter_file"):

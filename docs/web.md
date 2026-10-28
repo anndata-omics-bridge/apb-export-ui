@@ -36,11 +36,13 @@ On desktop, Software and Files share the left column and Output fills the right.
 
 `examples build [DIRECTORY] [WORKSPACE]` accepts optional positional destination and workspace roots; the defaults are `build/web-examples` and `..`. The builder ships its supplementary example metadata and annotations with the Python package.
 
+The BoxCar selection includes a [sample annotation](../src/apb_export_ui/web/example_data/maxquant-boxcar.samples.tsv) derived from the original evidence table's Raw file and Experiment columns. Its prolfquapp-style `raw_file` key and `raw_file_alias` match the raw runs at precursor level and the Experiment names at peptide and protein levels. Choose **+ sample annotation** to compute CV within four groups of three technical replicates: `BoxCar_02-01`, `BoxCar_12-01`, `Shotgun_02-01` and `Shotgun_12-01`. Each group holds one acquisition method and one mixture. The selection's optional `sdrf` field names a CSV-relative annotation; staging puts it inside a folder input or beside a file input.
+
 Examples can run three ways:
 
 - Result file only
 - With its parameter file
-- With parameters and SDRF
+- With parameters and sample annotation
 
 The server uses the sample annotation beside the input, or the module annotation staged with the examples. It links the chosen files into the job instead of uploading them; the data stays where the corpus keeps it.
 

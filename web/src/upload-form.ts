@@ -17,7 +17,7 @@ export function sourceLabel (url: string): string {
 }
 
 // What an example run includes: the result alone, with its parameters, or with both and the
-// sample annotation; a result without a parameter file, such as pb_custom's, with the SDRF
+// sample annotation; a result without a parameter file, such as pb_custom's, with annotation
 // alone. "+ FASTA" adds the module's FASTA to any of them. The server links exactly these files.
 export type ExampleFiles = 'data' | 'data,params' | 'data,params,annotation' | 'data,annotation'
 
@@ -29,11 +29,11 @@ interface Variant {
 const VARIANTS: Array<Variant & { phrase: string }> = [
   { files: 'data', label: 'Result file only', phrase: 'result file only' },
   { files: 'data,params', label: '+ parameter file', phrase: 'result and parameter file' },
-  { files: 'data,params,annotation', label: '+ parameters + SDRF', phrase: 'result, parameters and SDRF' },
-  { files: 'data,annotation', label: '+ SDRF', phrase: 'result file and SDRF' }
+  { files: 'data,params,annotation', label: '+ parameters + annotation', phrase: 'result, parameters and sample annotation' },
+  { files: 'data,annotation', label: '+ sample annotation', phrase: 'result file and sample annotation' }
 ]
 
-// An example with a parameter file adds it before the SDRF; one without adds the SDRF alone.
+// An example with a parameter file adds it before annotation; one without adds annotation alone.
 const variantsOf = (example: Example): typeof VARIANTS =>
   VARIANTS.filter(({ files }) => files.includes('params') ? example.params !== null : files === 'data' || example.params === null)
 
@@ -94,7 +94,7 @@ export class ApbUploadForm extends LitElement {
   private unavailable (example: Example, files: ExampleFiles): string | null {
     if (files === 'data' && this.hint()?.params_required && example.label === example.software) return `${example.software} needs its parameter file`
     if (files.includes('params') && example.params === null) return 'this example has no parameter file'
-    if (files.endsWith('annotation') && example.annotation === null) return 'this example has no SDRF'
+    if (files.endsWith('annotation') && example.annotation === null) return 'this example has no sample annotation'
     return null
   }
 
@@ -194,7 +194,7 @@ export class ApbUploadForm extends LitElement {
   }
 
   // "+ FASTA" adds the module FASTA to the chosen files; on a row not chosen yet it picks the
-  // result file alone, since the FASTA check needs neither parameters nor an SDRF.
+  // result file alone, since the FASTA check needs neither parameters nor sample annotation.
   private toggleFasta (example: Example): void {
     if (this.example !== example) {
       this.example = example

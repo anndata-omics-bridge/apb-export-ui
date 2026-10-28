@@ -6,11 +6,13 @@ import csv
 import gzip
 import subprocess
 import sys
+from collections import Counter
 from pathlib import Path
 
 import pytest
 
 from apb_export_ui.web.example_build import EXAMPLE_DATA, collect
+from apb_export_ui.web.examples import load_examples
 
 
 def _table(path: Path, rows: list[dict[str, str]]) -> None:
@@ -100,6 +102,10 @@ def test_build_subcommand_uses_packaged_metadata_from_another_working_directory(
     assert (output / "data" / dataset / "input.tsv").read_bytes() == original
     assert (output / "data/fasta/test.fasta").read_bytes() == fasta.read_bytes()
     assert (output / "sdrf/synthetic.sdrf.tsv").read_text() == "sample annotation\n"
+    for row in datasets:
+        if row.get("sdrf"):
+            annotation = output / "data" / row["dataset"] / "sdrf.tsv"
+            assert annotation.read_bytes() == (EXAMPLE_DATA / row["sdrf"]).read_bytes()
     for row in extra_rows:
         if row["sdrf"]:
             annotation = (output / "data" / row["input_file"]).parent / "sdrf.tsv"
@@ -111,6 +117,27 @@ def test_web_selection_offers_conventional_maxquant_without_peptide_entrapment()
     assert "zenodo/directlfq/MaxQuant_boxcar" in datasets
     assert "Results_quant_ion_DDA/00e2f863939301a2a71178652972dad895b27520" in datasets
     assert not any("entrapment" in dataset for dataset in datasets)
+
+
+def test_boxcar_annotation_separates_acquisition_methods_and_mixtures() -> None:
+    (selected,) = [
+        row
+        for row in _read(EXAMPLE_DATA / "datasets.csv")
+        if row["dataset"] == "zenodo/directlfq/MaxQuant_boxcar"
+    ]
+    with (EXAMPLE_DATA / selected["sdrf"]).open(newline="") as handle:
+        rows = list(csv.DictReader(handle, delimiter="\t"))
+    assert len({row["raw_file"] for row in rows}) == 12
+    assert len({row["raw_file_alias"] for row in rows}) == 12
+    assert Counter(row["factor value[group]"] for row in rows) == {
+        "BoxCar_02-01": 3,
+        "BoxCar_12-01": 3,
+        "Shotgun_02-01": 3,
+        "Shotgun_12-01": 3,
+    }
+    assert all(
+        row["raw_file_alias"].rsplit("_", 1)[0] == row["factor value[group]"] for row in rows
+    )
 
 
 def test_complete_gzipped_fixture_and_annotation_are_staged_without_a_benchmark_fasta(
@@ -185,7 +212,12 @@ def test_multifile_fixture_and_external_extra_keep_their_companions(tmp_path: Pa
         ],
     )
     corpus = tmp_path / "routine.csv"
-    _table(corpus, [{"dataset": "zenodo/mq/related", "note": "all tables"}])
+    _table(
+        corpus,
+        [{"dataset": "zenodo/mq/related", "note": "all tables", "sdrf": "maxquant.sdrf.tsv"}],
+    )
+    annotation = "comment[data file]\tfactor value[group]\nrun_A\tA\n"
+    (tmp_path / "maxquant.sdrf.tsv").write_text(annotation)
     modules = tmp_path / "modules"
     modules.mkdir()
     (modules / "test_module.sdrf.tsv").write_text("annotation")
@@ -212,6 +244,9 @@ def test_multifile_fixture_and_external_extra_keep_their_companions(tmp_path: Pa
     for name in ("evidence.txt", "peptides.txt", "proteinGroups.txt"):
         assert (out / "data/zenodo/mq/related" / name).read_bytes() == name.encode()
     assert (out / "data/zenodo/mq/related/mqpar.xml").is_file()
+    staged_annotation = out / "data/zenodo/mq/related/sdrf.tsv"
+    assert staged_annotation.read_text() == annotation
+    assert load_examples(out / "examples.csv", out / "data")[0].annotation == staged_annotation
     assert _read(out / "examples.csv")[0]["input_file"] == "zenodo/mq/related"
     assert (out / "data/custom/source.tsv").read_bytes() == b"entire extra table\n"
     assert (out / "data/custom/sdrf.tsv").read_text() == "own annotation\n"
