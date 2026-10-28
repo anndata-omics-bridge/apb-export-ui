@@ -284,8 +284,8 @@ def _anndata_matrix(level: str, adata: ad.AnnData, columns: list[str]) -> Matrix
 
 def anndata_matrices(path: Path, columns: list[str]) -> list[Matrix]:
     """X of an exported ``.h5ad``, or of each modality of an ``.h5mu``; a table export, such as
-    MSstats' ``.csv``, holds no matrix."""
-    if path.suffix == ".csv":
+    MSstats' ``.csv`` or Perseus' ``.txt``, holds no matrix."""
+    if path.suffix not in {".h5ad", ".h5mu"}:
         return []
     if path.suffix == ".h5mu":
         mdata = md.read_h5mu(path)

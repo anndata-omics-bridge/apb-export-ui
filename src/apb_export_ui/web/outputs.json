@@ -27,6 +27,34 @@
     ],
     "group": "tool"
   },
+  "apb-export:msstats": {
+    "title": "MSstats",
+    "file": ".csv",
+    "what": "Long table, one row per precursor and run, with MSstats' column names; Condition and BioReplicate come from the sample annotation.",
+    "open": "R: MSstats::dataProcess(read.csv(path))",
+    "version": "4.20",
+    "links": [
+      {
+        "label": "Vitek-Lab/MSstats",
+        "url": "https://github.com/Vitek-Lab/MSstats"
+      }
+    ],
+    "group": "tool"
+  },
+  "apb-export:perseus": {
+    "title": "Perseus",
+    "file": ".txt",
+    "what": "Protein groups with proteinGroups.txt's column names; sample columns typed main, annotation columns as categorical rows.",
+    "open": "Perseus: Generic matrix upload; Python: perseuspy.pd.read_perseus(path)",
+    "version": "2",
+    "links": [
+      {
+        "label": "Perseus",
+        "url": "https://maxquant.org/perseus/"
+      }
+    ],
+    "group": "tool"
+  },
   "apb-export:prolfqua": {
     "title": "prolfquapp",
     "file": ".h5ad",
@@ -51,6 +79,20 @@
       {
         "label": "UKHD-NP/proteopy",
         "url": "https://github.com/UKHD-NP/proteopy"
+      }
+    ],
+    "group": "tool"
+  },
+  "apb-export:qfeatures": {
+    "title": "QFeatures",
+    "file": ".h5mu",
+    "what": "Ion, peptide and protein assays linked by their id columns.",
+    "open": "R: MuData::readH5MU(path), then QFeatures with addAssayLink",
+    "version": "1.22",
+    "links": [
+      {
+        "label": "rformassspectrometry/QFeatures",
+        "url": "https://github.com/rformassspectrometry/QFeatures"
       }
     ],
     "group": "tool"

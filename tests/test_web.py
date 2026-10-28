@@ -428,11 +428,14 @@ def test_unfinished_jobs_fail_when_a_new_server_starts(tmp_path: Path) -> None:
 
 
 def test_a_table_export_has_no_matrix_to_summarize(tmp_path: Path) -> None:
-    """MSstats' long table is read by MSstats, not summarized as a samples-by-features matrix."""
+    """MSstats' and Perseus' tables are read by those tools, not summarized as matrices."""
     table = tmp_path / "report_msstats.csv"
     table.write_text("Run,ProteinName,Intensity\nrun_A1,P1,1000\n", encoding="utf-8")
+    perseus = tmp_path / "report_perseus.txt"
+    perseus.write_text("Protein IDs\tIntensity run_A1\n#!{Type}T\tE\nP1\t1000\n", encoding="utf-8")
 
     assert anndata_matrices(table, []) == []
+    assert anndata_matrices(perseus, []) == []
 
 
 def test_qc_counts_densities_and_cv_by_group() -> None:
