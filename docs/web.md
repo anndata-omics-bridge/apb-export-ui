@@ -14,6 +14,10 @@ Choose this output to convert the upload into an APB result and immediately run 
 
 After completion, **Open pMultiQC report** opens the self-contained HTML in a new tab. Downloads include `qpx.zip` (Parquet tables and exporter provenance), `pmultiqc_report.html`, and `pmultiqc.zip` (full report, data tables, logs and installed-source provenance). Only a completed job's listed report is served inline at `api/jobs/{id}/report`; deletion and expiry remove it with the job. Failures and timeouts remain failed jobs with a job log.
 
+## exploreDE
+
+Choose **exploreDE** to write one exploreDE file per level the result holds: protein, peptide and precursor. Each is its own download, `<input>_explorede_<level>.h5ad`, and **Open <level> in exploreDE** opens Peter Leary's [exploreDE](https://github.com/fgcz/exploreDE) in a new tab with the file's absolute URL as `?data=`. `serve --explorede-url` sets the app; the default is the public instance `https://shiny-public.fgcz.uzh.ch/app/exploreDE/`. exploreDE downloads the file itself, so the link works only from a server exploreDE can reach and accepts, such as `https://apps-dev.bfabric.org/apb-export/`.
+
 ```bash
 uv sync --locked --group dev
 uv run --locked apb-export-web examples build
@@ -32,11 +36,11 @@ On desktop, Software and Files share the left column and Output fills the right.
 
 ## Examples
 
-`apb-export-web examples build` resolves the packaged [web selection](../src/apb_export_ui/web/example_data/datasets.csv) through the Fixture Manager's `downloads.csv` and writes a staged manifest under `build/web-examples`. MaxQuant offers a conventional evidence file and the complete BoxCar folder with evidence, peptides and protein groups; peptide-entrapment datasets are excluded. `apb-export-web serve` reads that bundle automatically; the optional positional directory overrides its location.
+`apb-export-web examples build` resolves the packaged [web selection](../src/apb_export_ui/web/example_data/datasets.csv) through the Fixture Manager's `downloads.csv` and writes a staged manifest under `build/web-examples`. MaxQuant offers two complete folders, FGCZ MaxQuant 2.0.1.0 searches of the ProteoBench Q Exactive and Astral DDA samples, each with evidence, modification-specific peptides, peptides, protein groups and `mqpar.xml`; peptide-entrapment datasets are excluded. `apb-export-web serve` reads that bundle automatically; the optional positional directory overrides its location.
 
 `examples build [DIRECTORY] [WORKSPACE]` accepts optional positional destination and workspace roots; the defaults are `build/web-examples` and `..`. The builder ships its supplementary example metadata and annotations with the Python package.
 
-The BoxCar selection includes a [sample annotation](../src/apb_export_ui/web/example_data/maxquant-boxcar.samples.tsv) derived from the original evidence table's Raw file and Experiment columns. Its prolfquapp-style `raw_file` key and `raw_file_alias` match the raw runs at precursor level and the Experiment names at peptide and protein levels. Choose **+ sample annotation** to compute CV within four groups of three technical replicates: `BoxCar_02-01`, `BoxCar_12-01`, `Shotgun_02-01` and `Shotgun_12-01`. Each group holds one acquisition method and one mixture. The selection's optional `sdrf` field names a CSV-relative annotation; staging puts it inside a folder input or beside a file input.
+Both MaxQuant folders use their ProteoBench module's SDRF, whose data files match the raw runs; each raw file is its own MaxQuant experiment, so the same annotation serves every level. Choose **+ sample annotation** to compute CV within conditions A and B. The selection's optional `sdrf` field names a CSV-relative annotation; staging puts it inside a folder input or beside a file input.
 
 Examples can run three ways:
 

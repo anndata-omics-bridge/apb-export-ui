@@ -15,6 +15,9 @@ from apb_export.api import Exporter
 from apb_export_ui.web.exports import load_hints
 from apb_export_ui.web.store import Output, write_json
 
+EXPLOREDE_URL = "https://shiny-public.fgcz.uzh.ch/app/exploreDE/"
+"""Peter Leary's exploreDE, which opens an exploreDE export given its URL as ``?data=``."""
+
 # apb2's --format values and what each writes.
 _APB2_FORMATS = (
     ("hdf5", "APB2 result: h5ad or h5mu"),
@@ -100,8 +103,12 @@ def reads(output: Output) -> list[str]:
     return list(Exporter(output.name).levels) if output.command == "apb-export" else []
 
 
-def write_options(path: Path, max_upload_bytes: int) -> tuple[list[str], list[Output]]:
+def write_options(
+    path: Path, max_upload_bytes: int, explorede_url: str = EXPLOREDE_URL
+) -> tuple[list[str], list[Output]]:
     """Write ``options.json`` and return the software and outputs it lists.
+
+    An output whose description names a ``viewer`` gets a link to that app, from ``viewers``.
 
     Raises:
         ValueError: An offered output has no description in ``outputs.json``.
@@ -121,6 +128,7 @@ def write_options(path: Path, max_upload_bytes: int) -> tuple[list[str], list[Ou
                 for output in offered
             ],
             "max_upload_bytes": max_upload_bytes,
+            "viewers": {"exploreDE": explorede_url},
             "versions": {
                 name: version(name) for name in ("apb-export", "apb2", "apb-pmultiqc", "pmultiqc")
             },

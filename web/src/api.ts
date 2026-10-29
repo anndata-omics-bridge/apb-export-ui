@@ -14,6 +14,8 @@ export interface About {
   open: string
   version: string | null
   links: OutputLink[]
+  // The app that opens this output from its URL, a key of Options.viewers.
+  viewer?: string
 }
 
 export interface Output {
@@ -52,6 +54,8 @@ export interface Options {
   hints: { source: string, annotation: string, software: Record<string, Hint> }
   outputs: Output[]
   max_upload_bytes: number
+  // Each viewer app by name, opened with a result's URL as ?data=: { "exploreDE": "https://..." }.
+  viewers: Record<string, string>
   // Installed package versions, for the About dialog: { "apb-export": "0.1.0", ... }.
   versions: Record<string, string>
 }
@@ -157,6 +161,9 @@ export const logUrl = (id: string): string => `api/jobs/${id}/job.log`
 export const reportUrl = (id: string): string => `api/jobs/${id}/report`
 export const fileUrl = (id: string, name: string): string =>
   `api/jobs/${id}/files/${encodeURIComponent(name)}`
+// A viewer app with a job file's absolute URL; the app downloads it itself.
+export const viewerUrl = (app: string, id: string, name: string, page: string): string =>
+  `${app}?data=${encodeURIComponent(new URL(fileUrl(id, name), page).href)}`
 
 export async function submitJob (form: FormData): Promise<string> {
   const response = await fetch('api/jobs', { method: 'POST', body: form })

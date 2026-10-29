@@ -16,7 +16,7 @@ from loguru import logger
 from apb_export_ui.web.example_build import EXAMPLE_DATA, collect
 from apb_export_ui.web.examples import load_examples, write_examples, write_previews
 from apb_export_ui.web.exports import load_hints, rule_versions
-from apb_export_ui.web.options import write_options
+from apb_export_ui.web.options import EXPLOREDE_URL, write_options
 from apb_export_ui.web.server import Worker, create_app
 from apb_export_ui.web.store import JobStore
 
@@ -135,6 +135,9 @@ def serve(
     max_upload_mb: Annotated[int, Parameter(help="Largest upload, all files together")] = 4096,
     ttl_hours: Annotated[float, Parameter(help="Delete finished jobs after this long")] = 24.0,
     timeout_minutes: Annotated[float, Parameter(help="Fail a job running longer")] = 60.0,
+    explorede_url: Annotated[
+        str, Parameter(help="exploreDE app that Open in exploreDE passes a result's URL to")
+    ] = EXPLOREDE_URL,
 ) -> None:
     """Start the web app, restarting an existing app on the same address."""
     if examples is None:
@@ -152,7 +155,7 @@ def serve(
     jobs.interrupt_unfinished()
     jobs.expire()
     max_upload_bytes = max_upload_mb * 1024 * 1024
-    software, outputs = write_options(jobs.options_path, max_upload_bytes)
+    software, outputs = write_options(jobs.options_path, max_upload_bytes, explorede_url)
     offered = (
         []
         if examples is None

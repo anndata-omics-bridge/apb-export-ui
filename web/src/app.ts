@@ -136,7 +136,7 @@ function showSetupError (error: unknown): void {
 
 window.addEventListener('hashchange', fromHash)
 loadOptions()
-  .then(options => { form.options = options; about.versions = options.versions })
+  .then(options => { form.options = options; downloads.options = options; about.versions = options.versions })
   .catch(showSetupError)
 loadExamples()
   .then(examples => { form.examples = examples })

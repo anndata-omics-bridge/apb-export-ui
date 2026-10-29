@@ -464,7 +464,41 @@
      }
     ],
     "group": "tool"
-   }
+   },
+   "levels": [
+    "peptidoform_ion",
+    "peptide",
+    "protein"
+   ]
+  },
+  {
+   "id": "apb-export:explorede",
+   "label": "explorede (.h5ads)",
+   "command": "apb-export",
+   "name": "explorede",
+   "extension": ".h5ads",
+   "annotation": true,
+   "fasta": true,
+   "about": {
+    "title": "exploreDE",
+    "file": ".h5ad per level",
+    "what": "One exploreDE file per level the result holds (protein, peptide, precursor), log2 intensities, without differential expression; SDRF factor values and prolfquapp group columns become its groupings.",
+    "open": "Open in exploreDE, or R: exploreDE::exploreDE(path)",
+    "version": "1.0",
+    "links": [
+     {
+      "label": "fgcz/exploreDE",
+      "url": "https://github.com/fgcz/exploreDE"
+     }
+    ],
+    "group": "tool",
+    "viewer": "exploreDE"
+   },
+   "levels": [
+    "protein",
+    "peptide",
+    "peptidoform_ion"
+   ]
   },
   {
    "id": "apb-export:msmu",
@@ -487,7 +521,62 @@
      }
     ],
     "group": "tool"
-   }
+   },
+   "levels": [
+    "peptidoform_ion"
+   ]
+  },
+  {
+   "id": "apb-export:msstats",
+   "label": "msstats (.csv)",
+   "command": "apb-export",
+   "name": "msstats",
+   "extension": ".csv",
+   "annotation": true,
+   "fasta": true,
+   "about": {
+    "title": "MSstats",
+    "file": ".csv",
+    "what": "Long table, one row per precursor and run, with MSstats' column names; Condition and BioReplicate come from the sample annotation.",
+    "open": "R: MSstats::dataProcess(read.csv(path))",
+    "version": "4.20",
+    "links": [
+     {
+      "label": "Vitek-Lab/MSstats",
+      "url": "https://github.com/Vitek-Lab/MSstats"
+     }
+    ],
+    "group": "tool"
+   },
+   "levels": [
+    "peptidoform_ion"
+   ]
+  },
+  {
+   "id": "apb-export:perseus",
+   "label": "perseus (.txt)",
+   "command": "apb-export",
+   "name": "perseus",
+   "extension": ".txt",
+   "annotation": true,
+   "fasta": true,
+   "about": {
+    "title": "Perseus",
+    "file": ".txt",
+    "what": "Protein groups with proteinGroups.txt's column names; sample columns typed main, annotation columns as categorical rows.",
+    "open": "Perseus: Generic matrix upload; Python: perseuspy.pd.read_perseus(path)",
+    "version": "2",
+    "links": [
+     {
+      "label": "Perseus",
+      "url": "https://maxquant.org/perseus/"
+     }
+    ],
+    "group": "tool"
+   },
+   "levels": [
+    "protein"
+   ]
   },
   {
    "id": "apb-export:prolfqua",
@@ -510,7 +599,12 @@
      }
     ],
     "group": "tool"
-   }
+   },
+   "levels": [
+    "peptide",
+    "peptidoform_ion",
+    "protein"
+   ]
   },
   {
    "id": "apb-export:proteopy",
@@ -533,7 +627,38 @@
      }
     ],
     "group": "tool"
-   }
+   },
+   "levels": [
+    "protein"
+   ]
+  },
+  {
+   "id": "apb-export:qfeatures",
+   "label": "qfeatures (.h5mu)",
+   "command": "apb-export",
+   "name": "qfeatures",
+   "extension": ".h5mu",
+   "annotation": true,
+   "fasta": true,
+   "about": {
+    "title": "QFeatures",
+    "file": ".h5mu",
+    "what": "Ion, peptide and protein assays linked by their id columns.",
+    "open": "R: MuData::readH5MU(path), then QFeatures with addAssayLink",
+    "version": "1.22",
+    "links": [
+     {
+      "label": "rformassspectrometry/QFeatures",
+      "url": "https://github.com/rformassspectrometry/QFeatures"
+     }
+    ],
+    "group": "tool"
+   },
+   "levels": [
+    "peptidoform_ion",
+    "peptide",
+    "protein"
+   ]
   },
   {
    "id": "apb-export:qpx",
@@ -560,7 +685,11 @@
      }
     ],
     "group": "tool"
-   }
+   },
+   "levels": [
+    "peptidoform_ion",
+    "protein"
+   ]
   },
   {
    "id": "apb2:hdf5",
@@ -591,7 +720,8 @@
      }
     ],
     "group": "apb2"
-   }
+   },
+   "levels": []
   },
   {
    "id": "apb2:parquet",
@@ -618,7 +748,8 @@
      }
     ],
     "group": "apb2"
-   }
+   },
+   "levels": []
   },
   {
    "id": "apb2:duckdb",
@@ -645,10 +776,14 @@
      }
     ],
     "group": "apb2"
-   }
+   },
+   "levels": []
   }
  ],
  "max_upload_bytes": 4294967296,
+ "viewers": {
+  "exploreDE": "https://shiny-public.fgcz.uzh.ch/app/exploreDE/"
+ },
  "versions": {
   "apb-export": "0.1.0",
   "apb2": "0.1.1",

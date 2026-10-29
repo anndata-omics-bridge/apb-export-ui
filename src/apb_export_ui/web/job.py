@@ -117,6 +117,8 @@ class Runner:
                     ]
                 ),
             )
+            if target.suffix == ".h5ads":
+                _unpack(target)
             return
         self._apb_result(results, output.name)
 
@@ -238,6 +240,15 @@ class QpxRunner(Runner):
         shutil.copyfile(report / "multiqc_report.html", results / "pmultiqc_report.html")
         shutil.make_archive(str(results / "qpx"), "zip", root_dir=report, base_dir="data.qpx")
         super().package(results)
+
+
+def _unpack(folder: Path) -> None:
+    """A directory of one ``.h5ad`` per level, as exploreDE's, as files named after it, so each
+    level is its own download: ``report_explorede.h5ads/protein.h5ad`` becomes
+    ``report_explorede_protein.h5ad``, its sidecar likewise."""
+    for entry in sorted(folder.iterdir()):
+        entry.replace(folder.with_name(f"{folder.stem}_{entry.name}"))
+    folder.rmdir()
 
 
 def result_paths(folder: Path) -> list[Path]:

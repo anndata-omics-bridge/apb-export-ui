@@ -176,6 +176,26 @@ def test_a_proteopy_job_annotates_its_proteins_from_the_uploaded_fasta(
     assert "in_fasta" in ad.read_h5ad(target).var.columns
 
 
+def test_an_explorede_job_offers_one_file_per_level(
+    client: tuple[TestClient, Worker, JobStore], diann: DiannInput, tmp_path: Path
+) -> None:
+    test_client, worker, _ = client
+    job = _submit(test_client, diann, "apb-export:explorede", _annotation(tmp_path))
+    worker.join()
+
+    status = test_client.get(f"/api/jobs/{job}/status.json").json()
+    assert status["state"] == "done", status
+    names = [item["name"] for item in status["files"]]
+    assert [name for name in names if name.endswith(".h5ad")] == [
+        "report_explorede_precursor.h5ad",
+        "report_explorede_protein.h5ad",
+    ]
+    qc = test_client.get(f"/api/jobs/{job}/qc.json").json()
+    assert len(qc["matrices"]) == 2, "QC for each level's file"
+    download = test_client.get(f"/api/jobs/{job}/files/report_explorede_protein.h5ad")
+    assert download.content[:8] == b"\x89HDF\r\n\x1a\n"
+
+
 def test_prolfqua_job_groups_cv_by_the_annotation(
     client: tuple[TestClient, Worker, JobStore], diann: DiannInput, tmp_path: Path
 ) -> None:

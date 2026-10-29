@@ -1,40 +1,55 @@
 {
  "examples": [
   {
-   "id": "12b9c0979e05",
+   "id": "6a725f977f64",
    "label": "MaxQuant",
    "software": "MaxQuant",
-   "version": "2.5.1.0",
+   "version": "1.6.2.3",
    "module": "dda_qexactive",
    "data": [
-    "evidence.txt"
+    "maxquant_dda_qexactive"
    ],
    "stored_data": [
-    "input_file.txt"
+    "maxquant_dda_qexactive"
    ],
-   "folder": false,
-   "folder_files": [],
+   "folder": true,
+   "folder_files": [
+    "evidence.txt",
+    "modificationSpecificPeptides.txt",
+    "mqpar.xml",
+    "p34486_Proteobench_TripleProteome_20240614.fasta",
+    "parameters.txt",
+    "peptides.txt",
+    "proteinGroups.txt",
+    "provenance.json",
+    "summary.txt"
+   ],
    "params": "mqpar.xml",
-   "stored_params": "param_0..xml",
+   "stored_params": "mqpar.xml",
    "annotation": "dda_qexactive.sdrf.tsv",
    "fasta": "ProteoBenchFASTA_MixedSpecies_HYE.fasta",
    "export": {
     "rules": [
-     "maxquant/rules.json",
      "maxquant_wide/rules.json"
     ],
-    "versions": "1.5\u20132.x",
+    "versions": "1.5\u20132.x, whole txt folder",
     "result": [
-     "combined/txt/evidence.txt"
+     "combined/txt/"
     ],
     "params": "mqpar.xml",
     "kinds": [
-     ".txt"
+     "folder"
     ],
     "labels": [],
-    "note": "MaxDIA writes the same evidence.txt. mqpar.xml is written to the raw-file folder; a renamed copy works too."
+    "note": "evidence.txt, peptides.txt and proteinGroups.txt read together. The browser cannot upload a folder yet; examples only."
    },
-   "bytes": 100043984
+   "levels": [
+    "peptidoform_ion",
+    "peptidoform",
+    "peptide",
+    "protein"
+   ],
+   "bytes": 210596134
   },
   {
    "id": "aa77a8ab33a3",
@@ -69,6 +84,9 @@
     "labels": [],
     "note": "Both in output_directory. results.sage.tsv is the PSM table, not this one; lfq.parquet (--parquet) is not read. Your own config file has no version: upload results.json."
    },
+   "levels": [
+    "peptidoform_ion"
+   ],
    "bytes": 17273118
   },
   {
@@ -104,6 +122,9 @@
     "labels": [],
     "note": "Both at the output folder root. combined_ion.tsv needs runs assigned to experiments, as the LFQ-MBR workflow does."
    },
+   "levels": [
+    "peptidoform_ion"
+   ],
    "bytes": 38504351
   },
   {
@@ -140,6 +161,9 @@
     "labels": [],
     "note": "Beside results.hdf. Setting results_path renames them to <stem>_peptides.csv and <stem>.yaml; the yaml written after the run carries the version."
    },
+   "levels": [
+    "peptidoform_ion"
+   ],
    "bytes": 199978019
   },
   {
@@ -175,6 +199,9 @@
     "labels": [],
     "note": "The Label Free Quantification Feature Vector CSV, e.g. lfq.features.csv (DDA) or lfq.dia.features.csv (DIA), and the All Search Parameters text export; PEAKS documentation gives no default names."
    },
+   "levels": [
+    "peptidoform_ion"
+   ],
    "bytes": 25795925
   },
   {
@@ -210,6 +237,10 @@
     "labels": [],
     "note": "Default names: Main output (--out) renames both, e.g. x.parquet and x.log.txt. Not report.pr_matrix.tsv, report.pg_matrix.tsv or report.stats.tsv."
    },
+   "levels": [
+    "peptidoform_ion",
+    "protein"
+   ],
    "bytes": 19345001
   },
   {
@@ -247,33 +278,40 @@
     "labels": [],
     "note": "A Normal-format BGS Factory Report, named when you export it; Spectronaut writes the .setup.txt beside it. Pipeline runs write <Experiment>_ExperimentSetupOverview_<schema>.txt instead; either works."
    },
+   "levels": [
+    "peptidoform_ion",
+    "protein"
+   ],
    "bytes": 515370854
   },
   {
-   "id": "03efe9a73819",
+   "id": "582030acf974",
    "label": "MaxQuant",
    "software": "MaxQuant",
-   "version": "2.8.1.0",
-   "module": "entrapment_dia_astral",
+   "version": "1.6.2.3",
+   "module": "dda_astral",
    "data": [
-    "maxquant_v2.8.1.0"
+    "maxquant_dda_astral"
    ],
    "stored_data": [
-    "maxquant_v2.8.1.0"
+    "maxquant_dda_astral"
    ],
    "folder": true,
    "folder_files": [
     "evidence.txt",
     "modificationSpecificPeptides.txt",
     "mqpar.xml",
+    "p34486_Proteobench_TripleProteome_20240614.fasta",
+    "parameters.txt",
     "peptides.txt",
     "proteinGroups.txt",
-    "sdrf.tsv"
+    "provenance.json",
+    "summary.txt"
    ],
    "params": "mqpar.xml",
    "stored_params": "mqpar.xml",
-   "annotation": "sdrf.tsv",
-   "fasta": null,
+   "annotation": "dda_astral.sdrf.tsv",
+   "fasta": "ProteoBenchFASTA_MixedSpecies_HYE.fasta",
    "export": {
     "rules": [
      "maxquant_wide/rules.json"
@@ -289,7 +327,13 @@
     "labels": [],
     "note": "evidence.txt, peptides.txt and proteinGroups.txt read together. The browser cannot upload a folder yet; examples only."
    },
-   "bytes": 136145969
+   "levels": [
+    "peptidoform_ion",
+    "peptidoform",
+    "peptide",
+    "protein"
+   ],
+   "bytes": 79463207
   },
   {
    "id": "5ea063891f82",
@@ -325,6 +369,9 @@
     "labels": [],
     "note": "The ProteoBench export button in the MCQR view, after Normalisation and PCA, saves <project name>.zip holding both files; unzip it and upload them."
    },
+   "levels": [
+    "peptidoform_ion"
+   ],
    "bytes": 16864220
   },
   {
@@ -360,6 +407,10 @@
     "labels": [],
     "note": "Default names: Main output (--out) renames both, e.g. x.parquet and x.log.txt. Not report.pr_matrix.tsv, report.pg_matrix.tsv or report.stats.tsv."
    },
+   "levels": [
+    "peptidoform_ion",
+    "protein"
+   ],
    "bytes": 2303160
   },
   {
@@ -397,6 +448,11 @@
     ],
     "note": "FragPipe 21\u201322 write diann-output/report.tsv, 19\u201320 diann-output/diann-output.tsv."
    },
+   "levels": [
+    "peptidoform_fragment",
+    "peptidoform_ion",
+    "protein"
+   ],
    "bytes": 22561871
   },
   {
@@ -435,6 +491,9 @@
     "labels": [],
     "note": "Two tables from the output folder; upload both. Intensities come from precursor.matrix.tsv, which needs Precursor Level LFQ; precursors.tsv alone holds only protein-group intensities and is refused."
    },
+   "levels": [
+    "peptidoform_ion"
+   ],
    "bytes": 184497847
   },
   {
@@ -470,6 +529,10 @@
     "labels": [],
     "note": "Both in the output folder. With file_format: tsv AlphaDIA writes precursors.tsv instead, which this converter does not read."
    },
+   "levels": [
+    "peptidoform_ion",
+    "protein"
+   ],
    "bytes": 44580860
   },
   {
@@ -505,6 +568,9 @@
     "labels": [],
     "note": "Default GUI task folder; the command line writes Task1SearchTask without the hyphen. Not AllQuantifiedPeptides.tsv or the per-run *_QuantifiedPeaks.tsv. The two parameter files cannot be uploaded here yet, so convert from the result alone; the prolfqua output waits for apb-catalog to review MetaMorpheus."
    },
+   "levels": [
+    "peptidoform_ion"
+   ],
    "bytes": 255817791
   },
   {
@@ -541,6 +607,10 @@
     "labels": [],
     "note": "Proline's Excel export of the quantification, with its Quantified peptide ions sheet and, for the protein level, its Protein sets sheet, plus MS-Angel's exported workflow JSON. MS-Angel documents neither name."
    },
+   "levels": [
+    "peptidoform_ion",
+    "protein"
+   ],
    "bytes": 40607829
   },
   {
@@ -577,6 +647,9 @@
     "labels": [],
     "note": "Export > Excel\u2026 with a custom export: enable the Quantified peptide ions sheet with its samesets_accessions, subsets_accessions and protein_set_score columns; the sheet and both accession columns are off by default. Its settings sheets are the parameters."
    },
+   "levels": [
+    "peptidoform_ion"
+   ],
    "bytes": 22950383
   },
   {
@@ -612,6 +685,9 @@
     "labels": [],
     "note": "Up to 1.4 the table is in proteomicslfq/; nf-core/quantms 1.0 wrote out_msstats.csv. This converter reads the software-versions YAML, not params_<timestamp>.json."
    },
+   "levels": [
+    "peptidoform_ion"
+   ],
    "bytes": 23345676
   },
   {
@@ -647,6 +723,10 @@
     "labels": [],
     "note": "In the results folder, e.g. stand_ion_quant_mergedproline.csv; the stand_pep_quant files lack charges. This converter accepts params.yml reporting version 0.9.11 only."
    },
+   "levels": [
+    "peptidoform_ion",
+    "peptidoform"
+   ],
    "bytes": 3718313
   },
   {
@@ -683,6 +763,9 @@
     "labels": [],
     "note": "ProteoBench's own tab-separated format for tools without a parser."
    },
+   "levels": [
+    "peptidoform_ion"
+   ],
    "bytes": 1312480
   }
  ]

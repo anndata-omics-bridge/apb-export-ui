@@ -83,6 +83,21 @@
     ],
     "group": "tool"
   },
+  "apb-export:explorede": {
+    "title": "exploreDE",
+    "file": ".h5ad per level",
+    "what": "One exploreDE file per level the result holds (protein, peptide, precursor), log2 intensities, without differential expression; SDRF factor values and prolfquapp group columns become its groupings.",
+    "open": "Open in exploreDE, or R: exploreDE::exploreDE(path)",
+    "version": "1.0",
+    "links": [
+      {
+        "label": "fgcz/exploreDE",
+        "url": "https://github.com/fgcz/exploreDE"
+      }
+    ],
+    "group": "tool",
+    "viewer": "exploreDE"
+  },
   "apb-export:qfeatures": {
     "title": "QFeatures",
     "file": ".h5mu",
