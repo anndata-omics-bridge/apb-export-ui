@@ -4,12 +4,11 @@ from __future__ import annotations
 
 import csv
 import gzip
-import subprocess
-import sys
 from pathlib import Path
 
 import pytest
 
+from apb_export_ui.web.cli import app
 from apb_export_ui.web.example_build import EXAMPLE_DATA, collect
 from apb_export_ui.web.examples import load_examples
 
@@ -28,8 +27,14 @@ def _read(path: Path) -> list[dict[str, str]]:
 
 
 def test_build_subcommand_uses_packaged_metadata_from_another_working_directory(
-    tmp_path: Path,
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
+    """Staging only: the synthetic inputs are no vendor files, so indexing is recorded."""
+    indexed: list[Path] = []
+    monkeypatch.setattr(
+        "apb_export_ui.web.cli.build_index", lambda folder: indexed.append(folder) or []
+    )
+    monkeypatch.chdir(tmp_path)
     workspace = tmp_path / "workspace"
     studio = workspace / "apb_studio"
     root = studio / "test_data_download"
@@ -81,22 +86,12 @@ def test_build_subcommand_uses_packaged_metadata_from_another_working_directory(
             path.write_bytes(b"complete supplementary input\n")
     output = tmp_path / "staged"
 
-    result = subprocess.run(
-        [
-            str(Path(sys.executable).with_name("apb-export-web")),
-            "examples",
-            "build",
-            str(output),
-            str(workspace),
-        ],
-        cwd=tmp_path,
-        capture_output=True,
-        text=True,
-        timeout=30,
-        check=True,
-    )
+    with pytest.raises(SystemExit) as result:
+        app(["examples", "build", str(output), str(workspace)])
 
-    assert f"{len(datasets)} corpus" in result.stdout
+    assert result.value.code == 0
+    assert indexed == [output], "the staged folder is indexed"
+    assert f"{len(datasets)} corpus" in capsys.readouterr().out
     assert len(_read(output / "examples.csv")) == len(datasets) + len(extra_rows)
     assert (output / "data" / dataset / "input.tsv").read_bytes() == original
     assert (output / "data/fasta/test.fasta").read_bytes() == fasta.read_bytes()

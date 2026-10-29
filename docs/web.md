@@ -26,7 +26,7 @@ uv run --locked apb-export-web serve
 
 Staging requires the selected fixtures to be downloaded through APB Studio already. Start the server with `apb-export-web serve` and stop it with Ctrl-C.
 
-`serve` searches the current directory and then its parents for `build/web-examples`, so starting from a checkout subdirectory loads the same bundle. An explicit positional directory selects another bundle. Startup logs the loaded count and directory, or a build reminder if no bundle is found.
+`serve` searches the current directory and then its parents for an indexed `build/web-examples`, so starting from a checkout subdirectory loads the same bundle. An explicit positional directory selects another bundle. Startup reads the folder's index and runs no exporter; it refuses a folder without an index, or one indexed with other installed APB commits, before touching the job store.
 
 If this app already owns the requested address, `serve` gracefully stops it and waits for the port before starting the replacement. The check verifies the listening socket, process owner and installed app entry point; an unrelated or unverifiable listener is left running, and startup exits before changing the job store.
 
@@ -36,7 +36,7 @@ On desktop, Software and Files share the left column and Output fills the right.
 
 ## Examples
 
-`apb-export-web examples build` resolves the packaged [web selection](../src/apb_export_ui/web/example_data/datasets.csv) through the Fixture Manager's `downloads.csv` and writes a staged manifest under `build/web-examples`. MaxQuant offers two complete folders, FGCZ MaxQuant 2.0.1.0 searches of the ProteoBench Q Exactive and Astral DDA samples, each with evidence, modification-specific peptides, peptides, protein groups and `mqpar.xml`; peptide-entrapment datasets are excluded. `apb-export-web serve` reads that bundle automatically; the optional positional directory overrides its location.
+`apb-export-web examples build` resolves the packaged [web selection](../src/apb_export_ui/web/example_data/datasets.csv) through the Fixture Manager's `downloads.csv` and writes a staged manifest under `build/web-examples`, then indexes it: `options.json`, `examples.json` and `previews/`. `apb-export-web examples index DIRECTORY` rewrites the index alone, for a staged folder or an empty one. MaxQuant offers two complete folders, FGCZ MaxQuant 2.0.1.0 searches of the ProteoBench Q Exactive and Astral DDA samples, each with evidence, modification-specific peptides, peptides, protein groups and `mqpar.xml`; peptide-entrapment datasets are excluded. `apb-export-web serve` reads that bundle automatically; the optional positional directory overrides its location.
 
 `examples build [DIRECTORY] [WORKSPACE]` accepts optional positional destination and workspace roots; the defaults are `build/web-examples` and `..`. The builder ships its supplementary example metadata and annotations with the Python package.
 
@@ -50,7 +50,7 @@ Examples can run three ways:
 
 The server uses the sample annotation beside the input, or the module annotation staged with the examples. It links the chosen files into the job instead of uploading them; the data stays where the corpus keeps it.
 
-At startup it writes the first 20 lines of every example file to the store, and the page shows them when a file name is clicked.
+The index holds the first 20 lines of every example file, and the page shows them when a file name is clicked.
 
 ## Jobs
 

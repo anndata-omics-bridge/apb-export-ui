@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import socket
 import subprocess
@@ -267,6 +268,12 @@ def wheel_smoke() -> None:
             check=True,
         )
         subprocess.run([str(python), "-c", installed_check()], cwd=folder, check=True)
+        examples = folder / "examples"
+        subprocess.run(
+            [str(environment / "bin/apb-export-web"), "examples", "index", str(examples)],
+            cwd=folder,
+            check=True,
+        )
         with socket.socket() as available:
             available.bind(("127.0.0.1", 0))
             port = available.getsockname()[1]
@@ -275,6 +282,7 @@ def wheel_smoke() -> None:
                 [
                     str(environment / "bin/apb-export-web"),
                     "serve",
+                    str(examples),
                     "--port",
                     str(port),
                     "--store",
@@ -294,9 +302,24 @@ def wheel_smoke() -> None:
 
 
 def container_smoke(image: str) -> None:
-    """Run the image without source mounts and exercise the same HTTP contract."""
+    """Index an empty examples directory with the image, then run the image on it read-only,
+    without source mounts, and exercise the same HTTP contract."""
+    examples = Path(tempfile.mkdtemp(prefix="apb-ui-examples-"))
+    owner = f"{os.getuid()}:{os.getgid()}"
+    subprocess.run(
+        [
+            *("docker", "run", "--rm", "--user", owner, "--env", "HOME=/tmp"),
+            *("--volume", f"{examples}:/examples", "--entrypoint", "apb-export-web"),
+            *(image, "examples", "index", "/examples"),
+        ],
+        check=True,
+    )
     container = subprocess.check_output(
-        ["docker", "run", "--detach", "--rm", "--publish", "127.0.0.1::8000", image], text=True
+        [
+            *("docker", "run", "--detach", "--rm", "--publish", "127.0.0.1::8000"),
+            *("--volume", f"{examples}:/examples:ro", image, "/examples"),
+        ],
+        text=True,
     ).strip()
     try:
         subprocess.run(["docker", "exec", container, "python", "-c", installed_check()], check=True)

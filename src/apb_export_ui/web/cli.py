@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import errno
 import os
+import shutil
 import socket
 from pathlib import Path
 from typing import Annotated
@@ -14,8 +15,7 @@ from cyclopts import App, Parameter
 from loguru import logger
 
 from apb_export_ui.web.example_build import EXAMPLE_DATA, collect
-from apb_export_ui.web.examples import load_examples, write_examples, write_previews
-from apb_export_ui.web.exports import load_hints, rule_versions
+from apb_export_ui.web.index import EXAMPLES, OPTIONS, PREVIEWS, build_index, read_index
 from apb_export_ui.web.options import EXPLOREDE_URL, write_options
 from apb_export_ui.web.server import Worker, create_app
 from apb_export_ui.web.store import JobStore
@@ -107,7 +107,7 @@ def build_examples(
     ] = Path(".."),
     /,
 ) -> None:
-    """Build the packaged web selection from Studio's managed fixtures."""
+    """Build the packaged web selection from Studio's managed fixtures, then index it."""
     studio = workspace / "apb_studio"
     collect(
         EXAMPLE_DATA / "datasets.csv",
@@ -118,12 +118,25 @@ def build_examples(
         workspace=workspace,
         fastas=studio / "workflow_tables/workflow_proteobench.csv",
     )
+    index_examples(directory)
+
+
+@examples_app.command(name="index")
+def index_examples(
+    directory: Annotated[Path, Parameter(help="Staged examples directory")] = DEFAULT_EXAMPLES,
+    /,
+) -> None:
+    """Write what the page offers with this installation, the example list and the file
+    previews into a staged examples directory; one without examples.csv offers no examples."""
+    offered = build_index(directory)
+    logger.info(f"Indexed {len(offered)} examples in {directory.resolve()}")
 
 
 @app.command
 def serve(
     examples: Annotated[
-        Path | None, Parameter(help="Examples directory; defaults to built examples when available")
+        Path | None,
+        Parameter(help="Indexed examples directory; defaults to the nearest build/web-examples"),
     ] = None,
     /,
     *,
@@ -139,41 +152,36 @@ def serve(
         str, Parameter(help="exploreDE app that Open in exploreDE passes a result's URL to")
     ] = EXPLOREDE_URL,
 ) -> None:
-    """Start the web app, restarting an existing app on the same address."""
+    """Start the web app on an indexed examples directory, restarting an existing app on the
+    same address. Starting reads the index; it runs no exporter."""
     if examples is None:
         working_directory = Path.cwd()
         examples = next(
             (
                 root / DEFAULT_EXAMPLES
                 for root in (working_directory, *working_directory.parents)
-                if (root / DEFAULT_EXAMPLES / "examples.csv").is_file()
+                if (root / DEFAULT_EXAMPLES / OPTIONS).is_file()
             ),
             None,
         )
+    if examples is None:
+        raise SystemExit(
+            "No indexed examples found; run `apb-export-web examples build` or `index`"
+        )
+    try:
+        index, software, outputs, offered = read_index(examples)
+    except (FileNotFoundError, ValueError) as error:
+        raise SystemExit(str(error)) from error
     _restart_existing(host, port)
     jobs = JobStore(store, ttl_seconds=ttl_hours * 3600)
     jobs.interrupt_unfinished()
     jobs.expire()
     max_upload_bytes = max_upload_mb * 1024 * 1024
-    software, outputs = write_options(jobs.options_path, max_upload_bytes, explorede_url)
-    offered = (
-        []
-        if examples is None
-        else load_examples(
-            examples / "examples.csv",
-            examples / "data",
-            examples / "sdrf",
-            software,
-            load_hints()[1],
-            rule_versions(),
-        )
-    )
-    if examples is None:
-        logger.warning("No built examples found; run `apb-export-web examples build`")
-    else:
-        logger.info(f"Loaded {len(offered)} examples from {examples.resolve()}")
-    write_examples(jobs.examples_path, offered)
-    write_previews(jobs.previews, offered)
+    write_options(jobs.options_path, index, max_upload_bytes, explorede_url)
+    shutil.copyfile(examples / EXAMPLES, jobs.examples_path)
+    shutil.rmtree(jobs.previews, ignore_errors=True)
+    shutil.copytree(examples / PREVIEWS, jobs.previews)
+    logger.info(f"Loaded {len(offered)} examples from {examples.resolve()}")
     worker = Worker(jobs, timeout_seconds=timeout_minutes * 60)
     app = create_app(jobs, worker, outputs, software, max_upload_bytes, offered)
     uvicorn.run(app, host=host, port=port)

@@ -16,7 +16,17 @@ from urllib.request import urlopen
 
 import pytest
 
+from apb_export_ui.web.index import build_index
+
 COMMAND = str(Path(sys.executable).with_name("apb-export-web"))
+
+
+@pytest.fixture(scope="module")
+def indexed(tmp_path_factory: pytest.TempPathFactory) -> str:
+    """An indexed examples directory without examples; indexed once, as it asks each target."""
+    folder = tmp_path_factory.mktemp("examples")
+    build_index(folder)
+    return str(folder)
 
 
 def _port() -> int:
@@ -59,12 +69,12 @@ def _ready(process: subprocess.Popen[bytes], url: str, log: Path) -> bytes:
     pytest.fail(f"Server did not become ready: {log.read_text()}")
 
 
-def test_serve_restarts_the_existing_app_on_the_same_port(tmp_path: Path) -> None:
+def test_serve_restarts_the_existing_app_on_the_same_port(tmp_path: Path, indexed: str) -> None:
     port = _port()
     url = f"http://127.0.0.1:{port}/api/options.json"
     old_log, new_log = tmp_path / "old.log", tmp_path / "new.log"
     with _process(
-        [COMMAND, "serve", "--port", str(port), "--store", str(tmp_path / "old")],
+        [COMMAND, "serve", indexed, "--port", str(port), "--store", str(tmp_path / "old")],
         tmp_path,
         old_log,
     ) as old:
@@ -76,6 +86,7 @@ def test_serve_restarts_the_existing_app_on_the_same_port(tmp_path: Path) -> Non
             [
                 COMMAND,
                 "serve",
+                indexed,
                 "--port",
                 str(port),
                 "--store",
@@ -96,7 +107,7 @@ def test_serve_restarts_the_existing_app_on_the_same_port(tmp_path: Path) -> Non
 
 @pytest.mark.parametrize("same_name", [False, True])
 def test_serve_leaves_an_unrelated_listener_and_the_store_untouched(
-    tmp_path: Path, same_name: bool
+    tmp_path: Path, indexed: str, same_name: bool
 ) -> None:
     port = _port()
     url = f"http://127.0.0.1:{port}/"
@@ -116,7 +127,7 @@ def test_serve_leaves_an_unrelated_listener_and_the_store_untouched(
         _ready(unrelated, url, log)
 
         result = subprocess.run(
-            [COMMAND, "serve", "--port", str(port), "--store", str(store)],
+            [COMMAND, "serve", indexed, "--port", str(port), "--store", str(store)],
             cwd=tmp_path,
             capture_output=True,
             text=True,

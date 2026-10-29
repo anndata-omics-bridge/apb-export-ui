@@ -20,7 +20,7 @@ The image builds the Lit/Vite frontend with Node 22, then installs the Python ap
 | Arguments | `/examples --max-upload-mb 2048 --ttl-hours 24 --timeout-minutes 60` |
 | Job store | `/data/store`, writable |
 | Temporary uploads | `/data/tmp`, writable disk, set through `TMPDIR` |
-| Example data | `/examples`, existing staged directory, read-only |
+| Example data | `/examples`, a staged and indexed directory, read-only; indexed with the image's installed APB commits |
 | Health endpoint | `GET /api/options.json` |
 | Public URL | https://apps-dev.bfabric.org/apb-export/ |
 
@@ -38,7 +38,7 @@ Completed jobs retain their existing layout. On restart, existing unfinished job
 
 ## Examples
 
-`apb-export-web examples build` stages the packaged web selection plus five supplementary examples; `make web-examples` delegates to the same command. Optional positional arguments select the destination directory and APB workspace; dataset keys resolve through Studio's managed fixture manifest. The selection includes the two complete FGCZ MaxQuant DDA folders from Studio's `apb_examples` inventory and excludes peptide-entrapment data. Selection, supplementary metadata and annotations ship with this package.
+`apb-export-web examples build` stages the packaged web selection plus five supplementary examples; `make web-examples` delegates to the same command. Optional positional arguments select the destination directory and APB workspace; dataset keys resolve through Studio's managed fixture manifest. The selection includes the two complete FGCZ MaxQuant DDA folders from Studio's `apb_examples` inventory and excludes peptide-entrapment data. Selection, supplementary metadata and annotations ship with this package. The build ends by indexing the folder for the installation that ran it; the server refuses an index from other APB commits, so stage with the locked environment of the image you deploy, or rerun `apb-export-web examples index` with it.
 
 Text tables and annotations are unpacked from gzip without changing their contents. No real fixtures are committed.
 

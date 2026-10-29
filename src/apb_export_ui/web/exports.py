@@ -12,6 +12,7 @@ import json
 import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import Any
 
 from apb2.api import get_rules
 
@@ -66,6 +67,19 @@ class Export:
     def describe(self) -> dict[str, object]:
         return asdict(self)
 
+    @classmethod
+    def read(cls, entry: dict[str, Any]) -> Export:
+        """An export as ``hints.json`` and :meth:`describe` write it."""
+        return cls(
+            rules=tuple(entry["rules"]),
+            versions=entry["versions"],
+            result=tuple(entry["result"]),
+            params=entry.get("params"),
+            kinds=tuple(entry["kinds"]),
+            labels=tuple(entry.get("labels", ())),
+            note=entry.get("note"),
+        )
+
 
 @dataclass(frozen=True, slots=True)
 class SoftwareHint:
@@ -79,18 +93,7 @@ def load_hints(path: Path = HINTS) -> tuple[dict[str, object], dict[str, Softwar
     document = json.loads(path.read_text(encoding="utf-8"))
     hints = {
         name: SoftwareHint(
-            exports=tuple(
-                Export(
-                    rules=tuple(export["rules"]),
-                    versions=export["versions"],
-                    result=tuple(export["result"]),
-                    params=export.get("params"),
-                    kinds=tuple(export["kinds"]),
-                    labels=tuple(export.get("labels", ())),
-                    note=export.get("note"),
-                )
-                for export in entry["exports"]
-            ),
+            exports=tuple(Export.read(export) for export in entry["exports"]),
             params_required=entry.get("params_required", False),
             sources=tuple(entry.get("sources", ())),
         )

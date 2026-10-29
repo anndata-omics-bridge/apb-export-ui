@@ -7,13 +7,22 @@ import socket
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from apb_export_ui.web.cli import app
+from apb_export_ui.web.index import build_index
+from apb_export_ui.web.options import options_index
 from conftest import RUNS, write_diann
+
+
+@pytest.fixture(scope="module")
+def index() -> dict[str, Any]:
+    """What an index offers; built once, since it asks each target's --help."""
+    return options_index()
 
 
 @pytest.mark.parametrize(
@@ -25,6 +34,7 @@ from conftest import RUNS, write_diann
         (["examples"], "build"),
         (["examples", "--help"], "build"),
         (["examples", "build", "--help"], "DIRECTORY"),
+        (["examples", "index", "--help"], "DIRECTORY"),
     ],
 )
 def test_help_exits_without_creating_a_store(
@@ -51,8 +61,13 @@ def test_help_exits_without_creating_a_store(
 @pytest.mark.parametrize("use_default", [True, False])
 @pytest.mark.parametrize("working_directory", ["", "build", "build/nested"])
 def test_serve_offers_staged_inputs_from_the_default_or_explicit_directory(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, use_default: bool, working_directory: str
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    index: dict[str, Any],
+    use_default: bool,
+    working_directory: str,
 ) -> None:
+    monkeypatch.setattr("apb_export_ui.web.index.options_index", lambda: index)
     start = tmp_path / working_directory
     start.mkdir(parents=True, exist_ok=True)
     monkeypatch.chdir(start)
@@ -72,12 +87,9 @@ def test_serve_offers_staged_inputs_from_the_default_or_explicit_directory(
         writer = csv.writer(handle)
         writer.writerow(("input_file", "vendor_parameter_file", "module", "software_name"))
         writer.writerow((diann.report.name, diann.log.name, "synthetic", "DIA-NN"))
+    build_index(staged)
     if not use_default:
-        default = tmp_path / "build/web-examples"
-        default.mkdir(parents=True)
-        (default / "examples.csv").write_text(
-            "input_file,vendor_parameter_file,module,software_name\n", encoding="utf-8"
-        )
+        build_index(tmp_path / "build/web-examples")
 
     served: list[FastAPI] = []
     with socket.socket() as listener:
@@ -110,3 +122,9 @@ def test_serve_offers_staged_inputs_from_the_default_or_explicit_directory(
 
     assert result.value.code == 0
     assert len(served) == 1
+
+
+def test_serve_refuses_a_directory_without_an_index(tmp_path: Path) -> None:
+    with pytest.raises(SystemExit, match="examples index"):
+        app(["serve", str(tmp_path), "--store", str(tmp_path / "store")])
+    assert not (tmp_path / "store").exists(), "refused before touching the store"

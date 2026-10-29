@@ -10,6 +10,7 @@ from collections.abc import Iterator
 from dataclasses import asdict
 from io import BytesIO
 from pathlib import Path
+from typing import Any
 
 import anndata as ad
 import httpx
@@ -26,13 +27,21 @@ from apb_export_ui.web.examples import (
     Example,
     head,
     load_examples,
+    read_examples,
     write_examples,
     write_previews,
 )
 from apb_export_ui.web.exports import Export, SoftwareHint, export_for, load_hints, rule_versions
 from apb_export_ui.web.job import anndata_matrices, error_text
 from apb_export_ui.web.job import main as run_job
-from apb_export_ui.web.options import about, outputs, reads, write_options
+from apb_export_ui.web.options import (
+    about,
+    options_index,
+    outputs,
+    read_outputs,
+    reads,
+    write_options,
+)
 from apb_export_ui.web.qc import ALL_SAMPLES, Matrix, grouping_column, summarize
 from apb_export_ui.web.server import Worker, create_app
 from apb_export_ui.web.store import (
@@ -50,9 +59,23 @@ type Options = tuple[list[str], list[Output]]
 
 
 @pytest.fixture(scope="module")
-def options(tmp_path_factory: pytest.TempPathFactory) -> Options:
-    """What the server offers; computed once, since it asks each target's --help."""
-    return write_options(tmp_path_factory.mktemp("options") / "options.json", 1 << 30)
+def index() -> dict[str, Any]:
+    """What an examples index offers; built once, since it asks each target's --help."""
+    return options_index()
+
+
+@pytest.fixture(scope="module")
+def options(index: dict[str, Any], tmp_path_factory: pytest.TempPathFactory) -> Options:
+    """What the server offers, as it reads the index at startup."""
+    write_options(tmp_path_factory.mktemp("options") / "options.json", index, 1 << 30)
+    return read_outputs(index)
+
+
+def test_an_index_from_another_installation_is_refused(index: dict[str, Any]) -> None:
+    moved = {**index, "installed": {**index["installed"], "apb-export": "0" * 40}}
+
+    with pytest.raises(ValueError, match="examples index"):
+        read_outputs(moved)
 
 
 @pytest.fixture
@@ -553,6 +576,14 @@ def examples(tmp_path: Path) -> list[Example]:
     return _load(_corpus(root), root)
 
 
+def test_the_example_list_rebuilds_its_examples_without_reading_them_again(
+    tmp_path: Path, examples: list[Example]
+) -> None:
+    write_examples(tmp_path / "examples.json", examples, tmp_path)
+
+    assert read_examples(tmp_path / "examples.json", tmp_path) == examples
+
+
 def test_an_example_brings_the_fasta_its_corpus_row_names(tmp_path: Path) -> None:
     root = tmp_path / "data"
     (example,) = _load(_with_fasta(_corpus(root), root), root)
@@ -606,7 +637,7 @@ def test_an_example_runs_without_upload_and_brings_its_annotation(
 ) -> None:
     software, outputs = options
     store = JobStore(tmp_path / "store", ttl_seconds=3600)
-    write_examples(store.examples_path, examples)
+    write_examples(store.examples_path, examples, tmp_path)
     worker = Worker(store, timeout_seconds=600)
     (example,) = examples
     with TestClient(create_app(store, worker, outputs, software, 1 << 30, examples)) as test_client:
@@ -896,7 +927,7 @@ def test_an_example_brings_its_secondary_file_as_one_folder(
     (example,) = _load(corpus, root)
     software, outputs = options
     store = JobStore(tmp_path / "store", ttl_seconds=3600)
-    write_examples(store.examples_path, [example])
+    write_examples(store.examples_path, [example], tmp_path)
     worker = Worker(store, timeout_seconds=600)
     with TestClient(
         create_app(store, worker, outputs, software, 1 << 30, [example])

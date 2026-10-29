@@ -15,12 +15,14 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import json
 import re
 import shutil
 from dataclasses import dataclass, replace
 from itertools import islice
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import Any
 
 import polars as pl
 from apb2.api import ConversionError, ParseRuleCompiler, parse_search_parameters
@@ -142,6 +144,51 @@ class Example:
             "levels": None if self.levels is None else list(self.levels),
             "bytes": sum(_size(path) for path in (self.data, *self.secondary)),
         }
+
+    def record(self, root: Path) -> dict[str, object]:
+        """What the server needs to offer it again, its paths relative to the examples folder."""
+
+        def relative(path: Path | None) -> str | None:
+            return None if path is None else path.relative_to(root).as_posix()
+
+        return {
+            "id": self.id,
+            "label": self.label,
+            "software": self.software,
+            "result_software": self.result_software,
+            "module": self.module,
+            "data": relative(self.data),
+            "params": relative(self.params),
+            "annotation": relative(self.annotation),
+            "version": self.version,
+            "export": None if self.export is None else self.export.describe(),
+            "secondary": [relative(path) for path in self.secondary],
+            "fasta": relative(self.fasta),
+            "levels": None if self.levels is None else list(self.levels),
+        }
+
+    @classmethod
+    def from_record(cls, record: dict[str, Any], root: Path) -> Example:
+        """An example as :meth:`record` wrote it, its paths under ``root``."""
+
+        def absolute(path: str | None) -> Path | None:
+            return None if path is None else root / path
+
+        return cls(
+            id=record["id"],
+            label=record["label"],
+            software=record["software"],
+            result_software=record["result_software"],
+            module=record["module"],
+            data=root / record["data"],
+            params=absolute(record["params"]),
+            annotation=absolute(record["annotation"]),
+            version=record["version"],
+            export=None if record["export"] is None else Export.read(record["export"]),
+            secondary=tuple(root / path for path in record["secondary"]),
+            fasta=absolute(record["fasta"]),
+            levels=None if record["levels"] is None else tuple(record["levels"]),
+        )
 
 
 def _size(path: Path) -> int:
@@ -277,8 +324,22 @@ def load_examples(
     return [replace(example, levels=_levels(example, software or [])) for example in examples]
 
 
-def write_examples(path: Path, examples: list[Example]) -> None:
-    write_json(path, {"examples": [example.describe() for example in examples]})
+def write_examples(path: Path, examples: list[Example], root: Path) -> None:
+    """The page's example list, each entry with its ``source``: its record under ``root``."""
+    write_json(
+        path,
+        {
+            "examples": [
+                {**example.describe(), "source": example.record(root)} for example in examples
+            ]
+        },
+    )
+
+
+def read_examples(path: Path, root: Path) -> list[Example]:
+    """The examples :func:`write_examples` wrote, their paths under ``root``."""
+    listed = json.loads(path.read_text(encoding="utf-8"))["examples"]
+    return [Example.from_record(entry["source"], root) for entry in listed]
 
 
 def head(path: Path) -> dict[str, object]:
@@ -303,9 +364,11 @@ def head(path: Path) -> dict[str, object]:
 
 
 def write_previews(folder: Path, examples: list[Example]) -> None:
-    """Each example file's head as ``<folder>/<example id>/<served name>.json``."""
+    """Each example file's head as ``<folder>/<example id>/<served name>.json``; the folder
+    exists even without examples."""
     if folder.exists():
         shutil.rmtree(folder)
+    folder.mkdir(parents=True)
     for example in examples:
         (folder / example.id).mkdir(parents=True)
         for name, path in example.files().items():

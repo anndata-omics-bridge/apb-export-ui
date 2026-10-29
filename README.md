@@ -22,7 +22,7 @@ Running `serve` again gracefully restarts a verified instance of this app on the
 
 The packaged [web selection](src/apb_export_ui/web/example_data/datasets.csv) includes two complete MaxQuant folders, FGCZ searches of the ProteoBench Q Exactive and Astral DDA samples with evidence, peptidoforms, peptides and protein groups. It excludes peptide-entrapment datasets. Acquire the selected fixtures through Studio's Fixture Manager before staging; both MaxQuant folders are in Studio's `apb_examples` inventory.
 
-`serve` finds `build/web-examples` in the current directory or its nearest parent, so it also works from checkout subdirectories; an optional positional directory overrides that location. Startup logs the loaded count and directory, or a build reminder if no bundle is found.
+`examples build` also indexes the folder: `options.json` (software, outputs and the inputs each target takes, read once from its `--help`), `examples.json` and `previews/`. `examples index DIRECTORY` rewrites that index for a staged folder, an empty one included. `serve` only reads it: it finds `build/web-examples` in the current directory or its nearest parent, or takes a positional directory, and refuses a folder without an index or one indexed with other installed commits.
 
 Python 3.13 is the tested interpreter; Node 22 is used only for frontend development and builds. The installed wheel serves its packaged assets without Node.
 
