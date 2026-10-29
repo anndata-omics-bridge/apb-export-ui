@@ -6,7 +6,6 @@ import csv
 import gzip
 import subprocess
 import sys
-from collections import Counter
 from pathlib import Path
 
 import pytest
@@ -112,32 +111,14 @@ def test_build_subcommand_uses_packaged_metadata_from_another_working_directory(
             assert annotation.read_bytes() == (EXAMPLE_DATA / row["sdrf"]).read_bytes()
 
 
-def test_web_selection_offers_conventional_maxquant_without_peptide_entrapment() -> None:
-    datasets = {row["dataset"] for row in _read(EXAMPLE_DATA / "datasets.csv")}
-    assert "zenodo/directlfq/MaxQuant_boxcar" in datasets
-    assert "Results_quant_ion_DDA/00e2f863939301a2a71178652972dad895b27520" in datasets
-    assert not any("entrapment" in dataset for dataset in datasets)
-
-
-def test_boxcar_annotation_separates_acquisition_methods_and_mixtures() -> None:
-    (selected,) = [
-        row
-        for row in _read(EXAMPLE_DATA / "datasets.csv")
-        if row["dataset"] == "zenodo/directlfq/MaxQuant_boxcar"
-    ]
-    with (EXAMPLE_DATA / selected["sdrf"]).open(newline="") as handle:
-        rows = list(csv.DictReader(handle, delimiter="\t"))
-    assert len({row["raw_file"] for row in rows}) == 12
-    assert len({row["raw_file_alias"] for row in rows}) == 12
-    assert Counter(row["factor value[group]"] for row in rows) == {
-        "BoxCar_02-01": 3,
-        "BoxCar_12-01": 3,
-        "Shotgun_02-01": 3,
-        "Shotgun_12-01": 3,
-    }
-    assert all(
-        row["raw_file_alias"].rsplit("_", 1)[0] == row["factor value[group]"] for row in rows
-    )
+def test_web_selection_offers_the_fgcz_maxquant_folders_without_peptide_entrapment() -> None:
+    rows = _read(EXAMPLE_DATA / "datasets.csv")
+    maxquant = {row["dataset"]: row["sdrf"] for row in rows if "MaxQuant" in row["note"]}
+    assert maxquant == {
+        "zenodo/apb_examples/maxquant_dda_qexactive": "",
+        "zenodo/apb_examples/maxquant_dda_astral": "",
+    }, "the ProteoBench module SDRF annotates both"
+    assert not any("entrapment" in row["dataset"] for row in rows)
 
 
 def test_complete_gzipped_fixture_and_annotation_are_staged_without_a_benchmark_fasta(

@@ -20,7 +20,7 @@ Running `serve` again gracefully restarts a verified instance of this app on the
 
 `examples build` defaults to `build/web-examples` and the parent APB workspace. Optional positional arguments are the destination directory followed by the workspace root.
 
-The packaged [web selection](src/apb_export_ui/web/example_data/datasets.csv) includes conventional MaxQuant evidence and the complete MaxQuant BoxCar folder. It excludes peptide-entrapment datasets. Acquire the selected fixtures through Studio's Fixture Manager before staging; BoxCar is in Studio's `directlfq` inventory.
+The packaged [web selection](src/apb_export_ui/web/example_data/datasets.csv) includes two complete MaxQuant folders, FGCZ searches of the ProteoBench Q Exactive and Astral DDA samples with evidence, peptidoforms, peptides and protein groups. It excludes peptide-entrapment datasets. Acquire the selected fixtures through Studio's Fixture Manager before staging; both MaxQuant folders are in Studio's `apb_examples` inventory.
 
 `serve` finds `build/web-examples` in the current directory or its nearest parent, so it also works from checkout subdirectories; an optional positional directory overrides that location. Startup logs the loaded count and directory, or a build reminder if no bundle is found.
 
