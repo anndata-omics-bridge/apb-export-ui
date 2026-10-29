@@ -30,7 +30,7 @@ Staging requires the selected fixtures to be downloaded through APB Studio alrea
 
 If this app already owns the requested address, `serve` gracefully stops it and waits for the port before starting the replacement. The check verifies the listening socket, process owner and installed app entry point; an unrelated or unverifiable listener is left running, and startup exits before changing the job store.
 
-The page asks for the software first, then shows the files it expects: result and parameter file names from ProteoBench's module documentation, packaged as `src/apb_export_ui/web/hints.json`, and whether the parameter file is required.
+The page asks for the software first, then shows the files it expects: result and parameter file names from each tool's own documentation and source code, packaged as `src/apb_export_ui/web/hints.json`, and whether the parameter file is required.
 
 On desktop, Software and Files share the left column and Output fills the right. Convert opens a separate results view with a short summary, progress, downloads and full-width QC. Edit setup preserves the selected files and options; View conversion returns to the current job. Reloading a job URL reopens its results.
 
@@ -40,13 +40,16 @@ On desktop, Software and Files share the left column and Output fills the right.
 
 `examples build [DIRECTORY] [WORKSPACE]` accepts optional positional destination and workspace roots; the defaults are `build/web-examples` and `..`. The builder ships its supplementary example metadata and annotations with the Python package.
 
-Both MaxQuant folders use their ProteoBench module's SDRF, whose data files match the raw runs; each raw file is its own MaxQuant experiment, so the same annotation serves every level. Choose **+ sample annotation** to compute CV within conditions A and B. The selection's optional `sdrf` field names a CSV-relative annotation; staging puts it inside a folder input or beside a file input.
+Both MaxQuant folders use their ProteoBench module's SDRF, whose data files match the raw runs; each raw file is its own MaxQuant experiment, so the same annotation serves every level. Choose **+ parameters + annotation** to compute CV within conditions A and B. The selection's optional `sdrf` field names a CSV-relative annotation; staging puts it inside a folder input or beside a file input.
 
-Examples can run three ways:
+Examples can run four ways; an example with a parameter file offers the first three, one without it the first and last:
 
 - Result file only
 - With its parameter file
 - With parameters and sample annotation
+- With sample annotation alone
+
+**+ FASTA** adds the example's FASTA to any of them, where the example has one.
 
 The server uses the sample annotation beside the input, or the module annotation staged with the examples. It links the chosen files into the job instead of uploading them; the data stays where the corpus keeps it.
 

@@ -22,7 +22,7 @@ Zenodo stores the original table with gzip compression only, matching FlashLFQ s
 
 The analysis SDRF covers every run. It maps the original raw stem to the calibrated output run name and uses the public term's concentration/ratio (`CR`) as the spike-in factor. This minimal projection is an explicit workaround for the pMultiQC QPX reader interpreting every varying annotation column as a condition and semicolons as factor separators. Complete original metadata, including biological/technical replicate IDs and original filenames, remains in the original SDRF and provenance.
 
-The archive directory's `NoPip` name must not be interpreted as disabling MBR: its preserved settings report normalization and match-between-runs enabled, with MBR FDR threshold 0.05. The source has RT columns, but the currently locked APB2 MetaMorpheus rule reads only intensity, so this report omits RT plots; parser/catalogue support and dependency updates remain separate work.
+The archive directory's `NoPip` name must not be interpreted as disabling MBR: its preserved settings report normalization and match-between-runs enabled, with MBR FDR threshold 0.05. The source has RT columns. The locked APB2 MetaMorpheus rule (apb2 `45ffc2c`) reads them, and the locked apb-catalog (`f40edc0`) catalogues Peak RT Apex in minutes, so the QPX export carries RT, converted to seconds, into the report.
 
 ## Local migration
 

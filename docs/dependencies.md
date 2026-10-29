@@ -4,9 +4,9 @@ The UI is an application: commit its uv and npm lockfiles. Rebuilding a UI revis
 
 ## Initial baseline
 
-[The source snapshot](source-baseline.json) records committed APB revisions before extraction. Uncommitted sibling edits are excluded. The application manifest uses standard Git dependency URLs to pin all six APB packages to full immutable SHAs; its exporter revision is the extraction commit after removal of the old web executable.
+[The source snapshot](source-baseline.json) records committed APB revisions before extraction. Uncommitted sibling edits are excluded. The application manifest uses standard Git dependency URLs to pin all seven APB packages to full immutable SHAs: the six of this snapshot and, since the report environment below, `apb-pmultiqc`. At extraction its exporter revision was the commit after removal of the old web executable.
 
-The six packages are explicit application runtime requirements. Besides directly imported APIs and invoked CLIs, the application deliberately pins apb-catalog, protein-fasta and prozor to own the full APB toolchain selection. Development checks explain those application-only pins to deptry rather than relying on accidental transitive resolution.
+The seven packages are explicit application runtime requirements. Besides directly imported APIs and invoked CLIs, the application deliberately pins apb-catalog, protein-fasta and prozor to own the full APB toolchain selection. Development checks explain those application-only pins to deptry rather than relying on accidental transitive resolution.
 
 ## Upgrade
 
@@ -25,6 +25,6 @@ Local sibling checkouts are unnecessary. Production installs non-editable packag
 
 The QPX/report integration deliberately updates the exporter, APB2 and catalogue to the commits tested by the standalone report application, and adds an immutable `apb-pmultiqc` source pin. The initial extraction snapshot above remains historical. The manifest and committed lock are the current source of truth.
 
-`apb-pmultiqc` also pins MultiQC 1.35 and a tested pMultiQC source revision with the pending null-RT fix and pyOpenMS 3.5 compatibility, preserving Linux ARM builds. Its provenance and upstream status are documented in [the report application](https://github.com/anndata-omics-bridge/apb-pmultiqc/blob/main/docs/dependencies.md). The newer idXML peptide container is used in both search and consensus readers; QPX serialization remains in APB Export.
+`apb-pmultiqc` also pins MultiQC 1.35 and a tested pMultiQC source revision with the null-RT fix, merged upstream on 29 October 2026 but not yet in a pMultiQC release, and pyOpenMS 3.5 compatibility, preserving Linux ARM builds. Its provenance and upstream status are documented in [the report application](https://github.com/anndata-omics-bridge/apb-pmultiqc/blob/main/docs/dependencies.md). The newer idXML peptide container is used in both search and consensus readers; QPX serialization remains in APB Export.
 
 All web tests and installed wheel/container checks use tiny synthetic uploads. No corpus run, real vendor download or large-dataset report is part of the UI gates. Report-generation failures remain failed jobs rather than exposing a partial report link.
