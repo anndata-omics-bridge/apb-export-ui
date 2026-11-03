@@ -780,14 +780,20 @@
    "levels": []
   }
  ],
- "max_upload_bytes": 4294967296,
- "viewers": {
-  "exploreDE": "https://shiny-public.fgcz.uzh.ch/app/exploreDE/"
- },
  "versions": {
   "apb-export": "0.1.0",
   "apb2": "0.1.1",
   "apb-pmultiqc": "0.1.1",
   "pmultiqc": "0.0.49.dev35"
+ },
+ "installed": {
+  "apb-export": "134fedbf8ce50d0eddba478bfaa54d79fbb8fdaa",
+  "apb2": "45ffc2c168156237c551ba7382538702c07bca9f",
+  "apb-pmultiqc": "0955a1fca9c0e4aafd85534ccf79781798ee4a38",
+  "pmultiqc": "ae84c631650faa91c40dd0212289c26002c0c4b7"
+ },
+ "max_upload_bytes": 4294967296,
+ "viewers": {
+  "exploreDE": "https://shiny-public.fgcz.uzh.ch/app/exploreDE/"
  }
 }

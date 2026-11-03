@@ -49,7 +49,41 @@
     "peptide",
     "protein"
    ],
-   "bytes": 210596134
+   "bytes": 210596134,
+   "source": {
+    "id": "6a725f977f64",
+    "label": "MaxQuant",
+    "software": "MaxQuant",
+    "result_software": "MaxQuant",
+    "module": "dda_qexactive",
+    "data": "data/zenodo/apb_examples/maxquant_dda_qexactive",
+    "params": "data/zenodo/apb_examples/maxquant_dda_qexactive/mqpar.xml",
+    "annotation": "sdrf/dda_qexactive.sdrf.tsv",
+    "version": "1.6.2.3",
+    "export": {
+     "rules": [
+      "maxquant_wide/rules.json"
+     ],
+     "versions": "1.5\u20132.x, whole txt folder",
+     "result": [
+      "combined/txt/"
+     ],
+     "params": "mqpar.xml",
+     "kinds": [
+      "folder"
+     ],
+     "labels": [],
+     "note": "evidence.txt, peptides.txt and proteinGroups.txt read together. The browser cannot upload a folder yet; examples only."
+    },
+    "secondary": [],
+    "fasta": "data/fasta/ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+    "levels": [
+     "peptidoform_ion",
+     "peptidoform",
+     "peptide",
+     "protein"
+    ]
+   }
   },
   {
    "id": "aa77a8ab33a3",
@@ -87,7 +121,38 @@
    "levels": [
     "peptidoform_ion"
    ],
-   "bytes": 17273118
+   "bytes": 17273118,
+   "source": {
+    "id": "aa77a8ab33a3",
+    "label": "Sage",
+    "software": "Sage",
+    "result_software": "Sage",
+    "module": "dda_qexactive",
+    "data": "data/submissions/Results_quant_ion_DDA/05906d50cf20634dc684bda319e3954b8cc2bf5b/input_file.tsv",
+    "params": "data/submissions/Results_quant_ion_DDA/05906d50cf20634dc684bda319e3954b8cc2bf5b/param_0..json",
+    "annotation": "sdrf/dda_qexactive.sdrf.tsv",
+    "version": "0.15.0-beta.2",
+    "export": {
+     "rules": [
+      "sage/rules.json"
+     ],
+     "versions": "0.x",
+     "result": [
+      "lfq.tsv"
+     ],
+     "params": "results.json",
+     "kinds": [
+      ".tsv"
+     ],
+     "labels": [],
+     "note": "Both in output_directory. results.sage.tsv is the PSM table, not this one; lfq.parquet (--parquet) is not read. Your own config file has no version: upload results.json."
+    },
+    "secondary": [],
+    "fasta": "data/fasta/ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+    "levels": [
+     "peptidoform_ion"
+    ]
+   }
   },
   {
    "id": "69a4a2f3c12e",
@@ -125,7 +190,38 @@
    "levels": [
     "peptidoform_ion"
    ],
-   "bytes": 38504351
+   "bytes": 38504351,
+   "source": {
+    "id": "69a4a2f3c12e",
+    "label": "FragPipe",
+    "software": "FragPipe",
+    "result_software": "FragPipe",
+    "module": "dda_qexactive",
+    "data": "data/submissions/Results_quant_ion_DDA/28b0c3b9853a5b60c9e47428b8a51b4898083523/input_file.tsv",
+    "params": "data/submissions/Results_quant_ion_DDA/28b0c3b9853a5b60c9e47428b8a51b4898083523/param_0..workflow",
+    "annotation": "sdrf/dda_qexactive.sdrf.tsv",
+    "version": "23.0",
+    "export": {
+     "rules": [
+      "fragpipe/rules.json"
+     ],
+     "versions": "22\u201323, DDA with IonQuant",
+     "result": [
+      "combined_ion.tsv"
+     ],
+     "params": "fragpipe.workflow",
+     "kinds": [
+      ".tsv"
+     ],
+     "labels": [],
+     "note": "Both at the output folder root. combined_ion.tsv needs runs assigned to experiments, as the LFQ-MBR workflow does."
+    },
+    "secondary": [],
+    "fasta": "data/fasta/ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+    "levels": [
+     "peptidoform_ion"
+    ]
+   }
   },
   {
    "id": "4e055c77da68",
@@ -164,7 +260,39 @@
    "levels": [
     "peptidoform_ion"
    ],
-   "bytes": 199978019
+   "bytes": 199978019,
+   "source": {
+    "id": "4e055c77da68",
+    "label": "AlphaPept",
+    "software": "AlphaPept",
+    "result_software": "AlphaPept",
+    "module": "dda_qexactive",
+    "data": "data/submissions/Results_quant_ion_DDA/94c4c0b7d00761d24fdde05276053b087cb99ea1/input_file.txt",
+    "params": "data/submissions/Results_quant_ion_DDA/94c4c0b7d00761d24fdde05276053b087cb99ea1/param_0..txt",
+    "annotation": "sdrf/dda_qexactive.sdrf.tsv",
+    "version": "0.5.3",
+    "export": {
+     "rules": [
+      "alphapept/rules.json"
+     ],
+     "versions": "0.5",
+     "result": [
+      "results_peptides.csv"
+     ],
+     "params": "results.yaml",
+     "kinds": [
+      ".csv",
+      ".txt"
+     ],
+     "labels": [],
+     "note": "Beside results.hdf. Setting results_path renames them to <stem>_peptides.csv and <stem>.yaml; the yaml written after the run carries the version."
+    },
+    "secondary": [],
+    "fasta": "data/fasta/ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+    "levels": [
+     "peptidoform_ion"
+    ]
+   }
   },
   {
    "id": "4c76cf3e7685",
@@ -202,7 +330,38 @@
    "levels": [
     "peptidoform_ion"
    ],
-   "bytes": 25795925
+   "bytes": 25795925,
+   "source": {
+    "id": "4c76cf3e7685",
+    "label": "PEAKS",
+    "software": "PEAKS",
+    "result_software": "PEAKS",
+    "module": "dda_qexactive",
+    "data": "data/submissions/Results_quant_ion_DDA/9d1361331b165d6cc779ccf614419eb77057f573/input_file.csv",
+    "params": "data/submissions/Results_quant_ion_DDA/9d1361331b165d6cc779ccf614419eb77057f573/param_0..txt",
+    "annotation": "sdrf/dda_qexactive.sdrf.tsv",
+    "version": "13 20250520",
+    "export": {
+     "rules": [
+      "peaks/rules.json"
+     ],
+     "versions": "13",
+     "result": [
+      "*.features.csv"
+     ],
+     "params": "*.txt",
+     "kinds": [
+      ".csv"
+     ],
+     "labels": [],
+     "note": "The Label Free Quantification Feature Vector CSV, e.g. lfq.features.csv (DDA) or lfq.dia.features.csv (DIA), and the All Search Parameters text export; PEAKS documentation gives no default names."
+    },
+    "secondary": [],
+    "fasta": "data/fasta/ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+    "levels": [
+     "peptidoform_ion"
+    ]
+   }
   },
   {
    "id": "8f58060e6f7e",
@@ -241,7 +400,39 @@
     "peptidoform_ion",
     "protein"
    ],
-   "bytes": 19345001
+   "bytes": 19345001,
+   "source": {
+    "id": "8f58060e6f7e",
+    "label": "DIA-NN",
+    "software": "DIA-NN",
+    "result_software": "DIA-NN",
+    "module": "dda_astral",
+    "data": "data/submissions/Results_quant_ion_DDA_Astral/300beac4bd267751972cf484bb1cdee2fda0b3a4/input_file.parquet",
+    "params": "data/submissions/Results_quant_ion_DDA_Astral/300beac4bd267751972cf484bb1cdee2fda0b3a4/param_0..txt",
+    "annotation": "sdrf/dda_astral.sdrf.tsv",
+    "version": "2.6.0 Enterprise",
+    "export": {
+     "rules": [
+      "diann/v2/rules.json"
+     ],
+     "versions": "2.x",
+     "result": [
+      "report.parquet"
+     ],
+     "params": "report.log.txt",
+     "kinds": [
+      ".parquet"
+     ],
+     "labels": [],
+     "note": "Default names: Main output (--out) renames both, e.g. x.parquet and x.log.txt. Not report.pr_matrix.tsv, report.pg_matrix.tsv or report.stats.tsv."
+    },
+    "secondary": [],
+    "fasta": "data/fasta/ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+    "levels": [
+     "peptidoform_ion",
+     "protein"
+    ]
+   }
   },
   {
    "id": "072475cadef3",
@@ -282,7 +473,41 @@
     "peptidoform_ion",
     "protein"
    ],
-   "bytes": 515370854
+   "bytes": 515370854,
+   "source": {
+    "id": "072475cadef3",
+    "label": "Spectronaut",
+    "software": "Spectronaut",
+    "result_software": "Spectronaut",
+    "module": "dia_aif",
+    "data": "data/submissions/Results_quant_ion_DIA_AIF/67fe009fe8f4630746a63d96293021b75a279e91/input_file.tsv",
+    "params": "data/submissions/Results_quant_ion_DIA_AIF/67fe009fe8f4630746a63d96293021b75a279e91/param_0..txt",
+    "annotation": "sdrf/dia_aif.sdrf.tsv",
+    "version": "20.0.250602.92449",
+    "export": {
+     "rules": [
+      "spectronaut/v15/rules.json",
+      "spectronaut/rules.json",
+      "spectronaut/v21/rules.json"
+     ],
+     "versions": "15, 19\u201321",
+     "result": [
+      "<report name>.tsv"
+     ],
+     "params": "<report name>.setup.txt",
+     "kinds": [
+      ".tsv"
+     ],
+     "labels": [],
+     "note": "A Normal-format BGS Factory Report, named when you export it; Spectronaut writes the .setup.txt beside it. Pipeline runs write <Experiment>_ExperimentSetupOverview_<schema>.txt instead; either works."
+    },
+    "secondary": [],
+    "fasta": "data/fasta/ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+    "levels": [
+     "peptidoform_ion",
+     "protein"
+    ]
+   }
   },
   {
    "id": "582030acf974",
@@ -333,7 +558,41 @@
     "peptide",
     "protein"
    ],
-   "bytes": 79463207
+   "bytes": 79463207,
+   "source": {
+    "id": "582030acf974",
+    "label": "MaxQuant",
+    "software": "MaxQuant",
+    "result_software": "MaxQuant",
+    "module": "dda_astral",
+    "data": "data/zenodo/apb_examples/maxquant_dda_astral",
+    "params": "data/zenodo/apb_examples/maxquant_dda_astral/mqpar.xml",
+    "annotation": "sdrf/dda_astral.sdrf.tsv",
+    "version": "1.6.2.3",
+    "export": {
+     "rules": [
+      "maxquant_wide/rules.json"
+     ],
+     "versions": "1.5\u20132.x, whole txt folder",
+     "result": [
+      "combined/txt/"
+     ],
+     "params": "mqpar.xml",
+     "kinds": [
+      "folder"
+     ],
+     "labels": [],
+     "note": "evidence.txt, peptides.txt and proteinGroups.txt read together. The browser cannot upload a folder yet; examples only."
+    },
+    "secondary": [],
+    "fasta": "data/fasta/ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+    "levels": [
+     "peptidoform_ion",
+     "peptidoform",
+     "peptide",
+     "protein"
+    ]
+   }
   },
   {
    "id": "5ea063891f82",
@@ -372,7 +631,39 @@
    "levels": [
     "peptidoform_ion"
    ],
-   "bytes": 16864220
+   "bytes": 16864220,
+   "source": {
+    "id": "5ea063891f82",
+    "label": "i2MassChroQ",
+    "software": "i2MassChroQ",
+    "result_software": "i2MassChroQ",
+    "module": "dda_astral",
+    "data": "data/submissions/Results_quant_ion_DDA_Astral/bb1a5182a0bedf5a55c7680170bce26c09ba7603/input_file.tsv",
+    "params": "data/submissions/Results_quant_ion_DDA_Astral/bb1a5182a0bedf5a55c7680170bce26c09ba7603/param_0..tsv",
+    "annotation": "sdrf/dda_astral.sdrf.tsv",
+    "version": "1.2.9",
+    "export": {
+     "rules": [
+      "i2masschroq/rules.json"
+     ],
+     "versions": "1.x",
+     "result": [
+      "proteobench_export.tsv"
+     ],
+     "params": "Project parameters.tsv",
+     "kinds": [
+      ".tsv",
+      ".txt"
+     ],
+     "labels": [],
+     "note": "The ProteoBench export button in the MCQR view, after Normalisation and PCA, saves <project name>.zip holding both files; unzip it and upload them."
+    },
+    "secondary": [],
+    "fasta": "data/fasta/ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+    "levels": [
+     "peptidoform_ion"
+    ]
+   }
   },
   {
    "id": "0cd842dc89ad",
@@ -411,7 +702,39 @@
     "peptidoform_ion",
     "protein"
    ],
-   "bytes": 2303160
+   "bytes": 2303160,
+   "source": {
+    "id": "0cd842dc89ad",
+    "label": "DIA-NN",
+    "software": "DIA-NN",
+    "result_software": "DIA-NN",
+    "module": "dia_astral",
+    "data": "data/submissions/Results_quant_ion_DIA_Astral/4cc229a793e08041348ccff49d7afaf0117a9da0/input_file.parquet",
+    "params": "data/submissions/Results_quant_ion_DIA_Astral/4cc229a793e08041348ccff49d7afaf0117a9da0/param_0..txt",
+    "annotation": "sdrf/dia_astral.sdrf.tsv",
+    "version": "2.3.0 Academia",
+    "export": {
+     "rules": [
+      "diann/v2/rules.json"
+     ],
+     "versions": "2.x",
+     "result": [
+      "report.parquet"
+     ],
+     "params": "report.log.txt",
+     "kinds": [
+      ".parquet"
+     ],
+     "labels": [],
+     "note": "Default names: Main output (--out) renames both, e.g. x.parquet and x.log.txt. Not report.pr_matrix.tsv, report.pg_matrix.tsv or report.stats.tsv."
+    },
+    "secondary": [],
+    "fasta": "data/fasta/ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+    "levels": [
+     "peptidoform_ion",
+     "protein"
+    ]
+   }
   },
   {
    "id": "f30a66bfecdb",
@@ -453,7 +776,42 @@
     "peptidoform_ion",
     "protein"
    ],
-   "bytes": 22561871
+   "bytes": 22561871,
+   "source": {
+    "id": "f30a66bfecdb",
+    "label": "FragPipe (DIA-NN quant)",
+    "software": "FragPipe",
+    "result_software": "DIA-NN",
+    "module": "dia_singlecell",
+    "data": "data/submissions/Results_quant_ion_DIA_singlecell/0b5a0c9b8387b98db6f1c287c516fa6ddf2a74ee/input_file.tsv",
+    "params": "data/submissions/Results_quant_ion_DIA_singlecell/0b5a0c9b8387b98db6f1c287c516fa6ddf2a74ee/param_0..workflow",
+    "annotation": "sdrf/dia_singlecell.sdrf.tsv",
+    "version": "23.1",
+    "export": {
+     "rules": [
+      "diann/v1_8/rules.json"
+     ],
+     "versions": "23 and later, DIA with DIA-NN quant",
+     "result": [
+      "dia-quant-output/report.tsv"
+     ],
+     "params": "fragpipe.workflow",
+     "kinds": [
+      ".tsv"
+     ],
+     "labels": [
+      "FragPipe (DIA-NN quant)"
+     ],
+     "note": "FragPipe 21\u201322 write diann-output/report.tsv, 19\u201320 diann-output/diann-output.tsv."
+    },
+    "secondary": [],
+    "fasta": "data/fasta/ProteoBenchFASTA_DDAQuantification_noecoli.fasta",
+    "levels": [
+     "peptidoform_fragment",
+     "peptidoform_ion",
+     "protein"
+    ]
+   }
   },
   {
    "id": "8e25b242007b",
@@ -494,7 +852,41 @@
    "levels": [
     "peptidoform_ion"
    ],
-   "bytes": 184497847
+   "bytes": 184497847,
+   "source": {
+    "id": "8e25b242007b",
+    "label": "AlphaDIA",
+    "software": "AlphaDIA",
+    "result_software": "AlphaDIA",
+    "module": "dia_astral",
+    "data": "data/submissions/Results_quant_ion_DIA_Astral/1bd69ca0cc5060987715afa2933b54f61fd1522e/input_file.tsv",
+    "params": "data/submissions/Results_quant_ion_DIA_Astral/1bd69ca0cc5060987715afa2933b54f61fd1522e/param_0..txt",
+    "annotation": "sdrf/dia_astral.sdrf.tsv",
+    "version": "1.12.1",
+    "export": {
+     "rules": [
+      "alphadia/v1_12/rules.json"
+     ],
+     "versions": "1.12",
+     "result": [
+      "precursors.tsv",
+      "precursor.matrix.tsv"
+     ],
+     "params": "log.txt",
+     "kinds": [
+      ".tsv"
+     ],
+     "labels": [],
+     "note": "Two tables from the output folder; upload both. Intensities come from precursor.matrix.tsv, which needs Precursor Level LFQ; precursors.tsv alone holds only protein-group intensities and is refused."
+    },
+    "secondary": [
+     "data/submissions/Results_quant_ion_DIA_Astral/1bd69ca0cc5060987715afa2933b54f61fd1522e/input_file_secondary.tsv"
+    ],
+    "fasta": "data/fasta/ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+    "levels": [
+     "peptidoform_ion"
+    ]
+   }
   },
   {
    "id": "5cfd7b053ddc",
@@ -533,7 +925,39 @@
     "peptidoform_ion",
     "protein"
    ],
-   "bytes": 44580860
+   "bytes": 44580860,
+   "source": {
+    "id": "5cfd7b053ddc",
+    "label": "AlphaDIA",
+    "software": "AlphaDIA",
+    "result_software": "AlphaDIA",
+    "module": "dia_astral",
+    "data": "data/submissions/Results_quant_ion_DIA_Astral/a17457871aa99ec961cbeef60e81f2400f95fa4e/input_file.parquet",
+    "params": "data/submissions/Results_quant_ion_DIA_Astral/a17457871aa99ec961cbeef60e81f2400f95fa4e/param_0..txt",
+    "annotation": "sdrf/dia_astral.sdrf.tsv",
+    "version": "2.1.0",
+    "export": {
+     "rules": [
+      "alphadia/v2/rules.json"
+     ],
+     "versions": "2.x",
+     "result": [
+      "precursors.parquet"
+     ],
+     "params": "log.txt",
+     "kinds": [
+      ".parquet"
+     ],
+     "labels": [],
+     "note": "Both in the output folder. With file_format: tsv AlphaDIA writes precursors.tsv instead, which this converter does not read."
+    },
+    "secondary": [],
+    "fasta": "data/fasta/ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+    "levels": [
+     "peptidoform_ion",
+     "protein"
+    ]
+   }
   },
   {
    "id": "043c8ee98fb4",
@@ -571,7 +995,38 @@
    "levels": [
     "peptidoform_ion"
    ],
-   "bytes": 255817791
+   "bytes": 255817791,
+   "source": {
+    "id": "043c8ee98fb4",
+    "label": "MetaMorpheus",
+    "software": "MetaMorpheus",
+    "result_software": "MetaMorpheus",
+    "module": "PXD003881",
+    "data": "data/zenodo/apb_examples/metamorpheus_ionstar/QuantifiedPeaks.tsv",
+    "params": null,
+    "annotation": "data/zenodo/apb_examples/metamorpheus_ionstar/sdrf.tsv",
+    "version": null,
+    "export": {
+     "rules": [
+      "metamorpheus/rules.json"
+     ],
+     "versions": "1.0.7 and later",
+     "result": [
+      "Task1-SearchTask/AllQuantifiedPeaks.tsv"
+     ],
+     "params": "Task Settings/<task>config.toml + allResults.txt",
+     "kinds": [
+      ".tsv"
+     ],
+     "labels": [],
+     "note": "Default GUI task folder; the command line writes Task1SearchTask without the hyphen. Not AllQuantifiedPeptides.tsv or the per-run *_QuantifiedPeaks.tsv. The two parameter files cannot be uploaded here yet, so convert from the result alone; the prolfqua output waits for apb-catalog to review MetaMorpheus."
+    },
+    "secondary": [],
+    "fasta": null,
+    "levels": [
+     "peptidoform_ion"
+    ]
+   }
   },
   {
    "id": "85a3649b8572",
@@ -611,7 +1066,40 @@
     "peptidoform_ion",
     "protein"
    ],
-   "bytes": 40607829
+   "bytes": 40607829,
+   "source": {
+    "id": "85a3649b8572",
+    "label": "MSAngel",
+    "software": "MSAngel",
+    "result_software": "MSAngel",
+    "module": "dda_qexactive",
+    "data": "data/submissions/Results_quant_ion_DDA/2a5ef6191b8098757d490acf76bb9c2af5b89a39/input_file.txt",
+    "params": "data/submissions/Results_quant_ion_DDA/2a5ef6191b8098757d490acf76bb9c2af5b89a39/param_0..txt",
+    "annotation": "data/submissions/Results_quant_ion_DDA/2a5ef6191b8098757d490acf76bb9c2af5b89a39/sdrf.tsv",
+    "version": "2.2.10",
+    "export": {
+     "rules": [
+      "msangel/rules.json"
+     ],
+     "versions": "2.x",
+     "result": [
+      "<name>.xlsx"
+     ],
+     "params": "<name>-export-param.json",
+     "kinds": [
+      ".xlsx",
+      ".txt"
+     ],
+     "labels": [],
+     "note": "Proline's Excel export of the quantification, with its Quantified peptide ions sheet and, for the protein level, its Protein sets sheet, plus MS-Angel's exported workflow JSON. MS-Angel documents neither name."
+    },
+    "secondary": [],
+    "fasta": "data/fasta/ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+    "levels": [
+     "peptidoform_ion",
+     "protein"
+    ]
+   }
   },
   {
    "id": "3c5c9f9780d1",
@@ -650,7 +1138,39 @@
    "levels": [
     "peptidoform_ion"
    ],
-   "bytes": 22950383
+   "bytes": 22950383,
+   "source": {
+    "id": "3c5c9f9780d1",
+    "label": "ProlineStudio",
+    "software": "ProlineStudio",
+    "result_software": "ProlineStudio",
+    "module": "dda_qexactive",
+    "data": "data/submissions/Results_quant_ion_DDA/6ed9da37e9d4600a9a28968c9a01db2b967d33cb/input_file.txt",
+    "params": "data/submissions/Results_quant_ion_DDA/6ed9da37e9d4600a9a28968c9a01db2b967d33cb/param_0..txt",
+    "annotation": "sdrf/dda_qexactive.sdrf.tsv",
+    "version": "2.3.0-SNAPSHOT_2024-09-11T06:45:20Z_jenkins",
+    "export": {
+     "rules": [
+      "prolinestudio/rules.json"
+     ],
+     "versions": "2.x",
+     "result": [
+      "<name>.xlsx"
+     ],
+     "params": "<name>.xlsx, the result file itself",
+     "kinds": [
+      ".xlsx",
+      ".txt"
+     ],
+     "labels": [],
+     "note": "Export > Excel\u2026 with a custom export: enable the Quantified peptide ions sheet with its samesets_accessions, subsets_accessions and protein_set_score columns; the sheet and both accession columns are off by default. Its settings sheets are the parameters."
+    },
+    "secondary": [],
+    "fasta": "data/fasta/ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+    "levels": [
+     "peptidoform_ion"
+    ]
+   }
   },
   {
    "id": "8921f94ee5fc",
@@ -688,7 +1208,38 @@
    "levels": [
     "peptidoform_ion"
    ],
-   "bytes": 23345676
+   "bytes": 23345676,
+   "source": {
+    "id": "8921f94ee5fc",
+    "label": "quantms",
+    "software": "quantms",
+    "result_software": "quantms",
+    "module": "dda_qexactive",
+    "data": "data/submissions/Results_quant_ion_DDA/d01e87b997b84c985868204b1ed26749902fd7f9/input_file.csv",
+    "params": "data/submissions/Results_quant_ion_DDA/d01e87b997b84c985868204b1ed26749902fd7f9/param_0..yml",
+    "annotation": "sdrf/dda_qexactive.sdrf.tsv",
+    "version": "v1.3.1dev-g70337bc",
+    "export": {
+     "rules": [
+      "quantms/rules.json"
+     ],
+     "versions": "1.x",
+     "result": [
+      "quant_tables/<sdrf name>_openms_design_msstats_in.csv"
+     ],
+     "params": "pipeline_info/nf_core_quantms_software_mqc_versions.yml",
+     "kinds": [
+      ".csv"
+     ],
+     "labels": [],
+     "note": "Up to 1.4 the table is in proteomicslfq/; nf-core/quantms 1.0 wrote out_msstats.csv. This converter reads the software-versions YAML, not params_<timestamp>.json."
+    },
+    "secondary": [],
+    "fasta": "data/fasta/ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+    "levels": [
+     "peptidoform_ion"
+    ]
+   }
   },
   {
    "id": "6fe2979f510c",
@@ -727,7 +1278,39 @@
     "peptidoform_ion",
     "peptidoform"
    ],
-   "bytes": 3718313
+   "bytes": 3718313,
+   "source": {
+    "id": "6fe2979f510c",
+    "label": "WOMBAT-P",
+    "software": "WOMBAT-P",
+    "result_software": "WOMBAT-P",
+    "module": "dda_qexactive",
+    "data": "data/submissions/Results_quant_ion_DDA/6636a8c845b94a386a2f8ab8827e47e13dd87761/input_file.csv",
+    "params": "data/submissions/Results_quant_ion_DDA/6636a8c845b94a386a2f8ab8827e47e13dd87761/param_0..yml",
+    "annotation": "data/submissions/Results_quant_ion_DDA/6636a8c845b94a386a2f8ab8827e47e13dd87761/sdrf.tsv",
+    "version": "0.9.11",
+    "export": {
+     "rules": [
+      "wombat/rules.json"
+     ],
+     "versions": "0.9.11",
+     "result": [
+      "stand_ion_quant_merged<workflow>.csv"
+     ],
+     "params": "prepare_files/params.yml",
+     "kinds": [
+      ".csv"
+     ],
+     "labels": [],
+     "note": "In the results folder, e.g. stand_ion_quant_mergedproline.csv; the stand_pep_quant files lack charges. This converter accepts params.yml reporting version 0.9.11 only."
+    },
+    "secondary": [],
+    "fasta": "data/fasta/ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+    "levels": [
+     "peptidoform_ion",
+     "peptidoform"
+    ]
+   }
   },
   {
    "id": "62d760dedc38",
@@ -766,7 +1349,39 @@
    "levels": [
     "peptidoform_ion"
    ],
-   "bytes": 1312480
+   "bytes": 1312480,
+   "source": {
+    "id": "62d760dedc38",
+    "label": "pb_custom",
+    "software": "pb_custom",
+    "result_software": "pb_custom",
+    "module": "dda_qexactive",
+    "data": "data/pb_custom/custom_input.tsv",
+    "params": null,
+    "annotation": "sdrf/dda_qexactive.sdrf.tsv",
+    "version": null,
+    "export": {
+     "rules": [
+      "pb_custom/rules.json"
+     ],
+     "versions": "any",
+     "result": [
+      "custom_input.tsv"
+     ],
+     "params": null,
+     "kinds": [
+      ".tsv",
+      ".txt"
+     ],
+     "labels": [],
+     "note": "ProteoBench's own tab-separated format for tools without a parser."
+    },
+    "secondary": [],
+    "fasta": "data/fasta/ProteoBenchFASTA_MixedSpecies_HYE.fasta",
+    "levels": [
+     "peptidoform_ion"
+    ]
+   }
   }
  ]
 }
