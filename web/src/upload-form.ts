@@ -168,7 +168,12 @@ export class ApbUploadForm extends LitElement {
       <div class="try">
         <p class="note">Try an example; each runs as-is on this server, no upload:</p>
         <table>
-          ${examples.map(example => html`
+          ${examples.map(example => {
+            const refused = variantsOf(example).flatMap(({ files, label }) => {
+              const reason = this.unavailable(example, files)
+              return reason === null ? [] : [`${label}: ${reason}`]
+            })
+            return html`
             <tr>
               <td>${example.label}${example.version ? ` ${example.version}` : ''}<br><span class="note">${example.module} · ${example.folder ? `${example.data[0]}/` : example.data.join(' + ')} · ${formatBytes(example.bytes)}</span></td>
               <td><div class="variants">
@@ -190,9 +195,11 @@ export class ApbUploadForm extends LitElement {
                       title=${`Add ${example.fasta}; the result alone is enough`} @click=${() => { this.toggleFasta(example) }}>
                       + FASTA
                     </button>`}
-              </div></td>
+              </div>
+              ${refused.map(text => html`<p class="note reason">${text}</p>`)}</td>
             </tr>
-          `)}
+          `
+          })}
         </table>
       </div>
     `
@@ -295,6 +302,7 @@ export class ApbUploadForm extends LitElement {
         <span class="tile-title">${about.title}${about.version ? html`<span class="version">${about.version}</span>` : nothing}</span>
         <code class="tile-file">${about.file}</code>
         <span class="tile-what">${about.what}</span>
+        ${reason ? html`<span class="tile-reason">${reason}</span>` : nothing}
       </label>
     `
   }

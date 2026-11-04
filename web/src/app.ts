@@ -2,19 +2,23 @@
 // The job id lives in the URL hash, so a reload resumes the same job.
 
 import './app.css'
-import { loadExamples, loadOptions, loadQc, loadStatus, submitJob } from './api.ts'
+import { loadExamples, loadOptions, loadQc, loadStatus, loadStructures, submitJob } from './api.ts'
 import type { Status } from './api.ts'
 import { ApbAbout } from './about.ts'
 import { ApbDownloads } from './downloads.ts'
 import { ApbFilePreview } from './file-preview.ts'
 import { ApbJobStatus } from './job-status.ts'
 import { ApbQcPanel } from './qc-panel.ts'
+import { ApbResultView } from './result-view.ts'
+import { ApbStructurePanel } from './structure-panel.ts'
 import { ApbUploadForm } from './upload-form.ts'
 
 customElements.define('apb-upload-form', ApbUploadForm)
 customElements.define('apb-job-status', ApbJobStatus)
 customElements.define('apb-downloads', ApbDownloads)
 customElements.define('apb-qc-panel', ApbQcPanel)
+customElements.define('apb-structure-panel', ApbStructurePanel)
+customElements.define('apb-result-view', ApbResultView)
 customElements.define('apb-file-preview', ApbFilePreview)
 customElements.define('apb-about', ApbAbout)
 
@@ -29,7 +33,7 @@ function element<T extends HTMLElement> (selector: string): T {
 const form = element<ApbUploadForm>('apb-upload-form')
 const progress = element<ApbJobStatus>('apb-job-status')
 const downloads = element<ApbDownloads>('apb-downloads')
-const qc = element<ApbQcPanel>('apb-qc-panel')
+const view = element<ApbResultView>('apb-result-view')
 const about = element<ApbAbout>('apb-about')
 const setup = element<HTMLElement>('#setup')
 const results = element<HTMLElement>('#results')
@@ -73,14 +77,17 @@ async function follow (id: string): Promise<void> {
   const revision = ++pollRevision
   window.clearTimeout(polling)
   progress.error = ''
-  qc.qc = null
+  view.clear()
   try {
     const status = await loadStatus(id)
     if (revision !== pollRevision) return
     show(status)
     if (status.state === 'done') {
-      const report = await loadQc(id)
-      if (revision === pollRevision) qc.qc = report
+      const [report, structures] = await Promise.all([loadQc(id), loadStructures(id, status.files)])
+      if (revision === pollRevision) {
+        view.qc = report
+        view.structures = structures
+      }
     } else if (status.state !== 'failed') polling = window.setTimeout(() => { void follow(id) }, POLL_MS)
   } catch (error) {
     if (revision !== pollRevision) return
@@ -101,7 +108,7 @@ form.addEventListener('submit-job', event => {
   progress.error = ''
   progress.submitting = true
   downloads.status = null
-  qc.qc = null
+  view.clear()
   editSetup.disabled = true
   showResults(description)
   submitJob(body)

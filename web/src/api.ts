@@ -1,6 +1,9 @@
 // The server's files and the one upload route. Every response is a file a job or the
 // server's startup wrote; nothing here asks the server to compute.
 
+import { anndataSidecars, validatedRepresentation } from './representation.ts'
+import type { ResultStructure } from './representation.ts'
+
 export interface OutputLink {
   label: string
   url: string
@@ -161,6 +164,10 @@ export const logUrl = (id: string): string => `api/jobs/${id}/job.log`
 export const reportUrl = (id: string): string => `api/jobs/${id}/report`
 export const fileUrl = (id: string, name: string): string =>
   `api/jobs/${id}/files/${encodeURIComponent(name)}`
+// The APB2 sidecar of each AnnData download, which the job ships beside its result.
+export const loadStructures = async (id: string, files: DownloadFile[]): Promise<ResultStructure[]> =>
+  await Promise.all(anndataSidecars(files.map(({ name }) => name)).map(async file =>
+    ({ file, representation: validatedRepresentation(await json<unknown>(fileUrl(id, file))) })))
 // A viewer app with a job file's absolute URL; the app downloads it itself.
 export const viewerUrl = (app: string, id: string, name: string, page: string): string =>
   `${app}?data=${encodeURIComponent(new URL(fileUrl(id, name), page).href)}`

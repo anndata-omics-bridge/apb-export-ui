@@ -32,7 +32,9 @@ If this app already owns the requested address, `serve` gracefully stops it and 
 
 The page asks for the software first, then shows the files it expects: result and parameter file names from each tool's own documentation and source code, packaged as `src/apb_export_ui/web/hints.json`, and whether the parameter file is required.
 
-On desktop, Software and Files share the left column and Output fills the right. Convert opens a separate results view with a short summary, progress, downloads and full-width QC. Edit setup preserves the selected files and options; View conversion returns to the current job. Reloading a job URL reopens its results.
+A greyed-out output or example button says why in text beside it, such as "Perseus reads protein; this example holds peptidoform_ion.", so touch screens show it too.
+
+On desktop, Software and Files share the left column and Output fills the right. Convert opens a separate results view with a short summary, progress, downloads and a full-width result with two tabs: Quality control first, then AnnData structure. The structure tab draws each H5AD or H5MU result's slots (X, layers, obs, var, the aligned slots and `uns`) from the APB sidecar beside it, `<result>.apb.json`; a result without one, such as a table export, Parquet or DuckDB, has no structure tab. Edit setup preserves the selected files and options; View conversion returns to the current job. Reloading a job URL reopens its results.
 
 ## Examples
 
