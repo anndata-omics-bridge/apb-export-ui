@@ -787,9 +787,9 @@
   "pmultiqc": "0.0.49.dev35"
  },
  "installed": {
-  "apb-export": "134fedbf8ce50d0eddba478bfaa54d79fbb8fdaa",
-  "apb2": "45ffc2c168156237c551ba7382538702c07bca9f",
-  "apb-pmultiqc": "0955a1fca9c0e4aafd85534ccf79781798ee4a38",
+  "apb-export": "d726e2b5c0d3ab0b13b43d79dd0a2f2555bfc6e9",
+  "apb2": "46060ce8e2596bef7d5ee2820c78f579f10ba94e",
+  "apb-pmultiqc": "619d22bb3a5f16d46a555596c5dfb94fe507676b",
   "pmultiqc": "ae84c631650faa91c40dd0212289c26002c0c4b7"
  },
  "max_upload_bytes": 4294967296,

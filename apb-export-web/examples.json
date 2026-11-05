@@ -1275,8 +1275,7 @@
     "note": "In the results folder, e.g. stand_ion_quant_mergedproline.csv; the stand_pep_quant files lack charges. This converter accepts params.yml reporting version 0.9.11 only."
    },
    "levels": [
-    "peptidoform_ion",
-    "peptidoform"
+    "peptidoform_ion"
    ],
    "bytes": 3718313,
    "source": {
@@ -1307,8 +1306,7 @@
     "secondary": [],
     "fasta": "data/fasta/ProteoBenchFASTA_MixedSpecies_HYE.fasta",
     "levels": [
-     "peptidoform_ion",
-     "peptidoform"
+     "peptidoform_ion"
     ]
    }
   },
