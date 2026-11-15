@@ -2,6 +2,14 @@
 
 The upload page, server, job runner and QC presentation for [APB Export](https://github.com/anndata-omics-bridge/apb-export), released independently with a locked Python environment.
 
+Documentation: [anndata-omics-bridge.github.io/apb-export-ui](https://anndata-omics-bridge.github.io/apb-export-ui/). Try it: [apps-dev.bfabric.org/apb-export](https://apps-dev.bfabric.org/apb-export/).
+
+![The upload page: DIA-NN chosen as the software, its report, parameter log and sample table added, and AnnData / MuData chosen among the outputs.](docs/images/upload.png)
+
+![Quality control of the precursor level: intensity density per sample, CV per feature within conditions A and B, and detected and missing counts per sample.](docs/images/quality-control.png)
+
+The screenshots show a synthetic DIA-NN 1.8.1 report: 600 made-up proteins, six runs, two conditions.
+
 ## Run
 
 `apb-export-web` without arguments shows help. Use `apb-export-web serve --help` for server options.

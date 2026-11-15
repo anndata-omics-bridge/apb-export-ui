@@ -40,8 +40,9 @@ frontend-check:  ## Test TypeScript and compare fresh and packaged assets
 	cd web && npm ci && npm test
 	$(VENV_BIN)/python scripts/check_frontend.py
 
-docs:  ## Check local documentation links
+docs:  ## Check local documentation links and build the site with warnings as errors
 	$(VENV_BIN)/python scripts/check_docs.py
+	uv run --locked --only-group docs zensical build --clean --strict
 
 build:  ## Build and validate source and wheel distributions
 	uv lock --check

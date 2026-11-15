@@ -1,0 +1,30 @@
+site_name: APB Export UI
+site_description: Convert a proteomics quantification result for a downstream tool and check its quality before download.
+site_url: https://anndata-omics-bridge.github.io/apb-export-ui/
+repo_url: https://github.com/anndata-omics-bridge/apb-export-ui
+repo_name: anndata-omics-bridge/apb-export-ui
+docs_dir: docs
+site_dir: public
+
+theme:
+  name: material
+  features:
+    - content.code.copy
+    - navigation.sections
+    - navigation.top
+
+nav:
+  - Home: index.md
+  - Web application: web.md
+  - Deployment: deploy.md
+  - Dependency policy: dependencies.md
+  - MetaMorpheus example: metamorpheus-example.md
+
+markdown_extensions:
+  - admonition
+  - tables
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+plugins:
+  - search

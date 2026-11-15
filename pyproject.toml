@@ -50,6 +50,9 @@ dev = [
     "twine>=6,<7",
     "types-psutil>=7.2.2.20260906",
 ]
+docs = [
+    "zensical==0.0.43",
+]
 
 [tool.ruff]
 line-length = 100
