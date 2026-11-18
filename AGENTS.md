@@ -58,3 +58,7 @@ The closest `AGENTS.md` wins. Explicit user instructions override this file.
 - Commit both uv and npm lockfiles; never add sibling path sources or editable APB installations. Upgrade dependency revisions explicitly and run the full UI tests.
 - `make check` includes frontend freshness and package checks; `make check-full` also checks a clean wheel installation and container execution.
 - Real fixture data stays external. Tests and smoke checks synthesise their vendor input; no corpus run without the user's current request.
+
+## Output style
+
+Every reply must follow the output style that `outputStyle` selects in [settings.json](/Users/wolski/.claude/settings.json), currently [Answer-first](/Users/wolski/.claude/output-styles/answer-first.md). Read that file if your harness does not load it. No exceptions for long, investigative or follow-up replies.
