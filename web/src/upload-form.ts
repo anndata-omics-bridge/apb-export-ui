@@ -311,7 +311,7 @@ export class ApbUploadForm extends LitElement {
     const outputs = this.options?.outputs ?? []
     const groups: Array<[string, string]> = [
       ['tool', 'For a downstream tool'],
-      ['apb2', 'APB2 result: every level, all layers']
+      ['apb2', 'ProteoBridge result: every level, all layers']
     ]
     return html`
       ${groups.map(([group, title]) => html`

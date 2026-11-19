@@ -3788,7 +3788,7 @@ ${s.shaderPreludeCode.vertexSource}`,define:s.shaderDefine},defaultProjectionDat
         ${a?we`<span class="tile-reason">${a}</span>`:Ee}
       </label>
     `}renderOutputs(e){let t=this.options?.outputs??[];return we`
-      ${[[`tool`,`For a downstream tool`],[`apb2`,`APB2 result: every level, all layers`]].map(([n,r])=>we`
+      ${[[`tool`,`For a downstream tool`],[`apb2`,`ProteoBridge result: every level, all layers`]].map(([n,r])=>we`
         <h3>${r}</h3>
         <div class="tiles tiles-${n}" role="radiogroup" aria-label=${r}>
           ${t.filter(({about:e})=>e.group===n).map(t=>this.renderTile(t,e))}
