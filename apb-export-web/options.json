@@ -792,7 +792,7 @@
   "apb-pmultiqc": "619d22bb3a5f16d46a555596c5dfb94fe507676b",
   "pmultiqc": "ae84c631650faa91c40dd0212289c26002c0c4b7"
  },
- "max_upload_bytes": 4294967296,
+ "max_upload_bytes": 2147483648,
  "viewers": {
   "exploreDE": "https://shiny-public.fgcz.uzh.ch/app/exploreDE/"
  }
