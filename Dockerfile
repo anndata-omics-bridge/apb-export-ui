@@ -14,10 +14,14 @@ ENV UV_COMPILE_BYTECODE=1 \
 ARG UI_REVISION=unknown
 ARG EXPORTER_REVISION=unknown
 ARG REPORT_REVISION=unknown
+ARG APB2_REVISION=unknown
+ARG FASTA_REVISION=unknown
 LABEL org.opencontainers.image.source="https://github.com/anndata-omics-bridge/apb-export-ui" \
     org.opencontainers.image.revision=$UI_REVISION \
     org.anndata-omics-bridge.apb-export.revision=$EXPORTER_REVISION \
-    org.anndata-omics-bridge.apb-pmultiqc.revision=$REPORT_REVISION
+    org.anndata-omics-bridge.apb-pmultiqc.revision=$REPORT_REVISION \
+    org.anndata-omics-bridge.apb2.revision=$APB2_REVISION \
+    org.anndata-omics-bridge.apb-fasta.revision=$FASTA_REVISION
 RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY pyproject.toml uv.lock README.md LICENSE ./

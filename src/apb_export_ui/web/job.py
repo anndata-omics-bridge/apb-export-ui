@@ -8,6 +8,7 @@ downloads.
 
 from __future__ import annotations
 
+import json
 import shutil
 import subprocess
 import sys
@@ -245,10 +246,26 @@ class QpxRunner(Runner):
 def _unpack(folder: Path) -> None:
     """A directory of one ``.h5ad`` per level, as exploreDE's, as files named after it, so each
     level is its own download: ``report_explorede.h5ads/protein.h5ad`` becomes
-    ``report_explorede_protein.h5ad``, its sidecar likewise."""
+    ``report_explorede_protein.h5ad``, its sidecar likewise, which then names the new file."""
+    moved = []
     for entry in sorted(folder.iterdir()):
-        entry.replace(folder.with_name(f"{folder.stem}_{entry.name}"))
+        target = folder.with_name(f"{folder.stem}_{entry.name}")
+        entry.replace(target)
+        moved.append(target)
     folder.rmdir()
+    for target in moved:
+        sidecar = sidecar_path(target)
+        if sidecar.is_file():
+            _rename_artifact(sidecar, target.name)
+
+
+def _rename_artifact(sidecar: Path, name: str) -> None:
+    """The sidecar's ``artifact.name`` set to the file it now sits beside."""
+    record = json.loads(sidecar.read_text(encoding="utf-8"))
+    artifact = record.get("artifact")
+    if isinstance(artifact, dict):
+        artifact["name"] = name
+        sidecar.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
 
 
 def result_paths(folder: Path) -> list[Path]:

@@ -217,6 +217,10 @@ def test_an_explorede_job_offers_one_file_per_level(
     assert len(qc["matrices"]) == 2, "QC for each level's file"
     download = test_client.get(f"/api/jobs/{job}/files/report_explorede_protein.h5ad")
     assert download.content[:8] == b"\x89HDF\r\n\x1a\n"
+    sidecar = test_client.get(f"/api/jobs/{job}/files/report_explorede_protein.h5ad.apb.json")
+    assert sidecar.json()["artifact"]["name"] == "report_explorede_protein.h5ad", (
+        "the sidecar names the file it was delivered with"
+    )
 
 
 def test_prolfqua_job_groups_cv_by_the_annotation(

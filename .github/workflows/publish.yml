@@ -22,6 +22,8 @@ jobs:
               dependencies = tomllib.load(handle)["project"]["dependencies"]
               print("revision=" + next(d for d in dependencies if d.startswith("apb-export @ ")).rsplit("@", 1)[1])
               print("report_revision=" + next(d for d in dependencies if d.startswith("apb-pmultiqc @ ")).rsplit("@", 1)[1])
+              print("apb2_revision=" + next(d for d in dependencies if d.startswith("apb2 @ ")).rsplit("@", 1)[1])
+              print("fasta_revision=" + next(d for d in dependencies if d.startswith("apb-fasta @ ")).rsplit("@", 1)[1])
           PY
       - uses: docker/login-action@v3
         with:
@@ -46,5 +48,7 @@ jobs:
             UI_REVISION=${{ github.sha }}
             EXPORTER_REVISION=${{ steps.backend.outputs.revision }}
             REPORT_REVISION=${{ steps.backend.outputs.report_revision }}
+            APB2_REVISION=${{ steps.backend.outputs.apb2_revision }}
+            FASTA_REVISION=${{ steps.backend.outputs.fasta_revision }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

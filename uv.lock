@@ -97,8 +97,8 @@ wheels = [
 
 [[package]]
 name = "apb-catalog"
-version = "0.1.4"
-source = { git = "https://github.com/anndata-omics-bridge/apb-catalog.git?rev=0a9e5f5c82357d3c377e45684ba1cecd98db7db0#0a9e5f5c82357d3c377e45684ba1cecd98db7db0" }
+version = "0.1.5"
+source = { git = "https://github.com/anndata-omics-bridge/apb-catalog.git?rev=4fd9c4abbdfbc533958ed00ae4cc910e594567ad#4fd9c4abbdfbc533958ed00ae4cc910e594567ad" }
 dependencies = [
     { name = "anndata" },
     { name = "apb2" },
@@ -112,8 +112,8 @@ dependencies = [
 
 [[package]]
 name = "apb-export"
-version = "0.1.0"
-source = { git = "https://github.com/anndata-omics-bridge/apb-export.git?rev=d726e2b5c0d3ab0b13b43d79dd0a2f2555bfc6e9#d726e2b5c0d3ab0b13b43d79dd0a2f2555bfc6e9" }
+version = "0.2.0"
+source = { git = "https://github.com/anndata-omics-bridge/apb-export.git?rev=1b5592ea561cc04f7ed5fd3d85461a2efbf4329b#1b5592ea561cc04f7ed5fd3d85461a2efbf4329b" }
 dependencies = [
     { name = "apb-catalog" },
     { name = "apb-fasta" },
@@ -171,11 +171,11 @@ docs = [
 [package.metadata]
 requires-dist = [
     { name = "anndata", specifier = ">=0.11" },
-    { name = "apb-catalog", git = "https://github.com/anndata-omics-bridge/apb-catalog.git?rev=0a9e5f5c82357d3c377e45684ba1cecd98db7db0" },
-    { name = "apb-export", git = "https://github.com/anndata-omics-bridge/apb-export.git?rev=d726e2b5c0d3ab0b13b43d79dd0a2f2555bfc6e9" },
-    { name = "apb-fasta", git = "https://github.com/anndata-omics-bridge/apb-fasta.git?rev=5830b080542ed59ec4e40d7ca65e590c5beafe2e" },
-    { name = "apb-pmultiqc", git = "https://github.com/anndata-omics-bridge/apb-pmultiqc.git?rev=619d22bb3a5f16d46a555596c5dfb94fe507676b" },
-    { name = "apb2", git = "https://github.com/anndata-omics-bridge/apb2.git?rev=46060ce8e2596bef7d5ee2820c78f579f10ba94e" },
+    { name = "apb-catalog", git = "https://github.com/anndata-omics-bridge/apb-catalog.git?rev=4fd9c4abbdfbc533958ed00ae4cc910e594567ad" },
+    { name = "apb-export", git = "https://github.com/anndata-omics-bridge/apb-export.git?rev=1b5592ea561cc04f7ed5fd3d85461a2efbf4329b" },
+    { name = "apb-fasta", git = "https://github.com/anndata-omics-bridge/apb-fasta.git?rev=60eecc3ce84993f9bcbc6d254351333a98803e7e" },
+    { name = "apb-pmultiqc", git = "https://github.com/anndata-omics-bridge/apb-pmultiqc.git?rev=fac55e712a537e578e435f28f96ff04be22b8a31" },
+    { name = "apb2", git = "https://github.com/anndata-omics-bridge/apb2.git?rev=16d0399fcac3a8f023252ce60c35eac0e8de12a4" },
     { name = "cyclopts", specifier = ">=4,<5" },
     { name = "fastapi", specifier = ">=0.142,<1" },
     { name = "loguru", specifier = ">=0.7,<1" },
@@ -207,8 +207,8 @@ docs = [{ name = "zensical", specifier = "==0.0.43" }]
 
 [[package]]
 name = "apb-fasta"
-version = "0.1.1"
-source = { git = "https://github.com/anndata-omics-bridge/apb-fasta.git?rev=5830b080542ed59ec4e40d7ca65e590c5beafe2e#5830b080542ed59ec4e40d7ca65e590c5beafe2e" }
+version = "0.1.2"
+source = { git = "https://github.com/anndata-omics-bridge/apb-fasta.git?rev=60eecc3ce84993f9bcbc6d254351333a98803e7e#60eecc3ce84993f9bcbc6d254351333a98803e7e" }
 dependencies = [
     { name = "apb2" },
     { name = "cyclopts" },
@@ -221,7 +221,7 @@ dependencies = [
 [[package]]
 name = "apb-pmultiqc"
 version = "0.1.1"
-source = { git = "https://github.com/anndata-omics-bridge/apb-pmultiqc.git?rev=619d22bb3a5f16d46a555596c5dfb94fe507676b#619d22bb3a5f16d46a555596c5dfb94fe507676b" }
+source = { git = "https://github.com/anndata-omics-bridge/apb-pmultiqc.git?rev=fac55e712a537e578e435f28f96ff04be22b8a31#fac55e712a537e578e435f28f96ff04be22b8a31" }
 dependencies = [
     { name = "apb-catalog" },
     { name = "apb-export" },
@@ -238,8 +238,8 @@ dependencies = [
 
 [[package]]
 name = "apb2"
-version = "0.1.1"
-source = { git = "https://github.com/anndata-omics-bridge/apb2.git?rev=46060ce8e2596bef7d5ee2820c78f579f10ba94e#46060ce8e2596bef7d5ee2820c78f579f10ba94e" }
+version = "0.1.2"
+source = { git = "https://github.com/anndata-omics-bridge/apb2.git?rev=16d0399fcac3a8f023252ce60c35eac0e8de12a4#16d0399fcac3a8f023252ce60c35eac0e8de12a4" }
 dependencies = [
     { name = "anndata" },
     { name = "cyclopts" },

@@ -83,6 +83,20 @@
     ],
     "group": "tool"
   },
+  "apb-export:proteopy_ion": {
+    "title": "ProteoPy, ions",
+    "file": ".h5ad",
+    "what": "Wide ion table with sample_id, peptide_id (the ion) and protein_id, as ProteoPy's own DIA-NN reader makes it at Precursor.Id; ions naming several proteins are left out, and ProteoPy rolls the ions up to peptides or proteins.",
+    "open": "anndata.read_h5ad(path)",
+    "version": "0.1",
+    "links": [
+      {
+        "label": "UKHD-NP/proteopy",
+        "url": "https://github.com/UKHD-NP/proteopy"
+      }
+    ],
+    "group": "tool"
+  },
   "apb-export:explorede": {
     "title": "exploreDE",
     "file": ".h5ad per level",
