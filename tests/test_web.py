@@ -5,12 +5,15 @@ from __future__ import annotations
 import json
 import re
 import subprocess
+import sys
+import time
 import zipfile
 from collections.abc import Iterator
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict
 from io import BytesIO
 from pathlib import Path
-from typing import Any
+from typing import IO, Any
 
 import anndata as ad
 import httpx
@@ -32,7 +35,7 @@ from apb_export_ui.web.examples import (
     write_previews,
 )
 from apb_export_ui.web.exports import Export, SoftwareHint, export_for, load_hints, rule_versions
-from apb_export_ui.web.job import anndata_matrices, error_text
+from apb_export_ui.web.job import Runner, StepFailed, anndata_matrices, error_text
 from apb_export_ui.web.job import main as run_job
 from apb_export_ui.web.options import (
     about,
@@ -46,6 +49,7 @@ from apb_export_ui.web.qc import ALL_SAMPLES, Matrix, grouping_column, summarize
 from apb_export_ui.web.server import Worker, create_app
 from apb_export_ui.web.store import (
     DownloadFile,
+    Job,
     JobStore,
     Output,
     Request,
@@ -182,6 +186,7 @@ def test_an_apb2_job_checks_the_peptides_against_the_uploaded_fasta(
         "qc",
         "package",
     ]
+    assert all(step["started"] and step["seconds"] is not None for step in status["steps"])
 
 
 def test_a_proteopy_job_annotates_its_proteins_from_the_uploaded_fasta(
@@ -421,13 +426,12 @@ def test_report_process_failure_is_a_failed_job(
     original = subprocess.run
 
     def command(
-        argv: list[str], capture_output: bool, text: bool, check: bool
-    ) -> subprocess.CompletedProcess[str]:
+        argv: list[str], stdout: IO[bytes], stderr: int, env: dict[str, str], check: bool
+    ) -> subprocess.CompletedProcess[bytes]:
         if Path(argv[0]).name == "apb-pmultiqc":
-            return subprocess.CompletedProcess(
-                argv, 1, stdout="", stderr="MultiQC report generation failed"
-            )
-        return original(argv, capture_output=capture_output, text=text, check=check)
+            stdout.write(b"MultiQC report generation failed")
+            return subprocess.CompletedProcess(argv, 1)
+        return original(argv, stdout=stdout, stderr=stderr, env=env, check=check)
 
     monkeypatch.setattr("subprocess.run", command)
     store = JobStore(tmp_path / "store", ttl_seconds=3600)
@@ -452,6 +456,58 @@ def test_report_process_failure_is_a_failed_job(
     assert status.steps[-1].name == "pmultiqc" and status.steps[-1].state == "failed"
     assert status.files == []
     assert status.error == "MultiQC report generation failed"
+
+
+def _log(job: Job) -> str:
+    return job.log_path.read_text(encoding="utf-8") if job.log_path.is_file() else ""
+
+
+def test_a_running_command_streams_its_output_and_records_its_start(
+    tmp_path: Path, options: Options, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    sentinel = tmp_path / "go"
+    fake = tmp_path / "fake-apb2"
+    fake.write_text(
+        f"#!{sys.executable}\n"
+        "import pathlib, sys, time\n"
+        "print('parsing the report')\n"
+        f"sentinel = pathlib.Path({str(sentinel)!r})\n"
+        "deadline = time.monotonic() + 30\n"
+        "while not sentinel.exists() and time.monotonic() < deadline:\n"
+        "    time.sleep(0.05)\n"
+        "print('2026-11-21 | ERROR | apb2 - boom', file=sys.stderr)\n"
+        "sys.exit(1)\n",
+        encoding="utf-8",
+    )
+    fake.chmod(0o755)
+
+    def installed(name: str) -> Path:
+        return fake
+
+    monkeypatch.setattr("apb_export_ui.web.job.command", installed)
+    store = JobStore(tmp_path / "store", ttl_seconds=3600)
+    job = store.create()
+    (job.inputs / "report.tsv").write_text("a\tb\n", encoding="utf-8")
+    output = next(o for o in options[1] if o.id == "apb2:duckdb")
+    write_json(job.request_path, asdict(Request(data="input/report.tsv", output=output)))
+    job.write_status(Status(id=job.id, state="queued"))
+    runner = Runner(job)
+
+    with ThreadPoolExecutor(1) as pool:
+        running = pool.submit(runner.convert, job.root / "results")
+        deadline = time.monotonic() + 30
+        while "parsing the report" not in _log(job) and time.monotonic() < deadline:
+            time.sleep(0.05)
+        log, step = _log(job), job.status().steps[-1]
+        sentinel.touch()
+        with pytest.raises(StepFailed, match=r"^boom$"):
+            running.result()
+
+    assert "parsing the report" in log, "the output reaches the log while the command runs"
+    assert (step.name, step.state, step.seconds) == ("convert", "running", None)
+    assert step.started is not None and abs(time.time() - step.started) < 60
+    failed = runner.status.steps[-1]
+    assert failed.state == "failed" and failed.seconds is not None
 
 
 def test_the_page_and_options_are_served(client: tuple[TestClient, Worker, JobStore]) -> None:

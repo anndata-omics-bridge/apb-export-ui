@@ -34,7 +34,7 @@ The page asks for the software first, then shows the files it expects: result an
 
 A greyed-out output or example button says why in text beside it, such as "Perseus reads protein; this example holds peptidoform_ion.", so touch screens show it too.
 
-On desktop, Software and Files share the left column and Output fills the right. Convert opens a separate results view with a short summary, progress, downloads and a full-width result with two tabs: Quality control first, then AnnData structure. The structure tab draws each H5AD or H5MU result's slots (X, layers, obs, var, the aligned slots and `uns`) from the APB sidecar beside it, `<result>.apb.json`; a result without one, such as a table export, Parquet or DuckDB, has no structure tab. Edit setup preserves the selected files and options; View conversion returns to the current job. Reloading a job URL reopens its results.
+On desktop, Software, Files and Convert share the left column and Output fills the right. Convert opens a separate results view with a short summary, progress, downloads and a full-width result with two tabs: Quality control first, then AnnData structure. The structure tab draws each H5AD or H5MU result's slots (X, layers, obs, var, the aligned slots and `uns`) from the APB sidecar beside it, `<result>.apb.json`; a result without one, such as a table export, Parquet or DuckDB, has no structure tab. Edit setup preserves the selected files and options; View conversion returns to the current job. Reloading a job URL reopens its results.
 
 ## Examples
 

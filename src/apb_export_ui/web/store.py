@@ -70,6 +70,8 @@ class Step:
     name: str
     state: State
     seconds: float | None = None
+    # Epoch seconds when the step began, so the page can show how long it has run.
+    started: float | None = None
 
 
 @dataclass(slots=True)

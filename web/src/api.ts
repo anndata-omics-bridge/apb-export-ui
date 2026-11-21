@@ -91,6 +91,8 @@ export interface Step {
   name: string
   state: State
   seconds: number | null
+  // Epoch seconds when the step began; absent in jobs written before it was recorded.
+  started?: number | null
 }
 
 export interface DownloadFile {

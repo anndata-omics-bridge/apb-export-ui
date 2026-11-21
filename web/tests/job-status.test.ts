@@ -18,3 +18,30 @@ test('a rejected submission keeps its error visible without a job', () => {
   assert.match(markup, /upload refused: Result file is empty/)
   assert.doesNotMatch(markup, /Submitting conversion|Job log/)
 })
+
+function markup (progress: ApbJobStatus): string {
+  return Array.from(render(progress.render())).join('')
+}
+
+test('a running step shows a moving bar and how long it has run', () => {
+  const progress = new ApbJobStatus()
+  progress.now = 1_000_000_000
+  progress.status = {
+    id: 'job123', state: 'running', error: null, files: [],
+    steps: [{ name: 'convert', state: 'running', seconds: null, started: 1_000_000 - 134 }]
+  }
+  const content = markup(progress)
+  assert.match(content, /running · 2 min 14 s/)
+  assert.match(content, /<progress aria-label="convert running"/)
+})
+
+test('finished steps keep their duration and no bar', () => {
+  const progress = new ApbJobStatus()
+  progress.status = {
+    id: 'job123', state: 'done', error: null, files: [],
+    steps: [{ name: 'convert', state: 'done', seconds: 1.5, started: 1_000_000 }]
+  }
+  const content = markup(progress)
+  assert.match(content, /done · 1.5 s/)
+  assert.doesNotMatch(content, /<progress/)
+})

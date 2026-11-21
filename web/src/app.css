@@ -75,6 +75,7 @@ button[disabled] { opacity: 0.5; cursor: default; }
 .state-failed { color: var(--bad); }
 .steps { margin: 0 0 8px; padding-left: 20px; }
 .steps li span { color: var(--muted); margin-left: 8px; }
+.steps progress { display: block; width: min(100%, 320px); margin: 4px 0; accent-color: var(--accent); }
 .error { white-space: pre-wrap; color: var(--bad); background: transparent; border-left: 3px solid var(--bad); padding: 4px 10px; margin: 8px 0; }
 
 .files { list-style: none; padding: 0; margin: 0 0 8px; }
@@ -160,7 +161,8 @@ code { overflow-wrap: anywhere; font-family: ui-monospace, SFMono-Regular, Menlo
 .try p { margin: 0 0 6px; }
 .try table { border-collapse: collapse; width: 100%; }
 .try td { overflow-wrap: anywhere; padding: 6px 8px 6px 0; border-bottom: 1px solid var(--line); vertical-align: middle; }
-.try .variants { display: flex; flex-wrap: wrap; gap: 8px; }
+.try .variants { display: flex; flex-wrap: wrap; gap: 6px; }
+.try .variants button.secondary { padding: 3px 10px; font-size: 0.85rem; }
 button.secondary {
   font: inherit; padding: 6px 14px; border: 1px solid var(--accent); border-radius: 4px; background: transparent; color: var(--accent); cursor: pointer;
 }
@@ -202,7 +204,7 @@ button.secondary[disabled] { border-color: var(--line); color: var(--muted); }
 .output-detail dd { margin: 0; overflow-wrap: anywhere; }
 
 .convert-bar { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; padding: 0 4px; }
-.convert-bar .missing, .convert-bar .summary { color: var(--muted); }
+.convert-bar .missing, .convert-bar .summary { flex: 1 1 16rem; color: var(--muted); }
 
 .visually-hidden {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
@@ -239,8 +241,10 @@ a.button { display: inline-block; padding: 6px 14px; border-radius: 4px; backgro
   }
 
   .wizard {
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-    grid-template-areas: "inputs output" "convert convert";
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    /* Convert sits under Files; the output column, however long, spans both rows. */
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "inputs output" "convert output";
     align-items: start;
   }
   .input-panel { grid-area: inputs; }
@@ -284,10 +288,13 @@ a.button { display: inline-block; padding: 6px 14px; border-radius: 4px; backgro
     bottom: 12px;
     z-index: 2;
     min-width: 0;
-    padding: 12px 16px;
-    border: 1px solid var(--line);
+    padding: 14px 18px;
+    border: 2px solid var(--accent);
     border-radius: 8px;
-    background: var(--card);
-    box-shadow: 0 -4px 16px rgb(0 0 0 / 6%);
+    background: color-mix(in srgb, var(--accent) 12%, var(--card));
+    box-shadow: 0 -4px 16px rgb(0 0 0 / 12%);
   }
+  .convert-bar .summary { color: var(--text); }
+  .convert-bar button[type="submit"] { padding: 10px 28px; font-size: 1.05rem; font-weight: 600; }
+  .convert-bar:has(button[disabled]) { border-color: var(--line); background: var(--card); }
 }

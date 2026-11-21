@@ -9,6 +9,7 @@ downloads.
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -56,7 +57,7 @@ class Runner:
         return None if relative is None else self.job.root / relative
 
     def _step[T](self, name: str, action: Callable[[], T]) -> T:
-        step = Step(name, "running")
+        step = Step(name, "running", started=round(time.time(), 2))
         self.status.state = "running"
         self.status.steps.append(step)
         self.job.write_status(self.status)
@@ -73,15 +74,26 @@ class Runner:
         return result
 
     def _command(self, argv: list[str | Path]) -> None:
+        """Run one CLI with its output written straight into the job log, so the log shows
+        the run as it happens; a failure reports what the command logged."""
         with self.job.log_path.open("a", encoding="utf-8") as log:
             log.write(f"$ {' '.join(str(part) for part in argv)}\n")
-        ran = subprocess.run(
-            [str(part) for part in argv], capture_output=True, text=True, check=False
-        )
+        offset = self.job.log_path.stat().st_size
+        with self.job.log_path.open("ab") as log:
+            ran = subprocess.run(
+                [str(part) for part in argv],
+                stdout=log,
+                stderr=subprocess.STDOUT,
+                env={**os.environ, "PYTHONUNBUFFERED": "1"},
+                check=False,
+            )
+        with self.job.log_path.open("rb") as log:
+            log.seek(offset)
+            output = log.read().decode("utf-8", errors="replace")
         with self.job.log_path.open("a", encoding="utf-8") as log:
-            log.write(ran.stdout + ran.stderr + "\n")
+            log.write("\n")
         if ran.returncode != 0:
-            raise StepFailed(error_text(ran.stdout + ran.stderr))
+            raise StepFailed(error_text(output))
 
     def _vendor_options(self) -> list[str | Path]:
         params, software = self._path(self.request.params), self.request.software
