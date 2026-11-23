@@ -208,28 +208,50 @@ def exercise(base: str) -> None:
         print("Prefixed pMultiQC report, HTML download and QPX ZIP passed")
 
 
+APB_PACKAGES = frozenset(
+    {"apb2", "apb-export", "apb-catalog", "apb-fasta", "protein-fasta", "prozor", "apb-pmultiqc"}
+)
+
+
+def locked_requirements() -> bytes:
+    """The application's locked runtime requirements, its report group included."""
+    return subprocess.check_output(
+        ["uv", "export", "--locked", "--no-dev", "--no-emit-project", "--no-hashes"], cwd=ROOT
+    )
+
+
 def installed_check() -> str:
-    """Return a standard-library-only assertion script for the installed dependency graph."""
-    dependencies = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["dependencies"]
-    expected = {
-        entry.split(" @ ")[0]: entry.rsplit("@", 1)[1]
-        for entry in dependencies
-        if " @ git+" in entry
-    }
+    """Return a standard-library-only assertion script: every APB package installed as the lock
+    pins it, by version from PyPI or by commit from Git, and none editable."""
+    expected: dict[str, tuple[str, str]] = {}
+    for line in locked_requirements().decode().splitlines():
+        entry = line.split(";", 1)[0].strip()
+        if " @ git+" in entry:
+            name, url = entry.split(" @ ", 1)
+            expected[name] = ("commit", url.rsplit("@", 1)[1])
+        elif "==" in entry:
+            name, version = entry.split("==", 1)
+            expected[name] = ("version", version)
+    expected = {name: pin for name, pin in expected.items() if name in APB_PACKAGES}
+    assert {"apb2", "apb-export"} <= expected.keys(), expected
     return f"""
 import importlib.metadata as metadata
 import json
 expected = {expected!r}
-for name, revision in expected.items():
+for name, (kind, pin) in expected.items():
     distribution = metadata.distribution(name)
-    direct = json.loads(distribution.read_text("direct_url.json"))
+    origin = distribution.read_text("direct_url.json")
+    direct = json.loads(origin) if origin else {{}}
     assert not direct.get("dir_info", {{}}).get("editable", False), (name, direct)
-    assert direct["vcs_info"]["commit_id"] == revision, (name, direct)
+    if kind == "commit":
+        assert direct["vcs_info"]["commit_id"] == pin, (name, direct)
+    else:
+        assert distribution.version == pin, (name, distribution.version)
 owners = [d.metadata["Name"] for d in metadata.distributions() if any(e.name == "apb-export-web" and e.group == "console_scripts" for e in d.entry_points)]
 assert owners == ["apb-export-ui"], owners
 import apb_export_ui
 assert {str(ROOT)!r} not in apb_export_ui.__file__, apb_export_ui.__file__
-print("Isolated installation owns the web executable and matches all declared Git pins")
+print("Isolated installation owns the web executable and matches every locked APB pin")
 """
 
 
@@ -247,9 +269,7 @@ def wheel_smoke() -> None:
         folder = Path(directory)
         environment = folder / "venv"
         subprocess.run(["uv", "venv", "--python", "3.13", str(environment)], check=True)
-        exported = subprocess.check_output(
-            ["uv", "export", "--locked", "--no-dev", "--no-emit-project", "--no-hashes"], cwd=ROOT
-        )
+        exported = locked_requirements()
         requirements = folder / "requirements.txt"
         requirements.write_bytes(exported)
         python = environment / "bin/python"
