@@ -200,6 +200,12 @@
         "url": "https://github.com/bigbio/qpx"
       }
     ],
-    "group": "tool"
+    "group": "tool",
+    "without_report": {
+      "title": "QPX",
+      "file": ".qpx folder (zip)",
+      "what": "Precursor and protein quantities as QPX Parquet tables. Sample groups are optional. This installation has no pMultiQC, so no report.",
+      "open": "pMultiQC: multiqc --qpx-plugin path, or Polars, pandas, DuckDB"
+    }
   }
 }

@@ -21,6 +21,7 @@ import mudata as md
 import numpy as np
 import pandas as pd
 import polars as pl
+import psutil
 import pytest
 from apb_export.api import Exporter
 from fastapi.testclient import TestClient
@@ -35,10 +36,11 @@ from apb_export_ui.web.examples import (
     write_previews,
 )
 from apb_export_ui.web.exports import Export, SoftwareHint, export_for, load_hints, rule_versions
-from apb_export_ui.web.job import Runner, StepFailed, anndata_matrices, error_text
+from apb_export_ui.web.job import Runner, StepFailed, anndata_matrices, error_text, runner_for
 from apb_export_ui.web.job import main as run_job
 from apb_export_ui.web.options import (
     about,
+    command,
     options_index,
     outputs,
     read_outputs,
@@ -46,7 +48,7 @@ from apb_export_ui.web.options import (
     write_options,
 )
 from apb_export_ui.web.qc import ALL_SAMPLES, Matrix, grouping_column, summarize
-from apb_export_ui.web.server import Worker, create_app
+from apb_export_ui.web.server import Worker, create_app, kill_tree
 from apb_export_ui.web.store import (
     DownloadFile,
     Job,
@@ -456,6 +458,80 @@ def test_report_process_failure_is_a_failed_job(
     assert status.steps[-1].name == "pmultiqc" and status.steps[-1].state == "failed"
     assert status.files == []
     assert status.error == "MultiQC report generation failed"
+
+
+def _qpx_job(store: JobStore, diann: DiannInput, options: Options) -> Job:
+    job = store.create()
+    (job.inputs / diann.report.name).write_bytes(diann.report.read_bytes())
+    (job.inputs / diann.log.name).write_bytes(diann.log.read_bytes())
+    output = next(o for o in options[1] if o.id == "apb-export:qpx")
+    request = Request(
+        data=f"input/{diann.report.name}",
+        output=output,
+        params=f"input/{diann.log.name}",
+        software="DIA-NN",
+    )
+    write_json(job.request_path, asdict(request))
+    job.write_status(Status(id=job.id, state="queued"))
+    return job
+
+
+def test_qpx_without_the_report_application_exports_tables_only(
+    tmp_path: Path, diann: DiannInput, options: Options, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr("apb_export_ui.web.job.report_installed", lambda: False)
+    job = _qpx_job(JobStore(tmp_path / "store", ttl_seconds=3600), diann, options)
+    runner = runner_for(job)
+    assert type(runner) is Runner
+
+    runner.run()
+
+    status = job.status()
+    assert status.state == "done"
+    assert [step.name for step in status.steps] == ["convert", "qc", "package"]
+    (archive,) = [item.name for item in status.files]
+    assert archive.endswith(".qpx.zip")
+    with zipfile.ZipFile(job.downloads / archive) as tables:
+        assert any(name.endswith("apb.feature.parquet") for name in tables.namelist())
+
+
+def test_qpx_is_described_as_tables_only_without_the_report_application(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    assert about()["apb-export:qpx"]["title"] == "pMultiQC / QPX"
+    monkeypatch.setattr("apb_export_ui.web.options.report_installed", lambda: False)
+
+    qpx = about()["apb-export:qpx"]
+
+    assert qpx["title"] == "QPX"
+    assert "without_report" not in qpx
+    assert qpx["links"], "the links stay"
+
+
+def test_command_finds_scripts_beside_the_interpreter() -> None:
+    assert command("apb-export").parent == Path(sys.executable).parent
+    with pytest.raises(FileNotFoundError, match="not installed"):
+        command("no-such-apb-command")
+
+
+def test_kill_tree_stops_a_job_process_and_its_children() -> None:
+    sleeper = (
+        "import subprocess, sys, time\n"
+        "subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)'])\n"
+        "time.sleep(60)\n"
+    )
+    process = subprocess.Popen([sys.executable, "-c", sleeper])
+    parent = psutil.Process(process.pid)
+    deadline = time.monotonic() + 10
+    while not parent.children() and time.monotonic() < deadline:
+        time.sleep(0.05)
+    (child,) = parent.children()
+
+    kill_tree(process.pid)
+
+    process.wait(timeout=10)
+    child.wait(timeout=10)
+    assert not child.is_running()
 
 
 def _log(job: Job) -> str:

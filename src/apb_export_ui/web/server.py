@@ -6,9 +6,8 @@ worker thread runs each job as its own process; every ``GET`` serves a file from
 
 from __future__ import annotations
 
-import os
+import contextlib
 import queue
-import signal
 import subprocess
 import sys
 import threading
@@ -16,6 +15,7 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Annotated, BinaryIO
 
+import psutil
 from fastapi import FastAPI, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -35,6 +35,14 @@ from apb_export_ui.web.store import (
 STATIC = Path(__file__).parent / "static"
 _JOB_FILES = frozenset({"status.json", "qc.json", "job.log"})
 _CHUNK = 1 << 20
+
+
+def kill_tree(pid: int) -> None:
+    """Kill a job process and every process it started; Windows has no process groups."""
+    root = psutil.Process(pid)
+    for process in [*root.children(recursive=True), root]:
+        with contextlib.suppress(psutil.NoSuchProcess):
+            process.kill()
 
 
 def fail(job: Job, message: str) -> None:
@@ -84,7 +92,7 @@ class Worker:
             try:
                 code = process.wait(timeout=self.timeout_seconds)
             except subprocess.TimeoutExpired:
-                os.killpg(process.pid, signal.SIGKILL)
+                kill_tree(process.pid)
                 process.wait()
                 fail(job, f"timed out after {self.timeout_seconds:.0f} s")
                 return

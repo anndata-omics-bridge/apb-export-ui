@@ -25,7 +25,7 @@ import numpy as np
 import polars as pl
 from apb2.api import ParsedLevel, read_parsed_levels, sidecar_path
 
-from apb_export_ui.web.options import command
+from apb_export_ui.web.options import command, report_installed
 from apb_export_ui.web.qc import Matrix, grouping_column, summarize
 from apb_export_ui.web.store import DownloadFile, Job, Request, Step, write_json
 
@@ -353,12 +353,18 @@ def parsed_matrices(path: Path, columns: list[str]) -> list[Matrix]:
     ]
 
 
+def runner_for(job: Job) -> Runner:
+    """The job's runner: QPX makes a pMultiQC report where its application is installed; in a
+    PyPI install, without it, QPX is an export like the others, tables only."""
+    if Request.read(job.request_path).output.id == "apb-export:qpx" and report_installed():
+        return QpxRunner(job)
+    return Runner(job)
+
+
 def main() -> None:
     """Run the job in ``sys.argv[1]`` and record its outcome; exit non-zero on failure."""
     job = Job(Path(sys.argv[1]))
-    runner = {"apb-export:qpx": QpxRunner}.get(Request.read(job.request_path).output.id, Runner)(
-        job
-    )
+    runner = runner_for(job)
     try:
         runner.run()
     except StepFailed as error:

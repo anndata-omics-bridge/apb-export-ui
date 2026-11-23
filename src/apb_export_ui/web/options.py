@@ -4,12 +4,13 @@ server's own settings, the upload limit and viewer apps, added when it starts.""
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 import sys
 from dataclasses import asdict
-from importlib.metadata import distribution, version
+from importlib.metadata import Distribution, PackageNotFoundError, distribution
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from apb2.api import get_rules
 from apb_export.api import Exporter
@@ -20,7 +21,8 @@ from apb_export_ui.web.store import Output, write_json
 EXPLOREDE_URL = "https://shiny-public.fgcz.uzh.ch/app/exploreDE/"
 """Peter Leary's exploreDE, which opens an exploreDE export given its URL as ``?data=``."""
 
-# The toolchain an index describes; the server refuses an index built with another.
+# The toolchain an index describes; the server refuses an index built with another. A PyPI
+# install has no apb-pmultiqc or pmultiqc until a pMultiQC release carries the fixes it needs.
 _PACKAGES = ("apb-export", "apb2", "apb-pmultiqc", "pmultiqc")
 
 # apb2's --format values and what each writes.
@@ -31,16 +33,26 @@ _APB2_FORMATS = (
 )
 
 
+def _script(name: str) -> str | None:
+    """A console script beside this interpreter, ``.exe`` on Windows; None when absent."""
+    return shutil.which(name, path=str(Path(sys.executable).parent))
+
+
 def command(name: str) -> Path:
     """A console script installed beside this interpreter.
 
     Raises:
         FileNotFoundError: The script is not installed in this environment.
     """
-    path = Path(sys.executable).with_name(name)
-    if not path.is_file():
+    path = _script(name)
+    if path is None:
         raise FileNotFoundError(f"{name} is not installed beside {sys.executable}")
-    return path
+    return Path(path)
+
+
+def report_installed() -> bool:
+    """Whether the pMultiQC report application is installed; without it, QPX is tables only."""
+    return _script("apb-pmultiqc") is not None
 
 
 def software() -> list[str]:
@@ -103,8 +115,14 @@ ABOUT = Path(__file__).parent / "outputs.json"
 
 
 def about() -> dict[str, dict[str, object]]:
-    """What each output gives, which tool opens it and how, with links, by output id."""
-    return json.loads(ABOUT.read_text(encoding="utf-8"))
+    """What each output gives, which tool opens it and how, with links, by output id; QPX's
+    ``without_report`` text replaces its own where the report application is not installed."""
+    described: dict[str, dict[str, object]] = json.loads(ABOUT.read_text(encoding="utf-8"))
+    qpx = described["apb-export:qpx"]
+    tables_only = cast(dict[str, object], qpx.pop("without_report"))
+    if not report_installed():
+        qpx.update(tables_only)
+    return described
 
 
 def reads(output: Output) -> list[str]:
@@ -113,13 +131,24 @@ def reads(output: Output) -> list[str]:
     return list(Exporter(output.name).levels) if output.command == "apb-export" else []
 
 
-def installed() -> dict[str, str]:
-    """Each toolchain package's installed Git commit, else its version."""
-    found: dict[str, str] = {}
+def _toolchain() -> dict[str, Distribution]:
+    """The toolchain packages installed here."""
+    found: dict[str, Distribution] = {}
     for name in _PACKAGES:
-        origin = distribution(name).read_text("direct_url.json")
+        try:
+            found[name] = distribution(name)
+        except PackageNotFoundError:
+            continue
+    return found
+
+
+def installed() -> dict[str, str]:
+    """Each installed toolchain package's Git commit, else its version."""
+    found: dict[str, str] = {}
+    for name, package in _toolchain().items():
+        origin = package.read_text("direct_url.json")
         commit = json.loads(origin).get("vcs_info", {}).get("commit_id") if origin else None
-        found[name] = commit or version(name)
+        found[name] = commit or package.version
     return found
 
 
@@ -142,7 +171,7 @@ def options_index() -> dict[str, Any]:
             {**asdict(output), "about": described[output.id], "levels": reads(output)}
             for output in offered
         ],
-        "versions": {name: version(name) for name in _PACKAGES},
+        "versions": {name: package.version for name, package in _toolchain().items()},
         "installed": installed(),
     }
 
