@@ -51,7 +51,7 @@ def test_build_subcommand_uses_packaged_metadata_from_another_working_directory(
             {
                 "dataset": key,
                 "input_file_path": f"{key}/input.tsv.gz",
-                "vendor_parameter_file_path": "",
+                "vendor_parameter_file_paths": "",
                 "module": "synthetic",
                 "software_name": "DIA-NN",
             }
@@ -76,9 +76,10 @@ def test_build_subcommand_uses_packaged_metadata_from_another_working_directory(
             [workspace / row["source"]]
             if row["source"]
             else [
-                root / row[column]
+                root / name
                 for column in ("input_file", "vendor_parameter_file")
-                if row[column]
+                for name in row[column].split(";")
+                if name
             ]
         )
         for path in sources:
@@ -136,7 +137,7 @@ def test_complete_gzipped_fixture_and_annotation_are_staged_without_a_benchmark_
             {
                 "dataset": dataset,
                 "input_file_path": f"{dataset}/QuantifiedPeaks.tsv.gz",
-                "vendor_parameter_file_path": "",
+                "vendor_parameter_file_paths": "",
                 "module": "PXD003881",
                 "software_name": "MetaMorpheus",
             }
@@ -181,7 +182,7 @@ def test_multifile_fixture_and_external_extra_keep_their_companions(tmp_path: Pa
             {
                 "dataset": "zenodo/mq/related",
                 "input_file_path": "zenodo/mq/related",
-                "vendor_parameter_file_path": "zenodo/mq/related/mqpar.xml",
+                "vendor_parameter_file_paths": "zenodo/mq/related/mqpar.xml",
                 "module": "test_module",
                 "software_name": "MaxQuant",
             }
@@ -250,7 +251,7 @@ def test_unresolvable_corpus_inputs_fail_before_writing_a_manifest(
             {
                 "dataset": "known",
                 "input_file_path": source,
-                "vendor_parameter_file_path": "",
+                "vendor_parameter_file_paths": "",
                 "module": "m",
                 "software_name": "s",
             }
@@ -261,3 +262,37 @@ def test_unresolvable_corpus_inputs_fail_before_writing_a_manifest(
     with pytest.raises((ValueError, FileNotFoundError), match=message):
         collect(corpus, root, tmp_path, tmp_path / "staged")
     assert not (tmp_path / "staged/examples.csv").exists()
+
+
+def test_a_tool_with_two_parameter_files_keeps_both_in_order(tmp_path: Path) -> None:
+    root = tmp_path / "fixtures"
+    dataset = "submissions/Results_quant_ion_DDA/two"
+    folder = root / dataset
+    folder.mkdir(parents=True)
+    (folder / "input_file.csv.gz").write_bytes(gzip.compress(b"a,b\n1,2\n"))
+    (folder / "param_0..yml").write_text("versions: 1\n")
+    (folder / "param_1..yml.gz").write_bytes(gzip.compress(b"params: 2\n"))
+    _table(
+        root / "downloads.csv",
+        [
+            {
+                "dataset": dataset,
+                "input_file_path": f"{dataset}/input_file.csv.gz",
+                "vendor_parameter_file_paths": f"{dataset}/param_0..yml;{dataset}/param_1..yml.gz",
+                "module": "dda_qexactive",
+                "software_name": "quantms",
+            }
+        ],
+    )
+    corpus = tmp_path / "routine.csv"
+    _table(corpus, [{"dataset": dataset, "note": "two parameter files"}])
+    modules = tmp_path / "modules"
+    modules.mkdir()
+    out = tmp_path / "staged"
+
+    collect(corpus, root, modules, out)
+
+    (row,) = _read(out / "examples.csv")
+    assert row["vendor_parameter_file"] == f"{dataset}/param_0..yml;{dataset}/param_1..yml"
+    assert (out / "data" / dataset / "param_0..yml").read_text() == "versions: 1\n"
+    assert (out / "data" / dataset / "param_1..yml").read_text() == "params: 2\n"

@@ -47,7 +47,8 @@ class Request:
 
     data: str
     output: Output
-    params: str | None = None
+    # Every parameter file the tool wrote; quantms writes two.
+    params: tuple[str, ...] = ()
     annotation: str | None = None
     software: str | None = None
     fasta: str | None = None
@@ -58,7 +59,7 @@ class Request:
         return cls(
             data=raw["data"],
             output=Output(**raw["output"]),
-            params=raw["params"],
+            params=tuple(raw["params"]),
             annotation=raw["annotation"],
             software=raw["software"],
             fasta=raw.get("fasta"),

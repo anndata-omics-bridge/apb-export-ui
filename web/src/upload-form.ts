@@ -35,7 +35,7 @@ const VARIANTS: Array<Variant & { phrase: string }> = [
 
 // An example with a parameter file adds it before annotation; one without adds annotation alone.
 const variantsOf = (example: Example): typeof VARIANTS =>
-  VARIANTS.filter(({ files }) => files.includes('params') ? example.params !== null : files === 'data' || example.params === null)
+  VARIANTS.filter(({ files }) => files.includes('params') ? example.params.length > 0 : files === 'data' || example.params.length === 0)
 
 // Why an example cannot give an output: it holds none of the levels the output reads. An
 // example APB2 cannot read, or an output that takes any level, is never refused here.
@@ -104,7 +104,7 @@ export class ApbUploadForm extends LitElement {
 
   private unavailable (example: Example, files: ExampleFiles): string | null {
     if (files === 'data' && this.hint()?.params_required && example.label === example.software) return `${example.software} needs its parameter file`
-    if (files.includes('params') && example.params === null) return 'this example has no parameter file'
+    if (files.includes('params') && example.params.length === 0) return 'this example has no parameter file'
     if (files.endsWith('annotation') && example.annotation === null) return 'this example has no sample annotation'
     return null
   }
@@ -123,8 +123,7 @@ export class ApbUploadForm extends LitElement {
       if (data.length === 0) return
       for (const file of data) form.append('data', file)
       form.append('software', this.software)
-      const params = this.file('params')
-      if (params) form.append('params', params)
+      for (const params of this.querySelector<HTMLInputElement>('input[name="params"]')?.files ?? []) form.append('params', params)
       const annotation = this.file('annotation')
       if (annotation && output.annotation) form.append('annotation', annotation)
       const fasta = this.file('fasta')
@@ -255,7 +254,7 @@ export class ApbUploadForm extends LitElement {
           <dd>
             ${example.folder ? html`<code>${example.data[0]}/</code> (folder, sent whole): ${example.folder_files.map((name, index) => html`${index > 0 ? ' · ' : ''}${fileLink(name)}`)}` : links('data', example.data, example.stored_data)}
           </dd>
-          <dt>Parameter file</dt><dd>${links('params', optional(example.params), optional(example.stored_params))}</dd>
+          <dt>Parameter ${example.params.length > 1 ? 'files' : 'file'}</dt><dd>${links('params', example.params, example.stored_params)}</dd>
           <dt>Sample annotation</dt><dd>${links('annotation', optional(example.annotation), optional(example.annotation))}</dd>
           <dt>FASTA</dt><dd>${example.fasta === null ? '–' : this.exampleFasta ? fileLink(example.fasta) : html`<span class="note">not sent:</span> ${fileLink(example.fasta)}`}</dd>
         </dl>
@@ -275,8 +274,8 @@ export class ApbUploadForm extends LitElement {
           @change=${(event: Event) => { this.hasData = Boolean((event.currentTarget as HTMLInputElement).files?.length) }}>
       </label>
       <label>
-        Parameter file <span class="optional">${required ? 'required' : 'optional'}</span>
-        <input type="file" name="params"
+        Parameter file <span class="optional">${required ? 'required' : 'optional'}; several when the tool writes several, e.g. quantms</span>
+        <input type="file" name="params" multiple
           @change=${(event: Event) => { this.hasParams = Boolean((event.currentTarget as HTMLInputElement).files?.length) }}>
       </label>
       <label>

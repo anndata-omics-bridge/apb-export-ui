@@ -18,6 +18,7 @@ import hashlib
 import json
 import re
 import shutil
+from collections.abc import Sequence
 from dataclasses import dataclass, replace
 from itertools import islice
 from pathlib import Path
@@ -48,7 +49,8 @@ class Example:
     result_software: str
     module: str
     data: Path
-    params: Path | None
+    # Every parameter file the tool wrote, in the order apb2 reads them; quantms writes two.
+    params: tuple[Path, ...]
     annotation: Path | None
     # The version its parameter file names; None without one.
     version: str | None = None
@@ -70,35 +72,39 @@ class Example:
             self.export.result_names(len(data)) if self.export and self.data.is_file() else None
         )
         named = {"data": list(zip(native or [path.name for path in data], data, strict=True))}
-        if self.params is not None:
-            name = self.export.concrete_params() if self.export else None
-            named["params"] = [(name or self.params.name, self.params)]
+        if self.params:
+            # An export's concrete parameter file name applies to a single parameter file.
+            concrete = (
+                self.export.concrete_params() if self.export and len(self.params) == 1 else None
+            )
+            named["params"] = [(concrete or path.name, path) for path in self.params]
         if self.annotation is not None:
             named["annotation"] = [(self.annotation.name, self.annotation)]
         if self.fasta is not None:
             named["fasta"] = [(self.fasta.name, self.fasta)]
         return named
 
-    def link(self, folder: Path, fields: set[str]) -> dict[str, Path]:
+    def link(self, folder: Path, fields: set[str]) -> dict[str, list[Path]]:
         """Link the chosen fields' files into ``folder/<field>`` under the names the tool wrote.
 
         Several result files go into one folder named after the first, which the converter
-        reads as one vendor result.
+        reads as one vendor result; several parameter files stay separate files.
 
         Returns:
-            Each linked field's file, or folder of several files.
+            Each linked field's files: the result file or folder, every parameter file.
         """
-        linked: dict[str, Path] = {}
+        linked: dict[str, list[Path]] = {}
         for field, named in self.inputs().items():
             if field not in fields:
                 continue
             target = folder / field
-            if len(named) > 1:
+            joined = field == "data" and len(named) > 1
+            if joined:
                 target = target / Path(named[0][0]).stem
             target.mkdir(parents=True)
             for name, path in named:
                 (target / name).symlink_to(path, target_is_directory=path.is_dir())
-            linked[field] = target if len(named) > 1 else target / named[0][0]
+            linked[field] = [target] if joined else [target / name for name, _ in named]
         return linked
 
     def folder_files(self) -> list[Path]:
@@ -136,8 +142,8 @@ class Example:
             "stored_data": [path.name for _, path in inputs["data"]],
             "folder": self.data.is_dir(),
             "folder_files": [path.name for path in self.folder_files()],
-            "params": None if params is None else params[0][0],
-            "stored_params": None if self.params is None else self.params.name,
+            "params": [] if params is None else [name for name, _ in params],
+            "stored_params": [path.name for path in self.params],
             "annotation": None if annotation is None else annotation[0][0],
             "fasta": None if self.fasta is None else self.fasta.name,
             "export": None if self.export is None else self.export.describe(),
@@ -158,7 +164,7 @@ class Example:
             "result_software": self.result_software,
             "module": self.module,
             "data": relative(self.data),
-            "params": relative(self.params),
+            "params": [path.relative_to(root).as_posix() for path in self.params],
             "annotation": relative(self.annotation),
             "version": self.version,
             "export": None if self.export is None else self.export.describe(),
@@ -181,7 +187,7 @@ class Example:
             result_software=record["result_software"],
             module=record["module"],
             data=root / record["data"],
-            params=absolute(record["params"]),
+            params=tuple(root / path for path in record["params"]),
             annotation=absolute(record["annotation"]),
             version=record["version"],
             export=None if record["export"] is None else Export.read(record["export"]),
@@ -228,12 +234,20 @@ def _names(label: str, software: list[str]) -> tuple[str, str]:
     return by_key.get(_key(parameters), parameters), by_key.get(_key(result), result)
 
 
-def _version(params: Path | None, software: str) -> str | None:
-    """The version a parameter file names, as apb2 reads it; None when it cannot."""
-    if params is None:
+def parameter_input(paths: Sequence[Path]) -> Path | tuple[Path, ...] | None:
+    """Parameter files as apb2 takes them: one file alone, several as a tuple, none as None."""
+    if not paths:
+        return None
+    return paths[0] if len(paths) == 1 else tuple(paths)
+
+
+def _version(params: tuple[Path, ...], software: str) -> str | None:
+    """The version the parameter files name, as apb2 reads them; None when it cannot."""
+    given = parameter_input(params)
+    if given is None:
         return None
     try:
-        version = parse_search_parameters(params, software).software_version
+        version = parse_search_parameters(given, software).software_version
     except (OSError, ValueError) as error:
         # Display only: the example still runs; the page shows the stored name instead.
         logger.warning(f"no version for example parameters {params}: {error}")
@@ -244,11 +258,11 @@ def _version(params: Path | None, software: str) -> str | None:
 def _levels(example: Example, software: list[str]) -> tuple[str, ...] | None:
     """The levels apb2 finds in the example's result and parameter file, linked and named as a
     job links them and read as apb-export reads them; None when apb2 cannot read them."""
-    named = example.software if example.params is not None else example.result_software
+    named = example.software if example.params else example.result_software
     chosen = named if named in software else None
     with TemporaryDirectory() as folder:
         linked = example.link(Path(folder), {"data", "params"})
-        data, params = linked["data"], linked.get("params")
+        data, params = linked["data"][0], parameter_input(linked.get("params", []))
         try:
             compiler = (
                 ParseRuleCompiler.from_software(data, chosen)
@@ -293,7 +307,8 @@ def load_examples(
         data = root / row["input_file"]
         if not data.exists():
             raise ValueError(f"{corpus} names {data}, which does not exist")
-        params = root / row["vendor_parameter_file"] if row["vendor_parameter_file"] else None
+        # Several parameter files are separated by ";", as in the Fixture Manager's manifest.
+        params = tuple(root / path for path in row["vendor_parameter_file"].split(";") if path)
         parameter_software, result_software = _names(row["software_name"], software or [])
         hint = (hints or {}).get(parameter_software)
         version = _version(params, parameter_software) if hint is not None else None

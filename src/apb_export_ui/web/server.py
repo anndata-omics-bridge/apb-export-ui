@@ -37,6 +37,12 @@ _JOB_FILES = frozenset({"status.json", "qc.json", "job.log"})
 _CHUNK = 1 << 20
 
 
+def _first(saved: dict[str, list[str]], field: str) -> str | None:
+    """A single-file field's saved path; None when it was not sent."""
+    paths = saved.get(field)
+    return paths[0] if paths else None
+
+
 def kill_tree(pid: int) -> None:
     """Kill a job process and every process it started; Windows has no process groups."""
     root = psutil.Process(pid)
@@ -153,14 +159,14 @@ class Api:
             raise HTTPException(400, "choose the software or upload its parameter file")
         return chosen
 
-    def _save_all(self, job: Job, uploads: dict[str, list[UploadFile]]) -> dict[str, str]:
+    def _save_all(self, job: Job, uploads: dict[str, list[UploadFile]]) -> dict[str, list[str]]:
         """Each field's uploads under their own names, within the size limit.
 
         Several result files go into one folder named after the first, which the
-        converter reads as one vendor result.
+        converter reads as one vendor result; several parameter files stay separate files.
         """
         budget = self.max_upload_bytes
-        saved: dict[str, str] = {}
+        saved: dict[str, list[str]] = {}
         for field, files in uploads.items():
             if not files:
                 continue
@@ -168,13 +174,14 @@ class Api:
             if len(set(names)) != len(names):
                 raise HTTPException(400, f"two {field} files share a name: {sorted(names)}")
             folder = job.inputs / field
-            if len(files) > 1:
+            joined = field == "data" and len(files) > 1
+            if joined:
                 folder = folder / Path(names[0]).stem
             folder.mkdir(parents=True)
             for upload, name in zip(files, names, strict=True):
                 budget -= _save(upload, folder / name, budget)
-            target = folder if len(files) > 1 else folder / names[0]
-            saved[field] = str(target.relative_to(job.root))
+            targets = [folder] if joined else [folder / name for name in names]
+            saved[field] = [str(target.relative_to(job.root)) for target in targets]
         return saved
 
     def _example(self, example_id: str) -> Example:
@@ -201,10 +208,13 @@ class Api:
             raise HTTPException(404, "no preview of this file")
         return FileResponse(path, headers={"Cache-Control": "no-cache"})
 
-    def _link_example(self, job: Job, example: Example, fields: set[str]) -> dict[str, str]:
+    def _link_example(self, job: Job, example: Example, fields: set[str]) -> dict[str, list[str]]:
         """The chosen example files, linked into the job under the names the tool wrote."""
         linked = example.link(job.inputs, fields)
-        return {field: str(path.relative_to(job.root)) for field, path in linked.items()}
+        return {
+            field: [str(path.relative_to(job.root)) for path in paths]
+            for field, paths in linked.items()
+        }
 
     def _inputs(
         self,
@@ -212,7 +222,7 @@ class Api:
         example: str,
         fields: set[str],
         uploads: dict[str, list[UploadFile]],
-    ) -> dict[str, str]:
+    ) -> dict[str, list[str]]:
         if example:
             return self._link_example(job, self._example(example), fields)
         return self._save_all(job, uploads)
@@ -226,12 +236,12 @@ class Api:
         }
         held = {"data"} | {
             field
-            for field, path in (
-                ("params", example.params),
-                ("annotation", example.annotation),
-                ("fasta", example.fasta),
+            for field, present in (
+                ("params", bool(example.params)),
+                ("annotation", example.annotation is not None),
+                ("fasta", example.fasta is not None),
             )
-            if path is not None
+            if present
         }
         if "data" not in fields or not fields <= {"data", "params", "annotation", "fasta"}:
             raise HTTPException(400, "example files are data, params, annotation and fasta")
@@ -246,13 +256,13 @@ class Api:
         example: Annotated[str, Form()] = "",
         example_files: Annotated[str, Form()] = "",
         software: Annotated[str, Form()] = "",
-        params: UploadFile | None = None,
+        params: list[UploadFile] | None = None,
         annotation: UploadFile | None = None,
         fasta: UploadFile | None = None,
     ) -> dict[str, str]:
         uploads = {
             "data": data or [],
-            "params": [] if params is None else [params],
+            "params": params or [],
             "annotation": [] if annotation is None else [annotation],
             "fasta": [] if fasta is None else [fasta],
         }
@@ -271,7 +281,7 @@ class Api:
         elif not data:
             raise HTTPException(400, "upload a vendor result or choose an example")
         else:
-            has_params = params is not None
+            has_params = bool(params)
         chosen = self._chosen(output, software, has_params)
         if (fasta is not None or "fasta" in fields) and not chosen.fasta:
             raise HTTPException(400, f"{chosen.label} takes no FASTA")
@@ -283,12 +293,12 @@ class Api:
             self.store.remove(job)
             raise
         request = Request(
-            data=saved["data"],
+            data=saved["data"][0],
             output=chosen,
-            params=saved.get("params"),
-            annotation=saved.get("annotation"),
+            params=tuple(saved.get("params", [])),
+            annotation=_first(saved, "annotation"),
             software=software or None,
-            fasta=saved.get("fasta"),
+            fasta=_first(saved, "fasta"),
         )
         write_json(job.request_path, asdict(request))
         job.write_status(Status(id=job.id, state="queued"))

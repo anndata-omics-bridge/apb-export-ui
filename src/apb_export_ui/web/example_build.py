@@ -52,7 +52,7 @@ def _corpus_rows(corpus: Path, manifest: Path) -> list[dict[str, str]]:
         rows.append(
             {
                 "input_file": held["input_file_path"],
-                "vendor_parameter_file": held["vendor_parameter_file_path"],
+                "vendor_parameter_file": held["vendor_parameter_file_paths"],
                 "module": held["module"],
                 "software_name": held["software_name"],
                 "sdrf": selected.get("sdrf", ""),
@@ -61,13 +61,18 @@ def _corpus_rows(corpus: Path, manifest: Path) -> list[dict[str, str]]:
     return rows
 
 
+def _paths(cell: str) -> list[str]:
+    """A manifest cell's paths; several parameter files are separated by ";"."""
+    return [name for name in cell.split(";") if name]
+
+
 def _copy_input_folders(rows: list[dict[str, str]], root: Path, out: Path) -> None:
     """Stage the input directories named by the existing manifest rows."""
     folders: set[Path] = set()
     for row in rows:
         for column in ("input_file", "vendor_parameter_file"):
-            if row[column]:
-                path = root / row[column]
+            for name in _paths(row[column]):
+                path = root / name
                 if not path.exists() and not path.with_name(path.name + ".gz").is_file():
                     raise FileNotFoundError(path)
                 folders.add(path if path.is_dir() else path.parent)
@@ -110,7 +115,7 @@ def collect(
     modules = {} if fastas is None else {row["module"]: row["fasta"] for row in _rows(fastas)}
     for row in [*rows, *added]:
         for column in ("input_file", "vendor_parameter_file"):
-            row[column] = row[column].removesuffix(".gz")
+            row[column] = ";".join(name.removesuffix(".gz") for name in _paths(row[column]))
         fasta = modules.get(row["module"], "")
         row["fasta"] = fasta
         if fasta and not (out / "data" / fasta).exists():

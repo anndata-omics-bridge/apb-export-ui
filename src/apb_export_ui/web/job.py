@@ -96,9 +96,13 @@ class Runner:
             raise StepFailed(error_text(output))
 
     def _vendor_options(self) -> list[str | Path]:
-        params, software = self._path(self.request.params), self.request.software
+        software = self.request.software
         return [
-            *(["--params", params] if params is not None else []),
+            *(
+                option
+                for path in self.request.params
+                for option in ("--params", self.job.root / path)
+            ),
             *(["--software", software] if software is not None else []),
         ]
 

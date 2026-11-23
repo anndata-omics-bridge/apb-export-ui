@@ -30,7 +30,7 @@ test('APB2 formats and unread examples are never refused', () => {
 
 const example: Example = {
   id: 'ex1', label: 'Tool', software: 'Tool', version: null, module: 'module', data: ['report.tsv'],
-  stored_data: ['report.tsv'], folder: false, folder_files: [], params: 'params.json', stored_params: 'params.json',
+  stored_data: ['report.tsv'], folder: false, folder_files: [], params: ['params.json'], stored_params: ['params.json'],
   annotation: null, fasta: null, export: null, bytes: 10, levels: ['peptidoform_ion']
 }
 

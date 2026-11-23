@@ -74,8 +74,9 @@ export interface Example {
   folder: boolean
   // The files inside a folder result, each previewable; empty for a file result.
   folder_files: string[]
-  params: string | null
-  stored_params: string | null
+  // Every parameter file the tool wrote; quantms writes two. Empty without one.
+  params: string[]
+  stored_params: string[]
   annotation: string | null
   // The FASTA the example's module prescribes, sent when the user keeps it ticked.
   fasta: string | null

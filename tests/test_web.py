@@ -10,7 +10,7 @@ import time
 import zipfile
 from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from io import BytesIO
 from pathlib import Path
 from typing import IO, Any
@@ -444,7 +444,7 @@ def test_report_process_failure_is_a_failed_job(
     request = Request(
         data=f"input/{diann.report.name}",
         output=output,
-        params=f"input/{diann.log.name}",
+        params=(f"input/{diann.log.name}",),
         software="DIA-NN",
     )
     write_json(job.request_path, asdict(request))
@@ -468,7 +468,7 @@ def _qpx_job(store: JobStore, diann: DiannInput, options: Options) -> Job:
     request = Request(
         data=f"input/{diann.report.name}",
         output=output,
-        params=f"input/{diann.log.name}",
+        params=(f"input/{diann.log.name}",),
         software="DIA-NN",
     )
     write_json(job.request_path, asdict(request))
@@ -720,6 +720,50 @@ def test_the_example_list_rebuilds_its_examples_without_reading_them_again(
     assert read_examples(tmp_path / "examples.json", tmp_path) == examples
 
 
+def test_an_example_links_every_parameter_file_in_order(
+    tmp_path: Path, examples: list[Example]
+) -> None:
+    (example,) = examples
+    first = example.params[0]
+    second = first.with_name("param_1..txt")
+    second.write_text("second\n", encoding="utf-8")
+    two = replace(example, params=(first, second), export=None)
+
+    linked = two.link(tmp_path / "job", {"data", "params"})
+
+    assert [path.name for path in linked["params"]] == ["param_0..txt", "param_1..txt"]
+    assert [path.resolve() for path in linked["params"]] == [first, second]
+    assert two.describe()["params"] == ["param_0..txt", "param_1..txt"]
+    write_examples(tmp_path / "examples.json", [two], tmp_path)
+    assert read_examples(tmp_path / "examples.json", tmp_path) == [two]
+
+
+def test_every_uploaded_parameter_file_reaches_the_converter(
+    client: tuple[TestClient, Worker, JobStore], diann: DiannInput, tmp_path: Path
+) -> None:
+    test_client, worker, store = client
+    second = tmp_path / "settings.yml"
+    second.write_text("params: 2\n", encoding="utf-8")
+    response = test_client.post(
+        "/api/jobs",
+        data={"output": "apb2:parquet", "software": "DIA-NN"},
+        files=[
+            ("data", (diann.report.name, diann.report.read_bytes())),
+            ("params", (diann.log.name, diann.log.read_bytes())),
+            ("params", (second.name, second.read_bytes())),
+        ],
+    )
+    assert response.status_code == 200, response.text
+    job = response.json()["id"]
+    worker.join()
+
+    request = json.loads((store.jobs / job / "request.json").read_text(encoding="utf-8"))
+    assert request["params"] == [f"input/params/{diann.log.name}", "input/params/settings.yml"]
+    command = (store.jobs / job / "job.log").read_text(encoding="utf-8").splitlines()[0]
+    assert command.count("--params") == 2
+    assert command.index(diann.log.name) < command.index("settings.yml")
+
+
 def test_an_example_brings_the_fasta_its_corpus_row_names(tmp_path: Path) -> None:
     root = tmp_path / "data"
     (example,) = _load(_with_fasta(_corpus(root), root), root)
@@ -739,7 +783,7 @@ def test_examples_read_a_corpus_and_find_its_sdrf(examples: list[Example]) -> No
         "module": "dia_test",
         "data": ["report.tsv"],
         "stored_data": ["input_file.tsv"],
-        "params": "report.log.txt",
+        "params": ["report.log.txt"],
         "annotation": "sdrf.tsv",
     }, "the names DIA-NN wrote, not ProteoBench's storage names"
     assert set(example.files()) == {"report.tsv", "report.log.txt", "sdrf.tsv"}
@@ -894,7 +938,7 @@ def test_a_result_only_example_sends_the_result_and_the_software(
     store, job = _run_example(tmp_path, options, "data")
 
     request = json.loads((store.jobs / job / "request.json").read_text(encoding="utf-8"))
-    assert (request["params"], request["annotation"], request["software"]) == (None, None, "DIA-NN")
+    assert (request["params"], request["annotation"], request["software"]) == ([], None, "DIA-NN")
     command = (store.jobs / job / "job.log").read_text(encoding="utf-8").splitlines()[0]
     assert "--software DIA-NN" in command
     assert "--params" not in command

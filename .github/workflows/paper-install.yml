@@ -57,10 +57,11 @@ jobs:
           finished() {
             for _ in $(seq 1200); do
               status=$(curl -fsS "$APP/api/jobs/$1/status.json")
-              case "$status" in
-                *'"state": "done"'*) return 0 ;;
-                *'"state": "failed"'*) echo "$status"; curl -fsS "$APP/api/jobs/$1/job.log"; return 1 ;;
-              esac
+              # The job's own state is its one top-level line; each step's state is indented deeper.
+              if grep -Eq '^ "state": "done"' <<< "$status"; then return 0; fi
+              if grep -Eq '^ "state": "failed"' <<< "$status"; then
+                echo "$status"; curl -fsS "$APP/api/jobs/$1/job.log"; return 1
+              fi
               sleep 1
             done
             return 1
