@@ -20,7 +20,7 @@ curl -LsSf https://raw.githubusercontent.com/anndata-omics-bridge/apb-export-ui/
 
 Windows: download [install.bat](https://github.com/anndata-omics-bridge/apb-export-ui/blob/main/launchers/install.bat) and double-click it. macOS users who prefer Finder can use [install.command](https://github.com/anndata-omics-bridge/apb-export-ui/blob/main/launchers/install.command) after `chmod +x install.command`; Gatekeeper asks once, under System Settings → Privacy & Security.
 
-The launcher installs [uv](https://docs.astral.sh/uv/) if it is missing, then this app from PyPI with Python 3.13, and opens http://127.0.0.1:8770. Run it again, or `apb-export-web start`, to start the app later. Jobs stay in `~/APB-export` for 30 days. The install also provides the `apb2`, `apb-export` and `apb-fasta` commands. It has no pMultiQC yet, so **QPX** gives the tables without a report; the [hosted app](https://apps-dev.bfabric.org/apb-export/) makes the report.
+The launcher installs [uv](https://docs.astral.sh/uv/) if it is missing, then this app from PyPI with Python 3.13, and opens http://127.0.0.1:8770. Run it again, or `apb-export-web start`, to start the app later. Jobs stay in `~/APB-export` for 30 days. The install also provides the `apb2`, `apb-export` and `apb-fasta` commands. It has no pMultiQC yet, so **QPX** gives the tables without a report; the [hosted app](https://apps-dev.bfabric.org/apb-export/) and the [Docker image](docs/deploy.md#run-the-published-image) make the report.
 
 ## Run
 

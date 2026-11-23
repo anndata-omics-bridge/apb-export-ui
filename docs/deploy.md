@@ -12,6 +12,20 @@ make image IMAGE_TAG=local
 
 The image builds the Lit/Vite frontend with Node 22, then installs the Python application using `uv sync --locked --no-dev --no-editable`. Node is absent from the runtime image. A label records the UI revision; the image's `uv.lock` records the APB versions and the report application's commit. The publication workflow publishes linux/arm64 and linux/amd64 images on UI version tags or manual dispatch; normal quality runs do not publish images.
 
+## Run the published image
+
+```bash
+mkdir -p apb-export/examples apb-export/store
+docker run --rm -v "$PWD/apb-export/examples:/examples" \
+  --entrypoint apb-export-web ghcr.io/anndata-omics-bridge/apb-export-ui:v0.3.0 \
+  examples index /examples
+docker run -d --name apb-export -p 8770:8000 \
+  -v "$PWD/apb-export/store:/data/store" -v "$PWD/apb-export/examples:/examples:ro" \
+  ghcr.io/anndata-omics-bridge/apb-export-ui:v0.3.0 /examples
+```
+
+Open http://localhost:8770. The server listens on port 8000 inside the container; `-p 8770:8000` publishes it on the host's port 8770, and `-p 127.0.0.1:8770:8000` keeps it to this computer. The first command indexes an empty examples folder with the image's own packages, since `serve` refuses an index built elsewhere; rerun it after changing the image tag. Jobs and uploads stay in `apb-export/store`. `docker stop apb-export` stops the app, and `docker start apb-export` starts it again. Unlike the PyPI install, the image includes the pMultiQC report.
+
 ## Deployment interface
 
 | Item | Configuration |
