@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import stat
 import zipfile
 from pathlib import Path
 
@@ -59,3 +60,25 @@ def test_members_outside_the_top_folder_are_refused(tmp_path: Path, member: str)
         download_examples(folder, archive.as_uri(), md5)
 
     assert not (folder / "examples.csv").exists()
+
+
+def test_download_writes_only_inside_the_examples_folder(tmp_path: Path) -> None:
+    archive = tmp_path / "examples.zip"
+    md5 = _archive(
+        archive,
+        {
+            "apb_export_web_examples/examples.csv": b"input_file\n",
+            "apb_export_web_examples/data/a/report.tsv": b"x\n",
+        },
+    )
+    mount = tmp_path / "mount"
+    folder = mount / "examples"
+    (folder / "data/old").mkdir(parents=True)
+    mount.chmod(stat.S_IRUSR | stat.S_IXUSR)
+    try:
+        download_examples(folder, archive.as_uri(), md5)
+    finally:
+        mount.chmod(stat.S_IRWXU)
+
+    assert sorted(path.name for path in folder.iterdir()) == ["data", "examples.csv"]
+    assert sorted(path.name for path in (folder / "data").iterdir()) == ["a"]

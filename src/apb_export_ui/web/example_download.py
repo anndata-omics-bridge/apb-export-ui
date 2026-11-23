@@ -63,10 +63,11 @@ def _unpack(archive: Path, folder: Path) -> None:
 def download_examples(folder: Path, url: str = EXAMPLES_URL, md5: str = EXAMPLES_MD5) -> None:
     """Download the web examples and unpack ``examples.csv``, ``data/`` and ``sdrf/`` into
     ``folder``; the archive itself is not kept. ``examples.csv`` arrives last, so a folder that
-    holds it holds complete examples."""
+    holds it holds complete examples. Only ``folder`` is written: the download stays in a hidden
+    folder inside it, so a container may mount just the examples folder."""
     folder.mkdir(parents=True, exist_ok=True)
     logger.info(f"Downloading the examples from {url} into {folder}")
-    with TemporaryDirectory(dir=folder.parent) as directory:
+    with TemporaryDirectory(prefix=".download-", dir=folder) as directory:
         archive = Path(directory) / "examples.zip"
         _fetch(url, archive, md5)
         unpacked = Path(directory) / "unpacked"

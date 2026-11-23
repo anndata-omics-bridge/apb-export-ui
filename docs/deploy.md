@@ -17,14 +17,14 @@ The image builds the Lit/Vite frontend with Node 22, then installs the Python ap
 ```bash
 mkdir -p apb-export/examples apb-export/store
 docker run --rm -v "$PWD/apb-export/examples:/examples" \
-  --entrypoint apb-export-web ghcr.io/anndata-omics-bridge/apb-export-ui:v0.3.0 \
-  examples index /examples
+  --entrypoint apb-export-web ghcr.io/anndata-omics-bridge/apb-export-ui:v0.3.3 \
+  examples download /examples
 docker run -d --name apb-export -p 8770:8000 \
   -v "$PWD/apb-export/store:/data/store" -v "$PWD/apb-export/examples:/examples:ro" \
-  ghcr.io/anndata-omics-bridge/apb-export-ui:v0.3.0 /examples
+  ghcr.io/anndata-omics-bridge/apb-export-ui:v0.3.3 /examples
 ```
 
-Open http://localhost:8770. The server listens on port 8000 inside the container; `-p 8770:8000` publishes it on the host's port 8770, and `-p 127.0.0.1:8770:8000` keeps it to this computer. The first command indexes an empty examples folder with the image's own packages, since `serve` refuses an index built elsewhere; rerun it after changing the image tag. Jobs and uploads stay in `apb-export/store`. `docker stop apb-export` stops the app, and `docker start apb-export` starts it again. Unlike the PyPI install, the image includes the pMultiQC report.
+Open http://localhost:8770. The server listens on port 8000 inside the container; `-p 8770:8000` publishes it on the host's port 8770, and `-p 127.0.0.1:8770:8000` keeps it to this computer. The first command downloads the 19 examples from [Zenodo](https://doi.org/10.5281/zenodo.24478242) (710 MB) and indexes them with the image's own packages, since `serve` refuses an index built elsewhere; after changing the image tag, rerun it with `examples index /examples` instead of `examples download`. Jobs and uploads stay in `apb-export/store`. `docker stop apb-export` stops the app, and `docker start apb-export` starts it again. Unlike the PyPI install, the image includes the pMultiQC report.
 
 ## Deployment interface
 
@@ -52,8 +52,10 @@ Completed jobs retain their existing layout. On restart, existing unfinished job
 
 ## Examples
 
+The published examples are Zenodo record [10.5281/zenodo.24478242](https://doi.org/10.5281/zenodo.24478242): `apb-export-web examples download [DIRECTORY]` downloads them, checks the archive's MD5 and indexes them. The download writes only inside the examples folder, so a container needs no other writable mount. A new set is staged as follows and needs a new Zenodo version.
+
 `apb-export-web examples build` stages the packaged web selection plus five supplementary examples; `make web-examples` delegates to the same command. Optional positional arguments select the destination directory and APB workspace; dataset keys resolve through Studio's managed fixture manifest. The selection includes the two complete FGCZ MaxQuant DDA folders from Studio's `apb_examples` inventory and excludes peptide-entrapment data. Selection, supplementary metadata and annotations ship with this package. The build ends by indexing the folder for the installation that ran it; the server refuses an index from other APB commits, so stage with the locked environment of the image you deploy, or rerun `apb-export-web examples index` with it.
 
 Text tables and annotations are unpacked from gzip without changing their contents. No real fixtures are committed.
 
-The [complete MetaMorpheus/IonStar example](metamorpheus-example.md) comes from the shared APB Zenodo collection through APB Studio's Fixture Manager. Acquire the `routine` or `apb_examples` inventory in Studio before staging. The UI has no dataset downloader or feature-sampling step.
+The [complete MetaMorpheus/IonStar example](metamorpheus-example.md) comes from the shared APB Zenodo collection through APB Studio's Fixture Manager. Acquire the `routine` or `apb_examples` inventory in Studio before staging. Staging has no dataset downloader or feature-sampling step.
