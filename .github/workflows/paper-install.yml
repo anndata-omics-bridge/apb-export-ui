@@ -51,6 +51,8 @@ jobs:
           done
           # A PyPI install has no apb-pmultiqc, so QPX is offered as tables only.
           grep -q '"title": "QPX"' options.json
+          # The first start downloaded the examples from Zenodo.
+          curl -fsS "$APP/api/examples.json" | grep -q '"software": "quantms"'
           submit() {
             curl -fsS "$@" "$APP/api/jobs" | sed -n 's/.*"id": *"\([0-9a-f]*\)".*/\1/p'
           }

@@ -54,7 +54,8 @@ def test_help_exits_without_creating_a_store(
 
     assert "Usage:" in result.stdout
     assert expected in result.stdout
-    assert "--examples" not in result.stdout
+    if "start" not in arguments:
+        assert "--examples" not in result.stdout, "serve takes its examples as a position"
     if "serve" not in arguments:
         assert "--store" not in result.stdout
     assert "Started server process" not in result.stdout + result.stderr
@@ -139,11 +140,26 @@ def _free_port() -> int:
         return int(listener.getsockname()[1])
 
 
+downloaded_to: list[Path] = []
+
+
+def _fake_download(folder: Path) -> None:
+    """Stands in for the Zenodo download: an examples folder listing no examples."""
+    downloaded_to.append(folder)
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / "examples.csv").write_text(
+        "input_file,vendor_parameter_file,module,software_name\n", encoding="utf-8"
+    )
+
+
 @pytest.fixture
 def home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, index: dict[str, Any]) -> Path:
-    """A home directory for `start`, with the module's index standing in for a fresh one."""
+    """A home directory for `start`, with the module's index standing in for a fresh one and
+    a stand-in for the examples download."""
     monkeypatch.setattr("apb_export_ui.web.index.options_index", lambda: index)
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    monkeypatch.setattr("apb_export_ui.web.cli.download_examples", _fake_download)
+    downloaded_to.clear()
     return tmp_path / "APB-export"
 
 
@@ -188,7 +204,7 @@ def test_start_keeps_a_current_index(home: Path, monkeypatch: pytest.MonkeyPatch
     indexed: list[Path] = []
     monkeypatch.setattr("apb_export_ui.web.cli.build_index", indexed.append)
 
-    _start(monkeypatch, ["--no-browser", "--port", str(_free_port())])
+    _start(monkeypatch, ["--no-browser", "--no-examples", "--port", str(_free_port())])
 
     assert indexed == []
 
@@ -214,3 +230,20 @@ def test_start_opens_the_page_once_the_server_listens(
         app(["start", "--port", str(port)])
 
     assert opened == [f"http://127.0.0.1:{port}/"]
+
+
+def test_start_downloads_the_examples_once(home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    _start(monkeypatch, ["--no-browser", "--port", str(_free_port())])
+    _start(monkeypatch, ["--no-browser", "--port", str(_free_port())])
+
+    assert downloaded_to == [home / "examples"], "the second start finds the examples"
+    assert (home / "examples/options.json").is_file()
+
+
+def test_start_without_examples_downloads_nothing(
+    home: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _start(monkeypatch, ["--no-browser", "--no-examples", "--port", str(_free_port())])
+
+    assert downloaded_to == []
+    assert (home / "examples/options.json").is_file(), "an empty examples folder is indexed"

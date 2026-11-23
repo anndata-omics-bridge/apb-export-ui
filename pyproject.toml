@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "apb-export-ui"
-version = "0.3.1"
+version = "0.3.2"
 description = "Locked web application for APB Export"
 readme = "README.md"
 requires-python = ">=3.13"

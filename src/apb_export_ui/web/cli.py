@@ -18,6 +18,7 @@ from cyclopts import App, Parameter
 from loguru import logger
 
 from apb_export_ui.web.example_build import EXAMPLE_DATA, collect
+from apb_export_ui.web.example_download import download_examples
 from apb_export_ui.web.index import EXAMPLES, OPTIONS, PREVIEWS, build_index, read_index
 from apb_export_ui.web.options import EXPLOREDE_URL, write_options
 from apb_export_ui.web.server import Worker, create_app
@@ -126,6 +127,16 @@ def build_examples(
     index_examples(directory)
 
 
+@examples_app.command(name="download")
+def download(
+    directory: Annotated[Path, Parameter(help="Destination examples directory")] = DEFAULT_EXAMPLES,
+    /,
+) -> None:
+    """Download the web examples from Zenodo (10.5281/zenodo.24478242), then index them."""
+    download_examples(directory)
+    index_examples(directory)
+
+
 @examples_app.command(name="index")
 def index_examples(
     directory: Annotated[Path, Parameter(help="Staged examples directory")] = DEFAULT_EXAMPLES,
@@ -210,19 +221,25 @@ def start(
     *,
     port: Annotated[int, Parameter(help="Port to listen on")] = 8770,
     browser: Annotated[bool, Parameter(help="Open the page in the default browser")] = True,
+    examples: Annotated[
+        bool, Parameter(help="Download the examples from Zenodo on the first start (710 MB)")
+    ] = True,
 ) -> None:
     """Start the web app on this computer, with jobs in ~/APB-export kept 30 days. The first
-    start, and the first after an upgrade, indexes what this installation offers."""
+    start downloads the examples; it, and the first start after an upgrade, indexes them."""
     home = Path.home() / "APB-export"
-    examples = home / "examples"
+    folder = home / "examples"
+    if examples and not (folder / "examples.csv").is_file():
+        download_examples(folder)
+        index_examples(folder)
     try:
-        read_index(examples)
+        read_index(folder)
     except (FileNotFoundError, ValueError):
-        index_examples(examples)
+        index_examples(folder)
     if browser:
         url = f"http://127.0.0.1:{port}/"
         threading.Thread(target=_open_when_listening, args=(url, port), daemon=True).start()
-    serve(examples, store=home, port=port, ttl_hours=START_TTL_HOURS)
+    serve(folder, store=home, port=port, ttl_hours=START_TTL_HOURS)
 
 
 def main() -> None:
