@@ -1,0 +1,4 @@
+# Users download the launchers as stored: the batch file keeps CRLF, the shell scripts LF.
+launchers/install.bat -text
+launchers/install.sh text eol=lf
+launchers/install.command text eol=lf

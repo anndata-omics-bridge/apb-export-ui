@@ -10,6 +10,18 @@ Documentation: [anndata-omics-bridge.github.io/apb-export-ui](https://anndata-om
 
 The screenshots show a synthetic DIA-NN 1.8.1 report: 600 made-up proteins, six runs, two conditions.
 
+## Install on your computer
+
+macOS and Linux, in a terminal:
+
+```bash
+curl -LsSf https://raw.githubusercontent.com/anndata-omics-bridge/apb-export-ui/main/launchers/install.sh | sh
+```
+
+Windows: download [install.bat](https://github.com/anndata-omics-bridge/apb-export-ui/blob/main/launchers/install.bat) and double-click it. macOS users who prefer Finder can use [install.command](https://github.com/anndata-omics-bridge/apb-export-ui/blob/main/launchers/install.command) after `chmod +x install.command`; Gatekeeper asks once, under System Settings → Privacy & Security.
+
+The launcher installs [uv](https://docs.astral.sh/uv/) if it is missing, then this app from PyPI with Python 3.13, and opens http://127.0.0.1:8770. Run it again, or `apb-export-web start`, to start the app later. Jobs stay in `~/APB-export` for 30 days. The install also provides the `apb2`, `apb-export` and `apb-fasta` commands. It has no pMultiQC yet, so **QPX** gives the tables without a report; the [hosted app](https://apps-dev.bfabric.org/apb-export/) makes the report.
+
 ## Run
 
 `apb-export-web` without arguments shows help. Use `apb-export-web serve --help` for server options.
@@ -34,7 +46,7 @@ The packaged [web selection](src/apb_export_ui/web/example_data/datasets.csv) in
 
 Python 3.13 is the tested interpreter; Node 22 is used only for frontend development and builds. The installed wheel serves its packaged assets without Node.
 
-Choose **pMultiQC / QPX** to generate a report immediately. Finished jobs offer **Open pMultiQC report** in a new tab, plus downloads for QPX tables, the HTML and a full report bundle. Sample groups are optional; retention times come through the exporter catalogue.
+Where `apb-pmultiqc` is installed, as in the image and a development checkout, choose **pMultiQC / QPX** to generate a report immediately. Finished jobs offer **Open pMultiQC report** in a new tab, plus downloads for QPX tables, the HTML and a full report bundle. Sample groups are optional; retention times come through the exporter catalogue.
 
 - [Web application](docs/web.md): uploads, examples, QC and job behavior
 - [Deployment](docs/deploy.md): image build, migration and rollback

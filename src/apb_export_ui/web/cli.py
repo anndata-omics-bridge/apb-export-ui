@@ -6,6 +6,9 @@ import errno
 import os
 import shutil
 import socket
+import threading
+import time
+import webbrowser
 from pathlib import Path
 from typing import Annotated
 
@@ -27,6 +30,8 @@ app = App(
 examples_app = App(name="examples", help="Prepare example data for the web app.")
 app.command(examples_app)
 DEFAULT_EXAMPLES = Path("build/web-examples")
+# Jobs of the desktop app, started by `start`, are kept 30 days rather than the server's one.
+START_TTL_HOURS = 720.0
 
 
 def _port_available(host: str, port: int) -> bool:
@@ -185,6 +190,39 @@ def serve(
     worker = Worker(jobs, timeout_seconds=timeout_minutes * 60)
     app = create_app(jobs, worker, outputs, software, max_upload_bytes, offered)
     uvicorn.run(app, host=host, port=port)
+
+
+def _open_when_listening(url: str, port: int) -> None:
+    """Open the page in the default browser once the server accepts connections."""
+    deadline = time.monotonic() + 60
+    while time.monotonic() < deadline:
+        try:
+            with socket.create_connection(("127.0.0.1", port), timeout=1):
+                webbrowser.open(url)
+                return
+        except OSError:
+            time.sleep(0.2)
+    logger.warning(f"The page did not answer within 60 seconds; open {url} yourself")
+
+
+@app.command
+def start(
+    *,
+    port: Annotated[int, Parameter(help="Port to listen on")] = 8770,
+    browser: Annotated[bool, Parameter(help="Open the page in the default browser")] = True,
+) -> None:
+    """Start the web app on this computer, with jobs in ~/APB-export kept 30 days. The first
+    start, and the first after an upgrade, indexes what this installation offers."""
+    home = Path.home() / "APB-export"
+    examples = home / "examples"
+    try:
+        read_index(examples)
+    except (FileNotFoundError, ValueError):
+        index_examples(examples)
+    if browser:
+        url = f"http://127.0.0.1:{port}/"
+        threading.Thread(target=_open_when_listening, args=(url, port), daemon=True).start()
+    serve(examples, store=home, port=port, ttl_hours=START_TTL_HOURS)
 
 
 def main() -> None:

@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import csv
+import json
 import socket
 import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -35,6 +37,7 @@ def index() -> dict[str, Any]:
         (["examples", "--help"], "build"),
         (["examples", "build", "--help"], "DIRECTORY"),
         (["examples", "index", "--help"], "DIRECTORY"),
+        (["start", "--help"], "--no-browser"),
     ],
 )
 def test_help_exits_without_creating_a_store(
@@ -128,3 +131,86 @@ def test_serve_refuses_a_directory_without_an_index(tmp_path: Path) -> None:
     with pytest.raises(SystemExit, match="examples index"):
         app(["serve", str(tmp_path), "--store", str(tmp_path / "store")])
     assert not (tmp_path / "store").exists(), "refused before touching the store"
+
+
+def _free_port() -> int:
+    with socket.socket() as listener:
+        listener.bind(("127.0.0.1", 0))
+        return int(listener.getsockname()[1])
+
+
+@pytest.fixture
+def home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, index: dict[str, Any]) -> Path:
+    """A home directory for `start`, with the module's index standing in for a fresh one."""
+    monkeypatch.setattr("apb_export_ui.web.index.options_index", lambda: index)
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    return tmp_path / "APB-export"
+
+
+def _start(monkeypatch: pytest.MonkeyPatch, arguments: list[str]) -> list[tuple[str, int]]:
+    """Run `start` with uvicorn replaced; return the host and port it would serve on."""
+    served: list[tuple[str, int]] = []
+
+    def run(application: FastAPI, host: str, port: int) -> None:
+        with TestClient(application) as client:
+            assert client.get("/api/examples.json").json()["examples"] == []
+        served.append((host, port))
+
+    monkeypatch.setattr("apb_export_ui.web.cli.uvicorn.run", run)
+    with pytest.raises(SystemExit) as result:
+        app(["start", *arguments])
+    assert result.value.code == 0
+    return served
+
+
+@pytest.mark.parametrize("existing", ["none", "stale"])
+def test_start_indexes_a_missing_or_stale_index_and_serves_from_home(
+    home: Path, monkeypatch: pytest.MonkeyPatch, index: dict[str, Any], existing: str
+) -> None:
+    if existing == "stale":
+        build_index(home / "examples")
+        options = home / "examples/options.json"
+        stale = {**index, "installed": {**index["installed"], "apb-export": "0" * 40}}
+        options.write_text(json.dumps(stale), encoding="utf-8")
+    port = _free_port()
+
+    served = _start(monkeypatch, ["--no-browser", "--port", str(port)])
+
+    assert served == [("127.0.0.1", port)]
+    written = json.loads((home / "examples/options.json").read_text(encoding="utf-8"))
+    assert written["installed"] == index["installed"]
+    assert (home / "options.json").is_file(), "the store is the home folder"
+    assert (home / "jobs").is_dir()
+
+
+def test_start_keeps_a_current_index(home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    build_index(home / "examples")
+    indexed: list[Path] = []
+    monkeypatch.setattr("apb_export_ui.web.cli.build_index", indexed.append)
+
+    _start(monkeypatch, ["--no-browser", "--port", str(_free_port())])
+
+    assert indexed == []
+
+
+def test_start_opens_the_page_once_the_server_listens(
+    home: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    opened: list[str] = []
+    monkeypatch.setattr("apb_export_ui.web.cli.webbrowser.open", opened.append)
+    port = _free_port()
+
+    def run(application: FastAPI, host: str, port: int) -> None:
+        assert opened == [], "nothing opens before the server listens"
+        with socket.socket() as listener:
+            listener.bind((host, port))
+            listener.listen()
+            deadline = time.monotonic() + 10
+            while not opened and time.monotonic() < deadline:
+                time.sleep(0.05)
+
+    monkeypatch.setattr("apb_export_ui.web.cli.uvicorn.run", run)
+    with pytest.raises(SystemExit):
+        app(["start", "--port", str(port)])
+
+    assert opened == [f"http://127.0.0.1:{port}/"]
