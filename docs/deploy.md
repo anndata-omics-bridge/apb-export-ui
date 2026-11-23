@@ -10,7 +10,7 @@ make check-full
 make image IMAGE_TAG=local
 ```
 
-The image builds the Lit/Vite frontend with Node 22, then installs the Python application using `uv sync --locked --no-dev --no-editable`. Node is absent from the runtime image. Labels record the UI, locked exporter and report-application revisions. The publication workflow publishes linux/arm64 and linux/amd64 images on UI version tags or manual dispatch; normal quality runs do not publish images.
+The image builds the Lit/Vite frontend with Node 22, then installs the Python application using `uv sync --locked --no-dev --no-editable`. Node is absent from the runtime image. A label records the UI revision; the image's `uv.lock` records the APB versions and the report application's commit. The publication workflow publishes linux/arm64 and linux/amd64 images on UI version tags or manual dispatch; normal quality runs do not publish images.
 
 ## Deployment interface
 

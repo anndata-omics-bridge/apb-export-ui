@@ -1,6 +1,10 @@
 # Dependency policy
 
-The UI is an application: commit its uv and npm lockfiles. Rebuilding a UI revision must install the same APB source revisions even when exporter development continues.
+The UI is an application: commit its uv and npm lockfiles. Rebuilding a UI revision must install the same APB versions even when exporter development continues.
+
+## PyPI release (0.3.0)
+
+The APB packages are PyPI ranges from the releases the paper cites; `uv.lock` pins the tested versions. `apb2` carries its `duckdb` and `excel` extras, for DuckDB results and MSAngel and ProlineStudio workbooks. `apb-pmultiqc` pins pMultiQC by Git commit, which PyPI refuses, so it sits in the `report` dependency group: groups stay out of the wheel's metadata, and `default-groups` installs it in development, tests, the smoke checks and the image. `uv tool install apb-export-ui` therefore has no report application, and the page offers QPX as tables only. Once a pMultiQC release carries the null-RT fix, `apb-pmultiqc` goes to PyPI and back into the dependencies.
 
 ## Initial baseline
 
@@ -10,16 +14,16 @@ The seven packages are explicit application runtime requirements. Besides direct
 
 ## Upgrade
 
-1. Choose tested, remotely reachable commits for the packages being upgraded and update their manifest source revisions
+1. Choose tested releases for the APB packages being upgraded, or a remotely reachable `apb-pmultiqc` commit, and update their constraints
 2. Run `uv lock`, review the dependency diff, then `uv sync --locked --group dev`
 3. Run `make check-full`, including synthetic conversion with the installed CLIs
 4. Commit manifest and lock together; release a new UI image separately
 
-`tool.uv.no-sources = true` disables dependency packages’ development-only sibling path overrides. Standard Git dependency URLs remain active, so the application never interprets a sibling path as a directory inside another Git repository.
+`tool.uv.no-sources = true` disables dependency packages’ development-only sibling path overrides, so the application never interprets a sibling path as a directory inside another Git repository.
 
 CI and image builds use locked synchronization and refuse a stale lockfile. APB source declarations contain neither local paths nor editable installs nor moving branch references. uv is pinned to 0.12.17 for development, CI and image builds.
 
-Local sibling checkouts are unnecessary. Production installs non-editable packages, and the clean-wheel/container acceptance checks verify installed Git commit metadata and sole ownership of the web executable.
+Local sibling checkouts are unnecessary. Production installs non-editable packages, and the clean-wheel/container acceptance checks verify each installed APB package against the lock, by version or Git commit, and sole ownership of the web executable.
 
 ## Report environment (0.2.0)
 

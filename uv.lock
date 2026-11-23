@@ -97,8 +97,8 @@ wheels = [
 
 [[package]]
 name = "apb-catalog"
-version = "0.1.5"
-source = { git = "https://github.com/anndata-omics-bridge/apb-catalog.git?rev=4fd9c4abbdfbc533958ed00ae4cc910e594567ad#4fd9c4abbdfbc533958ed00ae4cc910e594567ad" }
+version = "0.1.6"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anndata" },
     { name = "apb2" },
@@ -109,15 +109,19 @@ dependencies = [
     { name = "polars" },
     { name = "pydantic" },
 ]
+sdist = { url = "https://files.pythonhosted.org/packages/a2/16/fb2e66d3f298c060cf2950d0d874d71425ade123b1a5d0e5ded415049734/apb_catalog-0.1.6.tar.gz", hash = "sha256:db6bdb03e682747a160d3b648bf62b26e0d704bad903b3480ced2ac12f3f0c6b", size = 64814, upload-time = "2026-11-23T15:13:51.885Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/46/aa/d46316821a9392a0a9598a7696a53b8d7a0d6b5088883cc85e0c5fb218a6/apb_catalog-0.1.6-py3-none-any.whl", hash = "sha256:098290e67543b45f553664ca3a1235bc31f9c2da10dd339712ec92d04fbfa11a", size = 72746, upload-time = "2026-11-23T15:13:50.606Z" },
+]
 
 [[package]]
 name = "apb-export"
-version = "0.2.0"
-source = { git = "https://github.com/anndata-omics-bridge/apb-export.git?rev=1b5592ea561cc04f7ed5fd3d85461a2efbf4329b#1b5592ea561cc04f7ed5fd3d85461a2efbf4329b" }
+version = "0.2.3"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "apb-catalog" },
     { name = "apb-fasta" },
-    { name = "apb2" },
+    { name = "apb2", extra = ["excel"] },
     { name = "cyclopts" },
     { name = "loguru" },
     { name = "numpy" },
@@ -125,18 +129,21 @@ dependencies = [
     { name = "pyarrow" },
     { name = "pydantic" },
 ]
+sdist = { url = "https://files.pythonhosted.org/packages/81/0f/ee1631ddd7a32a276e6899a34402c848509335186955aef185323152e6e9/apb_export-0.2.3.tar.gz", hash = "sha256:bdf0bd1d9e94c74db9bbb8b6729297303249e8d1bf92b0f20b0dcae40ec0c643", size = 62331, upload-time = "2026-11-23T15:41:12.746Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c0/df/6acab75a20967cef987545c5f022aa508719ed30ebce9ace86100501015b/apb_export-0.2.3-py3-none-any.whl", hash = "sha256:ab36732cff5fd1e69e9df075de27a77ff4b58633dea7c3de9a17f05dc259be3b", size = 81958, upload-time = "2026-11-23T15:41:11.655Z" },
+]
 
 [[package]]
 name = "apb-export-ui"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "." }
 dependencies = [
     { name = "anndata" },
     { name = "apb-catalog" },
     { name = "apb-export" },
     { name = "apb-fasta" },
-    { name = "apb-pmultiqc" },
-    { name = "apb2" },
+    { name = "apb2", extra = ["duckdb", "excel"] },
     { name = "cyclopts" },
     { name = "fastapi" },
     { name = "loguru" },
@@ -167,23 +174,25 @@ dev = [
 docs = [
     { name = "zensical" },
 ]
+report = [
+    { name = "apb-pmultiqc" },
+]
 
 [package.metadata]
 requires-dist = [
     { name = "anndata", specifier = ">=0.11" },
-    { name = "apb-catalog", git = "https://github.com/anndata-omics-bridge/apb-catalog.git?rev=4fd9c4abbdfbc533958ed00ae4cc910e594567ad" },
-    { name = "apb-export", git = "https://github.com/anndata-omics-bridge/apb-export.git?rev=1b5592ea561cc04f7ed5fd3d85461a2efbf4329b" },
-    { name = "apb-fasta", git = "https://github.com/anndata-omics-bridge/apb-fasta.git?rev=60eecc3ce84993f9bcbc6d254351333a98803e7e" },
-    { name = "apb-pmultiqc", git = "https://github.com/anndata-omics-bridge/apb-pmultiqc.git?rev=fac55e712a537e578e435f28f96ff04be22b8a31" },
-    { name = "apb2", git = "https://github.com/anndata-omics-bridge/apb2.git?rev=16d0399fcac3a8f023252ce60c35eac0e8de12a4" },
+    { name = "apb-catalog", specifier = ">=0.1.6,<0.2" },
+    { name = "apb-export", specifier = ">=0.2.3,<0.3" },
+    { name = "apb-fasta", specifier = ">=0.1.2,<0.2" },
+    { name = "apb2", extras = ["duckdb", "excel"], specifier = ">=0.1.4,<0.2" },
     { name = "cyclopts", specifier = ">=4,<5" },
     { name = "fastapi", specifier = ">=0.142,<1" },
     { name = "loguru", specifier = ">=0.7,<1" },
     { name = "mudata", specifier = ">=0.4.1,<0.5" },
     { name = "numpy", specifier = ">=2,<3" },
     { name = "polars", specifier = ">=1.43,<2" },
-    { name = "protein-fasta", git = "https://github.com/anndata-omics-bridge/protein-fasta.git?rev=4048b16bcce895ca5d7a774d2ec0c11bb9bd34e2" },
-    { name = "prozor", git = "https://github.com/anndata-omics-bridge/prozor.git?rev=ab7c41bdfbbe877d66236c5c33549b7747426ace" },
+    { name = "protein-fasta", specifier = ">=0.3.2,<0.4" },
+    { name = "prozor", specifier = ">=0.1.2,<0.2" },
     { name = "psutil", specifier = ">=7" },
     { name = "python-multipart", specifier = ">=0.0.32,<1" },
     { name = "uvicorn", specifier = ">=0.54,<1" },
@@ -204,11 +213,12 @@ dev = [
     { name = "types-psutil", specifier = ">=7.2.2.20260906" },
 ]
 docs = [{ name = "zensical", specifier = "==0.0.43" }]
+report = [{ name = "apb-pmultiqc", git = "https://github.com/anndata-omics-bridge/apb-pmultiqc.git?rev=7340bdee164459b67ed34a66a5d6f761b029b045" }]
 
 [[package]]
 name = "apb-fasta"
 version = "0.1.2"
-source = { git = "https://github.com/anndata-omics-bridge/apb-fasta.git?rev=60eecc3ce84993f9bcbc6d254351333a98803e7e#60eecc3ce84993f9bcbc6d254351333a98803e7e" }
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "apb2" },
     { name = "cyclopts" },
@@ -217,16 +227,20 @@ dependencies = [
     { name = "protein-fasta" },
     { name = "prozor" },
 ]
+sdist = { url = "https://files.pythonhosted.org/packages/b3/dd/bd41a5294737185cf2bf929e941d2b8cc83b2ac17e6cfe4a6c9829a2252a/apb_fasta-0.1.2.tar.gz", hash = "sha256:4c38b09c8a1998261cd0e050ef63f32902427592e48f6c74967079f6a32e7119", size = 17437, upload-time = "2026-11-20T23:07:48.209Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b1/35/bf585160cfdf9a2df8bc3e658f19650ecf4aa7749560678c83a75c28f6cb/apb_fasta-0.1.2-py3-none-any.whl", hash = "sha256:db44ffd6efde85b3f9c0e6a7e369f4df05ab4ca63ffb8c09314c597990f8dd4b", size = 20735, upload-time = "2026-11-20T23:07:47.222Z" },
+]
 
 [[package]]
 name = "apb-pmultiqc"
 version = "0.1.1"
-source = { git = "https://github.com/anndata-omics-bridge/apb-pmultiqc.git?rev=fac55e712a537e578e435f28f96ff04be22b8a31#fac55e712a537e578e435f28f96ff04be22b8a31" }
+source = { git = "https://github.com/anndata-omics-bridge/apb-pmultiqc.git?rev=7340bdee164459b67ed34a66a5d6f761b029b045#7340bdee164459b67ed34a66a5d6f761b029b045" }
 dependencies = [
     { name = "apb-catalog" },
     { name = "apb-export" },
     { name = "apb-fasta" },
-    { name = "apb2" },
+    { name = "apb2", extra = ["duckdb"] },
     { name = "cyclopts" },
     { name = "loguru" },
     { name = "multiqc" },
@@ -238,13 +252,11 @@ dependencies = [
 
 [[package]]
 name = "apb2"
-version = "0.1.2"
-source = { git = "https://github.com/anndata-omics-bridge/apb2.git?rev=16d0399fcac3a8f023252ce60c35eac0e8de12a4#16d0399fcac3a8f023252ce60c35eac0e8de12a4" }
+version = "0.1.4"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anndata" },
     { name = "cyclopts" },
-    { name = "duckdb" },
-    { name = "fastexcel" },
     { name = "h5py" },
     { name = "loguru" },
     { name = "mudata" },
@@ -254,10 +266,22 @@ dependencies = [
     { name = "polars" },
     { name = "pyarrow" },
     { name = "pydantic" },
-    { name = "python-calamine" },
     { name = "pyyaml" },
     { name = "scipy" },
     { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/2f/50/5613be6eb05f6819cbd46c6e188e5e30a8b12900a0bb1de0eede91ebe5b2/apb2-0.1.4.tar.gz", hash = "sha256:501462cb0587daa669654419acaf7926d80800b67e87f5a8f0c169576ef172eb", size = 261460, upload-time = "2026-11-23T15:10:42.625Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/94/1a/9412c215209061105f783ff26a47fd3fa3f699d6b69f2e0d813ffd910463/apb2-0.1.4-py3-none-any.whl", hash = "sha256:42b5ad66eb7b860aae8671b2d0aa3d7541f0206c2b73639fa1923a94e564880c", size = 347385, upload-time = "2026-11-23T15:10:41.182Z" },
+]
+
+[package.optional-dependencies]
+duckdb = [
+    { name = "duckdb" },
+]
+excel = [
+    { name = "fastexcel" },
+    { name = "python-calamine" },
 ]
 
 [[package]]
@@ -2311,20 +2335,28 @@ wheels = [
 
 [[package]]
 name = "protein-fasta"
-version = "0.3.1"
-source = { git = "https://github.com/anndata-omics-bridge/protein-fasta.git?rev=4048b16bcce895ca5d7a774d2ec0c11bb9bd34e2#4048b16bcce895ca5d7a774d2ec0c11bb9bd34e2" }
+version = "0.3.2"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "loguru" },
     { name = "pydantic" },
 ]
+sdist = { url = "https://files.pythonhosted.org/packages/78/46/3c8111dc0968897d3bd85d35cc6aec12e232f5f4d8b029cf97873dff9329/protein_fasta-0.3.2.tar.gz", hash = "sha256:609b11bbcd3c00dab462cabc8cae61d1939935ea8c9f28dd507ee01aa2f0b4c7", size = 176966, upload-time = "2026-11-21T13:25:25.064Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/83/38/a8d3ce960b9584ed01d079384c1a30d072b35f30b57f9b90689d8d7c9f60/protein_fasta-0.3.2-py3-none-any.whl", hash = "sha256:f9eee7286072f2209c6479534829229217eaf0d8f382d82cef8dc6eb19bbcfa2", size = 242330, upload-time = "2026-11-21T13:25:23.752Z" },
+]
 
 [[package]]
 name = "prozor"
-version = "0.1.1"
-source = { git = "https://github.com/anndata-omics-bridge/prozor.git?rev=ab7c41bdfbbe877d66236c5c33549b7747426ace#ab7c41bdfbbe877d66236c5c33549b7747426ace" }
+version = "0.1.2"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ahocorapy" },
     { name = "ahocorasick-rs" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/dd/78/4447fc09fc8c5c2e9886d8be056422f53e53a40ae9ca58b4aef2c41d4797/prozor-0.1.2.tar.gz", hash = "sha256:7cf56688bec8f4aaff57f64d371dada9ef6a8fa93bf58f569b13165a34052526", size = 10499, upload-time = "2026-11-21T13:25:28.391Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fa/a8/e88660f644f94994cb0a86a404c600314a80ca22a129c763366d6df5a216/prozor-0.1.2-py3-none-any.whl", hash = "sha256:5978720da96c48ffa785217310d0953a6aae2685b089e77ec9a41455392714b9", size = 12068, upload-time = "2026-11-21T13:25:27.237Z" },
 ]
 
 [[package]]

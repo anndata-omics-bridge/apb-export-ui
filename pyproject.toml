@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "apb-export-ui"
-version = "0.2.0"
+version = "0.3.0"
 description = "Locked web application for APB Export"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -15,13 +15,12 @@ authors = [
 ]
 dependencies = [
     "anndata>=0.11",
-    "apb-export @ git+https://github.com/anndata-omics-bridge/apb-export.git@1b5592ea561cc04f7ed5fd3d85461a2efbf4329b",
-    "apb2 @ git+https://github.com/anndata-omics-bridge/apb2.git@16d0399fcac3a8f023252ce60c35eac0e8de12a4",
-    "apb-catalog @ git+https://github.com/anndata-omics-bridge/apb-catalog.git@4fd9c4abbdfbc533958ed00ae4cc910e594567ad",
-    "apb-fasta @ git+https://github.com/anndata-omics-bridge/apb-fasta.git@60eecc3ce84993f9bcbc6d254351333a98803e7e",
-    "protein-fasta @ git+https://github.com/anndata-omics-bridge/protein-fasta.git@4048b16bcce895ca5d7a774d2ec0c11bb9bd34e2",
-    "prozor @ git+https://github.com/anndata-omics-bridge/prozor.git@ab7c41bdfbbe877d66236c5c33549b7747426ace",
-    "apb-pmultiqc @ git+https://github.com/anndata-omics-bridge/apb-pmultiqc.git@fac55e712a537e578e435f28f96ff04be22b8a31",
+    "apb-export>=0.2.3,<0.3",
+    "apb2[duckdb,excel]>=0.1.4,<0.2",
+    "apb-catalog>=0.1.6,<0.2",
+    "apb-fasta>=0.1.2,<0.2",
+    "protein-fasta>=0.3.2,<0.4",
+    "prozor>=0.1.2,<0.2",
     "cyclopts>=4,<5",
     "fastapi>=0.142,<1",
     "loguru>=0.7,<1",
@@ -52,6 +51,11 @@ dev = [
 ]
 docs = [
     "zensical==0.0.43",
+]
+# The QPX report application pins pMultiQC by Git commit, which PyPI refuses in a published
+# wheel's metadata; development, tests, the smoke checks and the image install this group.
+report = [
+    "apb-pmultiqc @ git+https://github.com/anndata-omics-bridge/apb-pmultiqc.git@7340bdee164459b67ed34a66a5d6f761b029b045",
 ]
 
 [tool.ruff]
@@ -122,12 +126,13 @@ known_first_party = ["apb_export_ui"]
 
 [tool.deptry.per_rule_ignores]
 # FastAPI parses multipart uploads through python-multipart without our importing it.
-# The application pins its APB graph; apb-fasta and apb-pmultiqc are invoked as CLIs.
-DEP002 = ["python-multipart", "apb-fasta", "apb-catalog", "protein-fasta", "prozor", "apb-pmultiqc"]
+# The application sets floors for its APB graph; apb-fasta is invoked as a CLI.
+DEP002 = ["python-multipart", "apb-fasta", "apb-catalog", "protein-fasta", "prozor"]
 
 [tool.uv]
 required-version = "==0.12.17"
 no-sources = true
+default-groups = ["dev", "report"]
 
 [tool.uv.build-backend]
 source-exclude = ["web/node_modules/**", "**/__pycache__/**", "**/*.pyc"]

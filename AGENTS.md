@@ -29,7 +29,7 @@ The closest `AGENTS.md` wins. Explicit user instructions override this file.
 
 - Declare every imported runtime dependency directly in `[project.dependencies]`.
 - Put tests, linting, typing, building, and documentation tools in dependency groups; optional user-facing capabilities belong in extras.
-- Update `pyproject.toml` and run `make check`; the application commits `uv.lock` and uses immutable APB Git sources.
+- Update `pyproject.toml` and run `make check`; the application commits `uv.lock`. APB packages are PyPI ranges that the lock pins; `apb-pmultiqc` is an immutable Git pin in the `report` dependency group, outside the published wheel's metadata.
 
 ### Recommended
 

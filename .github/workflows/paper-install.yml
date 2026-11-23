@@ -8,7 +8,7 @@ permissions:
   contents: read
 env:
   APP: http://127.0.0.1:8770
-  SI_PACKAGES: apb2==0.1.3 apb-catalog==0.1.5 apb-fasta==0.1.2 protein-fasta==0.3.2 prozor==0.1.2
+  SI_PACKAGES: apb2==0.1.4 apb-catalog==0.1.6 apb-fasta==0.1.2 protein-fasta==0.3.2 prozor==0.1.2
 jobs:
   install:
     strategy:
@@ -82,7 +82,7 @@ jobs:
         working-directory: ${{ runner.temp }}/export
         run: |
           uv venv --python 3.13 && source .venv/${{ runner.os == 'Windows' && 'Scripts' || 'bin' }}/activate
-          uv pip install $SI_PACKAGES apb-export==0.2.2
+          uv pip install $SI_PACKAGES apb-export==0.2.3
           apb-export prolfqua report.tsv prolfqua.h5ad \
             --params report.log.txt \
             --annotation dia_aif.sdrf.tsv \

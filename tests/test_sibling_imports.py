@@ -3,18 +3,25 @@
 from __future__ import annotations
 
 import ast
+import re
 import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).parents[1]
 PACKAGE = "apb_export_ui"
 FOLDERS = ("src", "tests", "scripts")
-# Application pins use Git sources, so boundary coverage must not depend on path sources.
+# Siblings are the anndata_bridge packages among the dependencies and the report group.
 PYPROJECT = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
 SIBLINGS = frozenset(
-    dependency.split(" @ ")[0].replace("-", "_")
-    for dependency in PYPROJECT["project"]["dependencies"]
-    if " @ git+" in dependency
+    name.replace("-", "_")
+    for name in (
+        re.split(r"[\[<>=!~ ;@]", dependency, maxsplit=1)[0]
+        for dependency in (
+            *PYPROJECT["project"]["dependencies"],
+            *PYPROJECT["dependency-groups"]["report"],
+        )
+    )
+    if name.startswith(("apb", "protein-fasta", "prozor"))
 )
 
 

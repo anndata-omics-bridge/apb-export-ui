@@ -50,7 +50,7 @@ Where `apb-pmultiqc` is installed, as in the image and a development checkout, c
 
 - [Web application](docs/web.md): uploads, examples, QC and job behavior
 - [Deployment](docs/deploy.md): image build, migration and rollback
-- [Dependency policy](docs/dependencies.md): immutable APB revisions and deliberate upgrades
+- [Dependency policy](docs/dependencies.md): locked APB releases and deliberate upgrades
 - [Source baseline](docs/source-baseline.json): committed revisions recorded before extraction
 
 ## Development

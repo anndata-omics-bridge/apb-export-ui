@@ -10,7 +10,7 @@
 
 ## pMultiQC / QPX
 
-Choose this output to convert the upload into an APB result and immediately run the locked `apb-pmultiqc` application. Optional sample annotation and FASTA verification run before the report; grouping, organism, FASTA and SDRF are not required. RT is resolved through APB Export's chromatography catalogue, never through web-specific vendor-column mappings.
+Where the `apb-pmultiqc` application is installed, as in the image and a development checkout, choose this output to convert the upload into an APB result and immediately run it. The PyPI install has no `apb-pmultiqc` until a pMultiQC release carries the fixes it needs; there this output is **QPX** and writes the tables only. Optional sample annotation and FASTA verification run before the report; grouping, organism, FASTA and SDRF are not required. RT is resolved through APB Export's chromatography catalogue, never through web-specific vendor-column mappings.
 
 After completion, **Open pMultiQC report** opens the self-contained HTML in a new tab. Downloads include `qpx.zip` (Parquet tables and exporter provenance), `pmultiqc_report.html`, and `pmultiqc.zip` (full report, data tables, logs and installed-source provenance). Only a completed job's listed report is served inline at `api/jobs/{id}/report`; deletion and expiry remove it with the job. Failures and timeouts remain failed jobs with a job log.
 
